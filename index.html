@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Star Wars Saga Edition — Ficha de Personagem</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Exo+2:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <div class="datapad">
+
+    <!-- HEADER -->
+    <header class="datapad-header">
+      <div class="header-brand">
+        <div class="sw-wordmark">STAR WARS</div>
+        <div class="sw-edition">SAGA EDITION &middot; FICHA DE PERSONAGEM</div>
+      </div>
+      <div class="header-toolbar">
+        <span class="save-dot" id="save-dot"></span>
+        <span class="save-label" id="save-label">SALVO</span>
+        <button class="tool-btn" id="btn-new">+ NOVO</button>
+        <button class="tool-btn" id="btn-export">&#8593; EXPORTAR</button>
+        <button class="tool-btn" id="btn-import">&#8595; IMPORTAR</button>
+        <input type="file" id="file-import" accept=".json" hidden>
+      </div>
+    </header>
+
+    <!-- TABS -->
+    <nav class="tab-nav" role="tablist">
+      <button class="tab-btn active" data-tab="main" role="tab">&#9670; FICHA PRINCIPAL</button>
+      <button class="tab-btn" data-tab="equipment" role="tab">&#9670; EQUIPAMENTOS &amp; EXTRAS</button>
+    </nav>
+
+    <!-- ========== TAB 1: MAIN SHEET ========== -->
+    <div class="tab-pane active" id="tab-main">
+
+      <!-- CHARACTER INFO -->
+      <section class="char-info-bar">
+        <div class="class-management-bar">
+          <span class="class-bar-label">CLASSES &amp; NÍVEL</span>
+          <div class="class-entries" id="class-entries">
+            <!-- built by buildClassSection() -->
+          </div>
+          <div class="class-bar-actions" id="class-bar-actions">
+            <!-- add / levelup buttons built by JS -->
+          </div>
+          <div class="hp-roll-panel" id="hp-roll-panel" style="display:none">
+            <!-- level-up HP confirmation panel built by JS -->
+          </div>
+        </div>
+        <div class="char-info-fields">
+          <div class="field-group span2">
+            <label class="field-label">PERSONAGEM</label>
+            <input class="field-input" id="char-name" data-key="char-name" type="text" autocomplete="off">
+          </div>
+          <div class="field-group span2">
+            <label class="field-label">JOGADOR</label>
+            <input class="field-input" id="player-name" data-key="player-name" type="text" autocomplete="off">
+          </div>
+          <div class="field-group class-management-field">
+            <label class="field-label">NÍV. TOTAL <span class="hint">(auto)</span></label>
+            <input class="field-input centered-input" id="total-level" data-key="total-level" type="number" min="1" max="20" value="1" autocomplete="off" readonly>
+          </div>
+          <div class="field-group span2">
+            <label class="field-label">ESPÉCIE</label>
+            <select class="field-input species-select" id="species" data-key="species">
+              <option value="">— SELECIONAR ESPÉCIE —</option>
+              <option value="humano">Humano</option>
+              <option value="bothano">Bothano</option>
+              <option value="cereano">Cereano</option>
+              <option value="duros">Duros</option>
+              <option value="ewok">Ewok</option>
+              <option value="gamorreano">Gamorreano</option>
+              <option value="gungan">Gungan</option>
+              <option value="ithoriano">Ithoriano</option>
+              <option value="keldor">Kel Dor</option>
+              <option value="moncalamari">Mon Calamari</option>
+              <option value="quarren">Quarren</option>
+              <option value="rodiano">Rodiano</option>
+              <option value="sullustano">Sullustano</option>
+              <option value="trandoshano">Trandoshano</option>
+              <option value="twilek">Twi'lek</option>
+              <option value="wookie">Wookie</option>
+              <option value="zabrak">Zabrak</option>
+            </select>
+          </div>
+          <div class="field-group span2">
+            <label class="field-label">ORIGEM</label>
+            <input class="field-input" id="origin" data-key="origin" type="text" autocomplete="off">
+          </div>
+          <div class="field-group span2">
+            <label class="field-label">DESTINO</label>
+            <input class="field-input" id="destiny" data-key="destiny" type="text" autocomplete="off">
+          </div>
+        </div>
+      </section>
+
+      <!-- CLASS TRAITS PANEL -->
+      <section class="panel class-traits-panel" id="class-traits-panel" style="display:none">
+        <h2 class="panel-header">APTIDÕES INICIAIS DA CLASSE</h2>
+        <div class="class-traits-body" id="class-traits-body"></div>
+      </section>
+
+      <!-- MAIN GRID: LEFT + RIGHT -->
+      <div class="main-sheet-grid">
+
+        <!-- LEFT COLUMN -->
+        <div class="sheet-left">
+
+          <!-- ROW: Abilities + HP + Condition -->
+          <div class="abilities-row">
+
+            <!-- ABILITIES -->
+            <section class="panel abilities-panel">
+              <h2 class="panel-header">ATRIBUTOS</h2>
+              <div class="abilities-grid">
+                <div class="ability-labels">
+                  <span></span><span class="col-lbl">SCORE</span><span class="col-lbl">MOD</span>
+                </div>
+                <div class="ability-row" data-ability="str">
+                  <div class="ability-name"><span class="ability-abbr">STR</span><span class="ability-full">Força</span></div>
+                  <input class="ability-score" id="str-score" data-key="str-score" type="number" min="1" max="40" autocomplete="off">
+                  <div class="ability-mod" id="str-mod">—</div>
+                </div>
+                <div class="ability-row" data-ability="dex">
+                  <div class="ability-name"><span class="ability-abbr">DEX</span><span class="ability-full">Destreza</span></div>
+                  <input class="ability-score" id="dex-score" data-key="dex-score" type="number" min="1" max="40" autocomplete="off">
+                  <div class="ability-mod" id="dex-mod">—</div>
+                </div>
+                <div class="ability-row" data-ability="con">
+                  <div class="ability-name"><span class="ability-abbr">CON</span><span class="ability-full">Constituição</span></div>
+                  <input class="ability-score" id="con-score" data-key="con-score" type="number" min="1" max="40" autocomplete="off">
+                  <div class="ability-mod" id="con-mod">—</div>
+                </div>
+                <div class="ability-row" data-ability="int">
+                  <div class="ability-name"><span class="ability-abbr">INT</span><span class="ability-full">Inteligência</span></div>
+                  <input class="ability-score" id="int-score" data-key="int-score" type="number" min="1" max="40" autocomplete="off">
+                  <div class="ability-mod" id="int-mod">—</div>
+                </div>
+                <div class="ability-row" data-ability="wis">
+                  <div class="ability-name"><span class="ability-abbr">WIS</span><span class="ability-full">Sabedoria</span></div>
+                  <input class="ability-score" id="wis-score" data-key="wis-score" type="number" min="1" max="40" autocomplete="off">
+                  <div class="ability-mod" id="wis-mod">—</div>
+                </div>
+                <div class="ability-row" data-ability="cha">
+                  <div class="ability-name"><span class="ability-abbr">CHA</span><span class="ability-full">Carisma</span></div>
+                  <input class="ability-score" id="cha-score" data-key="cha-score" type="number" min="1" max="40" autocomplete="off">
+                  <div class="ability-mod" id="cha-mod">—</div>
+                </div>
+              </div>
+            </section>
+
+            <!-- HIT POINTS -->
+            <section class="panel hp-panel">
+              <h2 class="panel-header">PONTOS DE VIDA</h2>
+              <div class="hp-grid">
+                <div class="hp-current-group">
+                  <label class="field-label">PV ATUAL</label>
+                  <input class="hp-current-input" id="hp-current" data-key="hp-current" type="number" autocomplete="off">
+                </div>
+                <div class="hp-max-group">
+                  <label class="field-label">PV MÁXIMO</label>
+                  <input class="field-input" id="hp-max" data-key="hp-max" type="number" autocomplete="off">
+                </div>
+                <div class="threshold-group">
+                  <label class="field-label">LIMIAR DE DANO</label>
+                  <div class="threshold-row">
+                    <div class="thresh-input-wrap">
+                      <input class="thresh-input" id="dt-fort" data-key="dt-fort" type="number" autocomplete="off">
+                      <span class="thresh-lbl">Fort</span>
+                    </div>
+                    <span class="calc-sym">+</span>
+                    <div class="thresh-input-wrap">
+                      <input class="thresh-input" id="dt-feat" data-key="dt-feat" type="number" autocomplete="off">
+                      <span class="thresh-lbl">Feito</span>
+                    </div>
+                    <span class="calc-sym">+</span>
+                    <div class="thresh-input-wrap">
+                      <input class="thresh-input" id="dt-misc" data-key="dt-misc" type="number" autocomplete="off">
+                      <span class="thresh-lbl">Misc</span>
+                    </div>
+                    <span class="calc-sym">=</span>
+                    <div class="thresh-result" id="dt-total">—</div>
+                  </div>
+                </div>
+                <div class="dr-shield-row">
+                  <div class="field-group">
+                    <label class="field-label">RED. DE DANO</label>
+                    <input class="field-input" id="damage-reduction" data-key="damage-reduction" type="number" autocomplete="off">
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label">ESCUDO</label>
+                    <input class="field-input" id="shield-rating" data-key="shield-rating" type="number" autocomplete="off">
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- CONDITION -->
+            <section class="panel condition-panel">
+              <h2 class="panel-header">CONDIÇÃO</h2>
+              <div class="condition-track">
+                <label class="condition-item">
+                  <input type="radio" name="condition" value="normal" data-key="condition" checked>
+                  <span class="cond-diamond"></span>
+                  <span class="cond-label">NORMAL</span>
+                </label>
+                <label class="condition-item">
+                  <input type="radio" name="condition" value="-1" data-key="condition">
+                  <span class="cond-diamond"></span>
+                  <span class="cond-label">–1 PENALIDADE</span>
+                </label>
+                <label class="condition-item">
+                  <input type="radio" name="condition" value="-2" data-key="condition">
+                  <span class="cond-diamond"></span>
+                  <span class="cond-label">–2 PENALIDADE</span>
+                </label>
+                <label class="condition-item">
+                  <input type="radio" name="condition" value="-5" data-key="condition">
+                  <span class="cond-diamond"></span>
+                  <span class="cond-label">–5 PENALIDADE</span>
+                </label>
+                <label class="condition-item">
+                  <input type="radio" name="condition" value="-10" data-key="condition">
+                  <span class="cond-diamond"></span>
+                  <span class="cond-label">–10 PENALIDADE</span>
+                </label>
+                <label class="condition-item helpless-item">
+                  <input type="radio" name="condition" value="helpless" data-key="condition">
+                  <span class="cond-diamond"></span>
+                  <span class="cond-label">INDEFESO</span>
+                </label>
+              </div>
+            </section>
+
+          </div><!-- end abilities-row -->
+
+          <!-- DEFENSES -->
+          <section class="panel defenses-panel">
+            <div class="defenses-top-row">
+              <h2 class="panel-header">DEFESAS</h2>
+              <div class="base-attack-speed-row">
+                <div class="field-group">
+                  <label class="field-label">ATAQUE BASE</label>
+                  <input class="field-input centered-input" id="base-attack" data-key="base-attack" type="number" autocomplete="off">
+                </div>
+                <div class="field-group">
+                  <label class="field-label">DESLOCAMENTO</label>
+                  <input class="field-input" id="speed" data-key="speed" type="text" placeholder="6 sq" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="defenses-body">
+              <div class="defense-row" id="defense-fort">
+                <span class="defense-name">FORTITUDE</span>
+                <div class="defense-total" id="fort-total">—</div>
+                <span class="defense-eq">= 10 +</span>
+                <div class="defense-breakdown">
+                  <div class="def-col">
+                    <div class="def-auto" id="fort-level-bonus">—</div>
+                    <span class="def-sub">Nível</span>
+                  </div>
+                  <div class="def-col">
+                    <div class="def-auto def-auto-class" id="fort-class-auto">—</div>
+                    <span class="def-sub">Classe</span>
+                  </div>
+                  <div class="def-col">
+                    <div class="def-auto" id="fort-ability">—</div>
+                    <span class="def-sub">CON</span>
+                  </div>
+                  <div class="def-col">
+                    <input class="def-input" id="fort-misc" data-key="fort-misc" type="number" placeholder="0" autocomplete="off">
+                    <span class="def-sub">Misc</span>
+                  </div>
+                </div>
+              </div>
+              <div class="defense-row" id="defense-ref">
+                <span class="defense-name">REFLEXO</span>
+                <div class="defense-total" id="ref-total">—</div>
+                <span class="defense-eq">= 10 +</span>
+                <div class="defense-breakdown">
+                  <div class="def-col">
+                    <div class="def-auto" id="ref-level-bonus">—</div>
+                    <span class="def-sub">Nível</span>
+                  </div>
+                  <div class="def-col">
+                    <div class="def-auto def-auto-class" id="ref-class-auto">—</div>
+                    <span class="def-sub">Classe</span>
+                  </div>
+                  <div class="def-col">
+                    <div class="def-auto" id="ref-ability">—</div>
+                    <span class="def-sub">DEX</span>
+                  </div>
+                  <div class="def-col">
+                    <input class="def-input" id="ref-misc" data-key="ref-misc" type="number" placeholder="0" autocomplete="off">
+                    <span class="def-sub">Misc</span>
+                  </div>
+                </div>
+              </div>
+              <div class="defense-row" id="defense-will">
+                <span class="defense-name">VONTADE</span>
+                <div class="defense-total" id="will-total">—</div>
+                <span class="defense-eq">= 10 +</span>
+                <div class="defense-breakdown">
+                  <div class="def-col">
+                    <div class="def-auto" id="will-level-bonus">—</div>
+                    <span class="def-sub">Nível</span>
+                  </div>
+                  <div class="def-col">
+                    <div class="def-auto def-auto-class" id="will-class-auto">—</div>
+                    <span class="def-sub">Classe</span>
+                  </div>
+                  <div class="def-col">
+                    <div class="def-auto" id="will-ability">—</div>
+                    <span class="def-sub">WIS</span>
+                  </div>
+                  <div class="def-col">
+                    <input class="def-input" id="will-misc" data-key="will-misc" type="number" placeholder="0" autocomplete="off">
+                    <span class="def-sub">Misc</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="armor-row">
+              <div class="field-group armor-name-field">
+                <label class="field-label">ARMADURA USADA</label>
+                <input class="field-input" id="armor-worn" data-key="armor-worn" type="text" autocomplete="off">
+              </div>
+              <div class="armor-bonuses">
+                <div class="armor-bonus-col">
+                  <input class="def-input" id="armor-ref-bonus" data-key="armor-ref-bonus" type="number" placeholder="0" autocomplete="off">
+                  <span class="def-sub">Bônus REF</span>
+                </div>
+                <div class="armor-bonus-col">
+                  <input class="def-input" id="armor-fort-bonus" data-key="armor-fort-bonus" type="number" placeholder="0" autocomplete="off">
+                  <span class="def-sub">Bônus FORT</span>
+                </div>
+                <div class="armor-bonus-col">
+                  <input class="def-input" id="armor-max-dex" data-key="armor-max-dex" type="number" placeholder="—" autocomplete="off">
+                  <span class="def-sub">DEX Máx</span>
+                </div>
+                <div class="armor-bonus-col">
+                  <input class="def-input armor-speed-input" id="armor-speed" data-key="armor-speed" type="text" placeholder="—" autocomplete="off">
+                  <span class="def-sub">Desl.</span>
+                </div>
+              </div>
+            </div>
+            <div class="field-group" style="margin-top: 6px;">
+              <label class="field-label">NOTAS DE ARMADURA</label>
+              <input class="field-input" id="armor-notes" data-key="armor-notes" type="text" autocomplete="off">
+            </div>
+          </section>
+
+          <!-- WEAPONS -->
+          <section class="panel weapons-panel">
+            <h2 class="panel-header">ARMAS</h2>
+            <div id="weapons-container"></div>
+          </section>
+
+        </div><!-- end sheet-left -->
+
+        <!-- RIGHT COLUMN -->
+        <div class="sheet-right">
+
+          <!-- DESCRIPTION -->
+          <section class="panel description-panel">
+            <h2 class="panel-header">DESCRIÇÃO FÍSICA</h2>
+            <div class="description-layout">
+              <div class="portrait-block">
+                <div class="portrait-area" id="portrait-area">
+                  <img id="portrait-img" src="" alt="" style="display:none">
+                  <span class="portrait-placeholder-text" id="portrait-hint">RETRATO</span>
+                </div>
+                <button class="portrait-btn" id="portrait-btn">CARREGAR</button>
+                <button class="portrait-btn" id="portrait-clear" style="display:none">REMOVER</button>
+                <input type="file" id="portrait-input" accept="image/*" hidden>
+              </div>
+              <div class="physical-fields">
+                <div class="field-group">
+                  <label class="field-label">GÊNERO</label>
+                  <input class="field-input" id="gender" data-key="gender" type="text" autocomplete="off">
+                </div>
+                <div class="field-group">
+                  <label class="field-label">IDADE</label>
+                  <input class="field-input" id="age" data-key="age" type="text" autocomplete="off">
+                </div>
+                <div class="field-group">
+                  <label class="field-label">ALTURA</label>
+                  <input class="field-input" id="height" data-key="height" type="text" autocomplete="off">
+                </div>
+                <div class="field-group">
+                  <label class="field-label">MASSA</label>
+                  <input class="field-input" id="mass" data-key="mass" type="text" autocomplete="off">
+                </div>
+                <div class="field-group">
+                  <label class="field-label">CABELO</label>
+                  <input class="field-input" id="hair" data-key="hair" type="text" autocomplete="off">
+                </div>
+                <div class="field-group">
+                  <label class="field-label">OLHOS</label>
+                  <input class="field-input" id="eyes" data-key="eyes" type="text" autocomplete="off">
+                </div>
+                <div class="field-group">
+                  <label class="field-label">PELE</label>
+                  <input class="field-input" id="skin" data-key="skin" type="text" autocomplete="off">
+                </div>
+                <div class="field-group">
+                  <label class="field-label">MÃO DOMINANTE</label>
+                  <input class="field-input" id="handed" data-key="handed" type="text" autocomplete="off">
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- SKILLS -->
+          <section class="panel skills-panel">
+            <h2 class="panel-header">PERÍCIAS</h2>
+            <div class="skills-col-headers">
+              <span class="sk-h-trained" title="Treinado">TR</span>
+              <span class="sk-h-name">PERÍCIA</span>
+              <span class="sk-h-total">TOTAL</span>
+              <span class="sk-h-half" title="Metade do Nível">½NV</span>
+              <span class="sk-h-ability" title="Modificador de Atributo">ATR</span>
+              <span class="sk-h-misc" title="Bônus Miscelâneos">MISC</span>
+              <span class="sk-h-focus" title="Foco em Perícia">FC</span>
+            </div>
+            <div id="skills-container"></div>
+            <div class="skills-extra-section">
+              <div class="skills-col-headers" style="margin-top:4px;">
+                <span class="sk-h-trained"></span>
+                <span class="sk-h-name">PERÍCIAS EXTRAS</span>
+                <span class="sk-h-total">TOTAL</span>
+                <span class="sk-h-half">½NV</span>
+                <span class="sk-h-ability">ATR</span>
+                <span class="sk-h-misc">MISC</span>
+                <span class="sk-h-focus">FC</span>
+              </div>
+              <div id="extra-skills-container"></div>
+            </div>
+          </section>
+
+        </div><!-- end sheet-right -->
+
+      </div><!-- end main-sheet-grid -->
+
+      <!-- BOTTOM ROW -->
+      <div class="bottom-row">
+
+        <section class="panel combat-notes-panel">
+          <h2 class="panel-header">NOTAS DE COMBATE</h2>
+          <textarea class="notes-textarea" id="combat-notes" data-key="combat-notes" rows="7"></textarea>
+        </section>
+
+        <section class="panel feats-panel">
+          <h2 class="panel-header">FEITOS (FEATS)</h2>
+          <div id="feats-container"></div>
+        </section>
+
+      </div>
+
+      <!-- FOOTER ROW -->
+      <div class="footer-row">
+
+        <section class="panel force-points-panel">
+          <h2 class="panel-header">PONTOS DE FORÇA</h2>
+          <input class="big-number-input" id="force-points" data-key="force-points" type="number" min="0" autocomplete="off">
+        </section>
+
+        <section class="panel destiny-points-panel">
+          <h2 class="panel-header">PONTOS DE DESTINO</h2>
+          <input class="big-number-input" id="destiny-points" data-key="destiny-points" type="number" min="0" autocomplete="off">
+        </section>
+
+        <section class="panel dark-side-panel">
+          <h2 class="panel-header">PONTUAÇÃO DO LADO SOMBRIO</h2>
+          <div class="dark-side-track" id="dark-side-track"></div>
+        </section>
+
+      </div>
+
+      <!-- SPECIES TRAITS -->
+      <section class="panel species-traits-panel" id="species-traits-panel" style="display:none">
+        <h2 class="panel-header">CARACTERÍSTICAS DA ESPÉCIE</h2>
+        <div class="species-traits-body" id="species-traits-body"></div>
+      </section>
+
+    </div><!-- end tab-main -->
+
+
+    <!-- ========== TAB 2: EQUIPMENT & EXTRAS ========== -->
+    <div class="tab-pane" id="tab-equipment">
+
+      <div class="equipment-layout">
+
+        <!-- Equipment Table -->
+        <section class="panel equip-table-panel">
+          <h2 class="panel-header">EQUIPAMENTO</h2>
+          <div class="equip-table-wrapper">
+            <table class="equip-table">
+              <thead>
+                <tr>
+                  <th>ITEM</th>
+                  <th>LOCALIZAÇÃO</th>
+                  <th class="wt-col">PESO</th>
+                  <th>ITEM</th>
+                  <th>LOCALIZAÇÃO</th>
+                  <th class="wt-col">PESO</th>
+                </tr>
+              </thead>
+              <tbody id="equipment-tbody"></tbody>
+            </table>
+          </div>
+          <div class="carrying-row">
+            <div class="field-group">
+              <label class="field-label">CAPACIDADE DE CARGA</label>
+              <input class="field-input" id="carrying-capacity" data-key="carrying-capacity" type="text" autocomplete="off">
+            </div>
+            <div class="field-group">
+              <label class="field-label">PESO TOTAL CARREGADO</label>
+              <input class="field-input" id="total-weight" data-key="total-weight" type="text" autocomplete="off">
+            </div>
+          </div>
+        </section>
+
+        <!-- Right side panels -->
+        <div class="equip-right-col">
+
+          <section class="panel credits-panel">
+            <h2 class="panel-header">CRÉDITOS</h2>
+            <textarea class="notes-textarea" id="credits" data-key="credits" rows="3"></textarea>
+          </section>
+
+          <section class="panel xp-panel">
+            <h2 class="panel-header">EXPERIÊNCIA</h2>
+            <div class="field-group">
+              <label class="field-label">XP TOTAL</label>
+              <input class="field-input" id="xp-total" data-key="xp-total" type="number" autocomplete="off">
+            </div>
+            <div class="field-group" style="margin-top:8px">
+              <label class="field-label">XP PARA PRÓXIMO NÍVEL</label>
+              <input class="field-input" id="xp-next" data-key="xp-next" type="number" autocomplete="off">
+            </div>
+          </section>
+
+          <section class="panel languages-panel">
+            <h2 class="panel-header">IDIOMAS</h2>
+            <div id="languages-container"></div>
+          </section>
+
+          <section class="panel force-powers-panel">
+            <h2 class="panel-header">PODERES DA FORÇA</h2>
+            <div id="force-powers-container"></div>
+          </section>
+
+        </div>
+
+      </div><!-- end equipment-layout -->
+
+      <!-- Talents + Additional Feats -->
+      <div class="talents-feats-row">
+
+        <section class="panel talents-panel">
+          <h2 class="panel-header">TALENTOS</h2>
+          <div id="talents-display">
+            <!-- built by buildTalentsDisplay() -->
+          </div>
+        </section>
+
+        <section class="panel additional-feats-panel">
+          <h2 class="panel-header">FEITOS ADICIONAIS DE CLASSE</h2>
+          <div id="class-bonus-feats-display">
+            <!-- built by buildBonusFeatsDisplay() -->
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Reference links -->
+      <section class="panel class-refs-panel">
+        <h2 class="panel-header">REFERÊNCIAS DE REGRAS</h2>
+        <div class="class-refs-grid">
+          <div class="ref-group">
+            <span class="ref-group-label">MULTICLASSE &amp; NÍVEIS</span>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Multiclassing" target="_blank">Regras de Multiclasse</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Level_Benefits" target="_blank">Benefícios por Nível</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Class_Bonuses" target="_blank">Bônus de Classe</a>
+          </div>
+          <div class="ref-group">
+            <span class="ref-group-label">JEDI</span>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Jedi" target="_blank">Classe Jedi</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Jedi_Consular_Talent_Tree" target="_blank">Árvore: Cônsul Jedi</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Jedi_Guardian_Talent_Tree" target="_blank">Árvore: Guardião Jedi</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Jedi_Sentinel_Talent_Tree" target="_blank">Árvore: Sentinela Jedi</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Lightsaber_Combat_Talent_Tree" target="_blank">Árvore: Combate c/ Sabre</a>
+          </div>
+          <div class="ref-group">
+            <span class="ref-group-label">NOBRE</span>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Noble" target="_blank">Classe Nobre</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Influence_Talent_Tree" target="_blank">Árvore: Influência</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Inspiration_Talent_Tree" target="_blank">Árvore: Inspiração</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Leadership_Talent_Tree" target="_blank">Árvore: Liderança</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Lineage_Talent_Tree" target="_blank">Árvore: Linhagem</a>
+          </div>
+          <div class="ref-group">
+            <span class="ref-group-label">MALANDRO</span>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Scoundrel" target="_blank">Classe Malandro</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Fortune_Talent_Tree" target="_blank">Árvore: Sorte</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Misfortune_Talent_Tree" target="_blank">Árvore: Má Sorte</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Slicer_Talent_Tree" target="_blank">Árvore: Hacker</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Spacer_Talent_Tree" target="_blank">Árvore: Espaçonauta</a>
+          </div>
+          <div class="ref-group">
+            <span class="ref-group-label">BATEDOR</span>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Scout" target="_blank">Classe Batedor</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Awareness_Talent_Tree" target="_blank">Árvore: Consciência</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Camouflage_Talent_Tree" target="_blank">Árvore: Camuflagem</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Fringer_Talent_Tree" target="_blank">Árvore: Improvisador</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Survivor_Talent_Tree" target="_blank">Árvore: Sobrevivente</a>
+          </div>
+          <div class="ref-group">
+            <span class="ref-group-label">SOLDADO</span>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Soldier" target="_blank">Classe Soldado</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Armor_Specialist_Talent_Tree" target="_blank">Árvore: Esp. Armaduras</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Brawler_Talent_Tree" target="_blank">Árvore: Lutador</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Commando_Talent_Tree" target="_blank">Árvore: Comando</a>
+            <a class="ref-link" href="https://swse.fandom.com/wiki/Weapon_Specialist_Talent_Tree" target="_blank">Árvore: Esp. Armas</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Notes -->
+      <section class="panel notes-panel">
+        <h2 class="panel-header">ANOTAÇÕES GERAIS</h2>
+        <textarea class="notes-textarea" id="notes" data-key="notes" rows="8"></textarea>
+      </section>
+
+    </div><!-- end tab-equipment -->
+
+  </div><!-- end datapad -->
+
+  <!-- TALENT SELECTION MODAL -->
+  <dialog class="talent-modal" id="talent-modal">
+    <div class="talent-modal-inner">
+      <div class="talent-modal-header">
+        <h2 class="talent-modal-title" id="talent-modal-title">SELECT TALENT</h2>
+        <button class="talent-modal-close" id="talent-modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="talent-modal-body" id="talent-modal-body">
+        <!-- talent trees built by openTalentModal() -->
+      </div>
+    </div>
+  </dialog>
+
+  <!-- CLASS DATA FILES -->
+  <script src="Classes/jedi.js"></script>
+  <script src="Classes/noble.js"></script>
+  <script src="Classes/scoundrel.js"></script>
+  <script src="Classes/scout.js"></script>
+  <script src="Classes/soldier.js"></script>
+  <script src="Classes/index.js"></script>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
