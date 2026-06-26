@@ -1,6 +1,7 @@
 .claude/settings.local.json
 .claude/
 CLAUDE.md
+regras/
 
 .DS_Store
 .DS_Store?
