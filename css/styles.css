@@ -1690,24 +1690,6 @@ select.species-select option {
   padding: 5px 10px;
 }
 
-.acquired-feat-item {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 4px;
-}
-
-.at-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.at-feat-desc {
-  font-size: 10px;
-  color: var(--text-dim);
-  line-height: 1.5;
-  padding: 0 2px;
-}
 
 .at-name {
   font-family: var(--font-head);
@@ -1996,3 +1978,38 @@ select.species-select option {
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+/* ============================================================
+   TOOLTIP GLOBAL (hover + pin ao clicar)
+   ============================================================ */
+
+#sw-tooltip {
+  position: fixed;
+  z-index: 9999;
+  max-width: 300px;
+  padding: 8px 12px;
+  background: #0c0f1a;
+  border: 1px solid rgba(180, 200, 255, 0.35);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.55;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.7);
+}
+
+#sw-tooltip.visible {
+  opacity: 1;
+}
+
+#sw-tooltip.pinned {
+  pointer-events: auto;
+  border-color: var(--accent, rgba(120,180,255,0.7));
+  box-shadow: 0 4px 20px rgba(80,140,255,0.25);
+}
+
+.has-tooltip {
+  cursor: help;
+}

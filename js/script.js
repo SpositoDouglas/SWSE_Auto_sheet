@@ -6,6 +6,92 @@
 
 const LS_KEY = 'swse-character-sheet';
 
+// ── Tooltip global (hover + pin ao clicar) ────────────────────────────────────
+
+function escTooltip(text) {
+  return (text || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+(function initTooltip() {
+  const tip = document.createElement('div');
+  tip.id = 'sw-tooltip';
+  tip.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(tip);
+
+  let pinned = false;
+  let pinnedEl = null;
+
+  function show(text, x, y) {
+    tip.textContent = text;
+    tip.classList.add('visible');
+    positionTip(x, y);
+  }
+
+  function hide() {
+    tip.classList.remove('visible');
+    tip.classList.remove('pinned');
+    pinned = false;
+    pinnedEl = null;
+  }
+
+  function positionTip(x, y) {
+    const margin = 12;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    tip.style.left = '0';
+    tip.style.top  = '0';
+    const tw = tip.offsetWidth  || 260;
+    const th = tip.offsetHeight || 60;
+    let lx = x + margin;
+    let ly = y + margin;
+    if (lx + tw > vw - 8) lx = x - tw - margin;
+    if (ly + th > vh - 8) ly = y - th - margin;
+    tip.style.left = Math.max(8, lx) + 'px';
+    tip.style.top  = Math.max(8, ly) + 'px';
+  }
+
+  document.addEventListener('mouseover', e => {
+    if (pinned) return;
+    const el = e.target.closest('.has-tooltip');
+    if (!el) { tip.classList.remove('visible'); return; }
+    const text = el.dataset.tooltip;
+    if (!text) return;
+    show(text, e.clientX, e.clientY);
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!tip.classList.contains('visible') || pinned) return;
+    positionTip(e.clientX, e.clientY);
+  });
+
+  document.addEventListener('mouseout', e => {
+    if (pinned) return;
+    const el = e.target.closest('.has-tooltip');
+    if (el) tip.classList.remove('visible');
+  });
+
+  document.addEventListener('click', e => {
+    const el = e.target.closest('.has-tooltip');
+    if (!el) {
+      if (pinned) hide();
+      return;
+    }
+    // Clique no botão de remover não deve pinnar
+    if (e.target.closest('.at-remove-btn')) return;
+    const text = el.dataset.tooltip;
+    if (!text) return;
+    if (pinned && pinnedEl === el) {
+      hide();
+    } else {
+      pinned = true;
+      pinnedEl = el;
+      show(text, e.clientX, e.clientY);
+      tip.classList.add('pinned');
+    }
+    e.stopPropagation();
+  });
+})();
+
 // ============================================================
 //  SKILLS DEFINITION
 //  trainedOnly: ^ cannot be used untrained
@@ -965,7 +1051,7 @@ function buildTalentsDisplay() {
         const tree = cls?.talentTrees.find(tr => tr.key === t.treeKey);
         const talent = tree?.talents.find(tl => tl.id === t.talentId);
         if (!talent) return;
-        html += `<div class="acquired-talent-item">
+        html += `<div class="acquired-talent-item has-tooltip" data-tooltip="${escTooltip(talent.description)}">
           <span class="at-name">${talent.name}</span>
           <span class="at-source">${cls?.name || t.classKey} — ${tree?.name || t.treeKey}</span>
           <button class="at-remove-btn" data-char-level="${t.charLevel}" title="Remover talento">✕</button>
@@ -1024,16 +1110,12 @@ function buildBonusFeatsDisplay() {
     bonusFeats.forEach(t => {
       const cls = ALL_CLASSES[t.classKey];
       const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[t.talentId] : null;
-      html += `<div class="acquired-talent-item acquired-feat-item">
-        <div class="at-header">
+      const tooltipText = featData?.description || '';
+      html += `<div class="acquired-talent-item has-tooltip" data-tooltip="${escTooltip(tooltipText)}">
           <span class="at-name">${t.talentId}</span>
           <span class="at-source">${cls?.name || t.classKey} — Aptidão Bônus</span>
           <button class="at-remove-btn" data-char-level="${t.charLevel}" data-tree="__bonusFeat__" title="Remover">✕</button>
         </div>`;
-      if (featData?.description) {
-        html += `<div class="at-feat-desc">${featData.description}</div>`;
-      }
-      html += `</div>`;
     });
     html += '</div>';
   } else if (pendingSlots.length === 0) {
