@@ -10,7 +10,7 @@ Ficha de personagem digital para o sistema **Star Wars Saga Edition** (SWSE), co
 - **Árvores de Talentos** — modal interativo com as 4 árvores de cada classe, pré-requisitos verificados automaticamente, seleção com um clique.
 - **Aptidões Bônus** — seleção das aptidões bônus de classe em cada nível par.
 - **Sistema de Espécies** — 17 espécies com ajustes de atributo, deslocamento, idiomas automáticos e painel de características.
-- **Perícias** — cálculo automático de `½ nível + mod. atributo + misc + 5 (treinado) + 1 (foco)`.
+- **Perícias** — cálculo automático de `½ nível + mod. atributo + misc + 5 (treinado) + 5 (foco)`.
 - **Pontuação do Lado Sombrio** — trilha clicável de 25 pips.
 - **Retrato** — carregamento de imagem local salvo em base64.
 - **Auto-save** — salva automaticamente no `localStorage` com debounce de 600 ms.
@@ -49,7 +49,7 @@ Classes/
 | Cálculo | Fórmula |
 |---|---|
 | Modificador de atributo | `⌊(score − 10) / 2⌋` |
-| Total de perícia | `½ nível + mod. atributo + misc + 5 (treinado) + 1 (foco)` |
+| Total de perícia | `½ nível + mod. atributo + misc + 5 (treinado) + 5 (foco)` |
 | Defesas | `10 + nível heróico + bônus de classe + mod. atributo + misc` |
 | HP inicial | `máximo do dado da classe + mod. CON` |
 | HP por nível | `rolagem do dado + mod. CON (mínimo 1)` |

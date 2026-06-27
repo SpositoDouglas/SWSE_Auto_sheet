@@ -100,28 +100,28 @@ function escTooltip(text) {
 //  marker: ► shown on original sheet
 // ============================================================
 const SKILLS = [
-  { id: 'acrobatics',   name: 'Acrobatics',         ability: 'dex', armorPenalty: true,  trainedOnly: false },
-  { id: 'climb',        name: 'Climb',               ability: 'str', armorPenalty: true,  trainedOnly: false },
-  { id: 'deception',    name: 'Deception',           ability: 'cha', armorPenalty: false, trainedOnly: false },
-  { id: 'endurance',    name: 'Endurance',           ability: 'con', armorPenalty: true,  trainedOnly: false },
-  { id: 'gatherInfo',   name: 'Gather Information',  ability: 'cha', armorPenalty: false, trainedOnly: false },
-  { id: 'initiative',   name: 'Initiative',          ability: 'dex', armorPenalty: false, trainedOnly: false, marker: true },
-  { id: 'jump',         name: 'Jump',                ability: 'str', armorPenalty: true,  trainedOnly: false },
-  { id: 'know1',        name: 'Knowledge',           ability: 'int', armorPenalty: false, trainedOnly: true,  custom: true },
-  { id: 'know2',        name: 'Knowledge',           ability: 'int', armorPenalty: false, trainedOnly: true,  custom: true },
-  { id: 'know3',        name: 'Knowledge',           ability: 'int', armorPenalty: false, trainedOnly: true,  custom: true },
-  { id: 'know4',        name: 'Knowledge',           ability: 'int', armorPenalty: false, trainedOnly: true,  custom: true },
-  { id: 'mechanics',    name: 'Mechanics',           ability: 'int', armorPenalty: false, trainedOnly: true  },
-  { id: 'perception',   name: 'Perception',          ability: 'wis', armorPenalty: false, trainedOnly: false, marker: true },
-  { id: 'persuasion',   name: 'Persuasion',          ability: 'cha', armorPenalty: false, trainedOnly: false },
-  { id: 'pilot',        name: 'Pilot',               ability: 'dex', armorPenalty: false, trainedOnly: false },
-  { id: 'ride',         name: 'Ride',                ability: 'dex', armorPenalty: true,  trainedOnly: false },
-  { id: 'stealth',      name: 'Stealth',             ability: 'dex', armorPenalty: true,  trainedOnly: false },
-  { id: 'survival',     name: 'Survival',            ability: 'wis', armorPenalty: false, trainedOnly: false },
-  { id: 'swim',         name: 'Swim',                ability: 'str', armorPenalty: true,  trainedOnly: false },
-  { id: 'treatInjury',  name: 'Treat Injury',        ability: 'wis', armorPenalty: false, trainedOnly: false },
-  { id: 'useComputer',  name: 'Use Computer',        ability: 'int', armorPenalty: false, trainedOnly: false },
-  { id: 'useTheForce',  name: 'Use the Force',       ability: 'cha', armorPenalty: false, trainedOnly: true  },
+  { id: 'acrobatics',   name: 'Acrobacia',           ability: 'dex', armorPenalty: true,  trainedOnly: false },
+  { id: 'know1',        name: 'Conhecimento',        ability: 'int', armorPenalty: false, trainedOnly: true,  custom: true },
+  { id: 'know2',        name: 'Conhecimento',        ability: 'int', armorPenalty: false, trainedOnly: true,  custom: true },
+  { id: 'know3',        name: 'Conhecimento',        ability: 'int', armorPenalty: false, trainedOnly: true,  custom: true },
+  { id: 'know4',        name: 'Conhecimento',        ability: 'int', armorPenalty: false, trainedOnly: true,  custom: true },
+  { id: 'deception',    name: 'Dissimulação',        ability: 'cha', armorPenalty: false, trainedOnly: false },
+  { id: 'climb',        name: 'Escalar',             ability: 'str', armorPenalty: true,  trainedOnly: false },
+  { id: 'stealth',      name: 'Furtividade',         ability: 'dex', armorPenalty: true,  trainedOnly: false },
+  { id: 'initiative',   name: 'Iniciativa',          ability: 'dex', armorPenalty: true,  trainedOnly: false, marker: true },
+  { id: 'mechanics',    name: 'Mecânica',            ability: 'int', armorPenalty: false, trainedOnly: true  },
+  { id: 'ride',         name: 'Montar',              ability: 'dex', armorPenalty: true,  trainedOnly: false },
+  { id: 'swim',         name: 'Nadar',               ability: 'str', armorPenalty: true,  trainedOnly: false },
+  { id: 'gatherInfo',   name: 'Obter Informações',   ability: 'cha', armorPenalty: false, trainedOnly: false },
+  { id: 'perception',   name: 'Percepção',           ability: 'wis', armorPenalty: false, trainedOnly: false, marker: true },
+  { id: 'persuasion',   name: 'Persuasão',           ability: 'cha', armorPenalty: false, trainedOnly: false },
+  { id: 'pilot',        name: 'Pilotar',             ability: 'dex', armorPenalty: false, trainedOnly: false },
+  { id: 'jump',         name: 'Saltar',              ability: 'str', armorPenalty: true,  trainedOnly: false },
+  { id: 'survival',     name: 'Sobrevivência',       ability: 'wis', armorPenalty: false, trainedOnly: false },
+  { id: 'endurance',    name: 'Tolerância',          ability: 'con', armorPenalty: true,  trainedOnly: false },
+  { id: 'treatInjury',  name: 'Tratar Ferimentos',   ability: 'wis', armorPenalty: false, trainedOnly: false },
+  { id: 'useTheForce',  name: 'Usar a Força',        ability: 'cha', armorPenalty: false, trainedOnly: true  },
+  { id: 'useComputer',  name: 'Usar Computador',     ability: 'int', armorPenalty: false, trainedOnly: false },
 ];
 
 let activeSpeciesKey      = null;
@@ -1379,7 +1379,7 @@ function recalcSkills(mods) {
 
     let total = halfLevel + abilMod + misc;
     if (trained) total += 5;
-    if (focus)   total += 1;
+    if (focus)   total += 5; // Foco em Perícia: +5 de bônus de competência
 
     totalEl.textContent = total >= 0 ? '+' + total : total;
     totalEl.title = '';
