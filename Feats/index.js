@@ -101,13 +101,6 @@ const ALL_FEATS = {
     multiSelect: true,
   },
 
-  // ── B ──────────────────────────────────────────────────────────────────────
-
-  'Bênção da Força': {
-    description: 'Você ganha três Pontos da Força adicionais a cada nível.',
-    prereqText: 'Sensitivo à Força',
-    prereqs: { feats: [['Sensitivo à Força']] },
-  },
 
   // ── C ──────────────────────────────────────────────────────────────────────
 
@@ -208,17 +201,50 @@ const ALL_FEATS = {
     prereqs: { feats: ['Sensitivo à Força'] },
   },
 
-  'Foco em Arma': {
-    description: 'Você ganha +1 de bônus em todas as jogadas de ataque feitas usando a arma exótica ou o grupo de armas escolhido.',
-    prereqText: 'Proficiente com a arma escolhida',
-    prereqs: {},
-    multiSelect: true,
+  // Foco em Arma (Weapon Focus): +1 nas jogadas de ataque com o grupo de armas
+  // (ou arma exótica) escolhido. Exige proficiência com a arma escolhida.
+  // Uma entrada por grupo de armas — escolha o tipo correspondente.
+  'Foco em Arma (Armas Simples)': {
+    description: 'Você ganha +1 de bônus em todas as jogadas de ataque com armas simples.',
+    prereqText: 'Proficiência com Armas (Armas Simples)',
+    prereqs: { feats: ['Proficiência com Armas (Armas Simples)'] },
+  },
+
+  'Foco em Arma (Pistolas)': {
+    description: 'Você ganha +1 de bônus em todas as jogadas de ataque com pistolas.',
+    prereqText: 'Proficiência com Armas (Pistolas)',
+    prereqs: { feats: ['Proficiência com Armas (Pistolas)'] },
+  },
+
+  'Foco em Arma (Rifles)': {
+    description: 'Você ganha +1 de bônus em todas as jogadas de ataque com rifles.',
+    prereqText: 'Proficiência com Armas (Rifles)',
+    prereqs: { feats: ['Proficiência com Armas (Rifles)'] },
   },
 
   'Foco em Arma (sabres-de-luz)': {
     description: 'Você ganha +1 de bônus em todas as jogadas de ataque com sabres-de-luz.',
     prereqText: 'Proficiência com Armas (Sabres-de-luz)',
     prereqs: { feats: ['Proficiência com Armas (Sabres-de-luz)'] },
+  },
+
+  'Foco em Arma (armas de combate corpo-a-corpo avançadas)': {
+    description: 'Você ganha +1 de bônus em todas as jogadas de ataque com armas de combate corpo-a-corpo avançadas.',
+    prereqText: 'Proficiência com Armas (armas de combate corpo-a-corpo avançadas)',
+    prereqs: { feats: ['Proficiência com Armas (armas de combate corpo-a-corpo avançadas)'] },
+  },
+
+  'Foco em Arma (armas pesadas)': {
+    description: 'Você ganha +1 de bônus em todas as jogadas de ataque com armas pesadas.',
+    prereqText: 'Proficiência com Armas (armas pesadas)',
+    prereqs: { feats: ['Proficiência com Armas (armas pesadas)'] },
+  },
+
+  'Foco em Arma (arma exótica)': {
+    description: 'Você ganha +1 de bônus em todas as jogadas de ataque com uma arma exótica escolhida. Escolha novamente para aplicar a outra arma exótica.',
+    prereqText: 'Proficiência com Arma Exótica (com a arma escolhida)',
+    prereqs: { feats: ['Proficiência com Arma Exótica'] },
+    multiSelect: true,
   },
 
   'Foco em Perícia': {
@@ -379,30 +405,18 @@ const ALL_FEATS = {
     prereqs: {},
   },
 
-  'Proficiência com Armaduras (Leves)': {
-    description: 'Quando você usar armaduras leves, não recebe penalidade de armadura nas jogadas de ataque ou testes de perícia e recebe todos os bônus especiais da armadura.',
-    prereqText: '—',
-    prereqs: {},
-  },
-
   'Proficiência com Armaduras (médias)': {
     description: 'Quando você usar armaduras médias, não recebe penalidade de armadura nas jogadas de ataque ou testes de perícia e recebe todos os bônus especiais da armadura.',
     prereqText: 'Proficiência com Armaduras (leves)',
-    prereqs: { feats: [['Proficiência com Armaduras (leves)', 'Proficiência com Armaduras (Leves)']] },
-  },
-
-  'Proficiência com Armaduras (Médias)': {
-    description: 'Quando você usar armaduras médias, não recebe penalidade de armadura nas jogadas de ataque ou testes de perícia e recebe todos os bônus especiais da armadura.',
-    prereqText: 'Proficiência com Armaduras (leves)',
-    prereqs: { feats: [['Proficiência com Armaduras (leves)', 'Proficiência com Armaduras (Leves)']] },
+    prereqs: { feats: ['Proficiência com Armaduras (leves)'] },
   },
 
   'Proficiência com Armaduras (pesadas)': {
     description: 'Quando você usar armaduras pesadas, não recebe penalidade de armadura nas jogadas de ataque ou testes de perícia e recebe todos os bônus especiais da armadura.',
     prereqText: 'Proficiência com Armaduras (leves), Proficiência com Armaduras (médias)',
     prereqs: { feats: [
-      ['Proficiência com Armaduras (leves)', 'Proficiência com Armaduras (Leves)'],
-      ['Proficiência com Armaduras (médias)', 'Proficiência com Armaduras (Médias)'],
+      'Proficiência com Armaduras (leves)',
+      'Proficiência com Armaduras (médias)',
     ]},
   },
 

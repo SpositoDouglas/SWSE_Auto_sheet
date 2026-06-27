@@ -1731,6 +1731,13 @@ select.species-select option {
   padding: 5px 10px;
 }
 
+/* Aptidões iniciais da classe (automáticas, não removíveis) */
+.acquired-talent-item--auto {
+  border-left: 2px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.02);
+}
+.acquired-talent-item--auto .at-name { color: var(--text); }
+
 
 .at-name {
   font-family: var(--font-head);

@@ -755,6 +755,23 @@ function isFeatEntry(t) {
   return t.treeKey === '__bonusFeat__' || t.treeKey === '__levelFeat__';
 }
 
+// Aptidões iniciais concedidas pelas classes do personagem (automáticas).
+// Deduplica por nome, registrando a primeira classe que concede cada uma.
+function getStartingFeats() {
+  const seen = new Set();
+  const list = [];
+  classLevels.forEach(e => {
+    const cls = ALL_CLASSES[e.classKey];
+    if (!cls || !cls.startingFeats) return;
+    cls.startingFeats.forEach(f => {
+      if (seen.has(f)) return;
+      seen.add(f);
+      list.push({ name: f, classKey: e.classKey });
+    });
+  });
+  return list;
+}
+
 function hasTalent(talentId) {
   return acquiredTalents.some(t => t.talentId === talentId);
 }
@@ -1205,14 +1222,23 @@ function buildBonusFeatsDisplay() {
   const pendingBonus = getPendingBonusFeatSlots();
   const pendingLevel = getPendingLevelFeatSlots();
 
+  const startingFeats = getStartingFeats();
   const bonusFeats = acquiredTalents.filter(t => t.treeKey === '__bonusFeat__');
   const levelFeats = acquiredTalents.filter(t => t.treeKey === '__levelFeat__');
 
   let html = '';
 
-  // Aptidões adquiridas (bônus de classe + ganhas por nível)
-  if (bonusFeats.length > 0 || levelFeats.length > 0) {
+  // Aptidões: iniciais da classe (automáticas) + bônus de classe + ganhas por nível
+  if (startingFeats.length > 0 || bonusFeats.length > 0 || levelFeats.length > 0) {
     html += '<div class="acquired-talents">';
+    startingFeats.forEach(sf => {
+      const cls = ALL_CLASSES[sf.classKey];
+      const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[sf.name] : null;
+      html += `<div class="acquired-talent-item acquired-talent-item--auto has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
+          <span class="at-name">${sf.name}</span>
+          <span class="at-source">${cls?.name || sf.classKey} — Inicial</span>
+        </div>`;
+    });
     bonusFeats.forEach(t => {
       const cls = ALL_CLASSES[t.classKey];
       const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[t.talentId] : null;
