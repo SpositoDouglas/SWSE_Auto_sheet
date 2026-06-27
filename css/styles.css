@@ -1690,6 +1690,25 @@ select.species-select option {
   padding: 5px 10px;
 }
 
+.acquired-feat-item {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.at-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.at-feat-desc {
+  font-size: 10px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  padding: 0 2px;
+}
+
 .at-name {
   font-family: var(--font-head);
   font-size: 10px;
@@ -1904,7 +1923,31 @@ select.species-select option {
 
 .tm-feat-item {
   padding: 8px 10px;
-  cursor: pointer;
+}
+
+.tm-feat-item.tm-available { cursor: pointer; }
+.tm-feat-item.tm-locked    { cursor: default; }
+
+/* Starting feats display in class info */
+.class-trait-feats { flex-direction: column; align-items: flex-start !important; gap: 4px; }
+
+.starting-feats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-left: 4px;
+}
+
+.starting-feat-item {
+  font-size: 10px;
+  color: var(--text);
+  cursor: default;
+}
+
+.starting-feat-item em {
+  font-style: normal;
+  color: var(--text-dim);
+  font-size: 9px;
 }
 
 /* ============================================================

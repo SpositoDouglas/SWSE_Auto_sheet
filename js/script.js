@@ -567,6 +567,87 @@ function getCharBAB() {
   return best;
 }
 
+// ── Feat prerequisite helpers ─────────────────────────────────────────────────
+
+function getAbilityScore(ability) {
+  const el = document.getElementById(ability + '-score');
+  return el ? (parseInt(el.value) || 10) : 10;
+}
+
+function isSkillTrained(skillId) {
+  const cb = document.getElementById('sk-trained-' + skillId);
+  return cb ? cb.checked : false;
+}
+
+function characterHasFeat(name) {
+  const norm = n => n.toLowerCase().replace(/[-\s]+/g, ' ').trim();
+  const target = norm(name);
+  // Starting feats of all active classes
+  for (const entry of classLevels) {
+    const cls = ALL_CLASSES[entry.classKey];
+    if (cls?.startingFeats?.some(f => norm(f) === target)) return true;
+  }
+  // Acquired bonus feats
+  if (acquiredTalents.some(t => t.treeKey === '__bonusFeat__' && norm(t.talentId) === target)) return true;
+  // Free-text feat inputs
+  const inputs = document.querySelectorAll('[id^="feat-"]');
+  for (const inp of inputs) {
+    if (norm(inp.value || '') === target) return true;
+  }
+  return false;
+}
+
+function checkFeatPrereqs(featName) {
+  const feat = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[featName] : null;
+  if (!feat || !feat.prereqs) return { locked: false, missing: [] };
+
+  const p = feat.prereqs;
+  const missing = [];
+
+  const abilities = { str: 'Força', dex: 'Destreza', con: 'Constituição', int: 'Inteligência', wis: 'Sabedoria', cha: 'Carisma' };
+  for (const [attr, label] of Object.entries(abilities)) {
+    if (p[attr] && getAbilityScore(attr) < p[attr]) {
+      missing.push(`${label} ${p[attr]}`);
+    }
+  }
+
+  if (p.bab && getCharBAB() < p.bab) {
+    missing.push(`BAB +${p.bab}`);
+  }
+
+  if (p.feats) {
+    // For OR groups (array means "any one of these suffices"), each item is required unless it's an array
+    // Convention: prereqs.feats is an array of strings (all required)
+    // Unless an entry is itself an array (meaning OR among those)
+    for (const req of p.feats) {
+      if (Array.isArray(req)) {
+        if (!req.some(r => characterHasFeat(r))) {
+          missing.push(req[0]); // show first option name
+        }
+      } else {
+        if (!characterHasFeat(req)) {
+          missing.push(req);
+        }
+      }
+    }
+  }
+
+  if (p.trainedSkills) {
+    const skillNames = {
+      acrobatics: 'Acrobacia', pilot: 'Pilotar', treatInjury: 'Tratar Ferimentos',
+      endurance: 'Tolerância', useTheForce: 'Usar a Força', mechanics: 'Mecânica',
+      perception: 'Percepção', stealth: 'Furtividade', persuasion: 'Persuasão',
+    };
+    for (const skillId of p.trainedSkills) {
+      if (!isSkillTrained(skillId)) {
+        missing.push('Treinado em ' + (skillNames[skillId] || skillId));
+      }
+    }
+  }
+
+  return { locked: missing.length > 0, missing };
+}
+
 function getClassDisplayName() {
   if (classLevels.length === 0) return '';
   return classLevels.map(e => {
@@ -849,7 +930,14 @@ function renderClassTraits() {
       <div class="class-trait-row"><span class="ctlbl">Dado de Vida:</span> d${cls.hitDie}</div>
       <div class="class-trait-row"><span class="ctlbl">Perícias Treinadas:</span> ${cls.trainedSkillsBase} + mod INT</div>
       <div class="class-trait-row"><span class="ctlbl">Bônus de Defesa:</span> FORT +${cls.defenseBonus.fort||0}, REF +${cls.defenseBonus.ref||0}, VON +${cls.defenseBonus.will||0}</div>
-      <div class="class-trait-row"><span class="ctlbl">Aptidões Iniciais:</span> ${cls.startingFeats.join(', ')}</div>
+      <div class="class-trait-row class-trait-feats"><span class="ctlbl">Aptidões Iniciais:</span>
+        <div class="starting-feats-list">${cls.startingFeats.map(f => {
+          const fd = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[f] : null;
+          return fd
+            ? `<span class="starting-feat-item" title="${fd.description}">${f}${fd.prereqText && fd.prereqText !== '—' ? ` <em>(Pré-req: ${fd.prereqText})</em>` : ''}</span>`
+            : `<span class="starting-feat-item">${f}</span>`;
+        }).join('')}</div>
+      </div>
     </div>`;
   });
 
@@ -935,11 +1023,17 @@ function buildBonusFeatsDisplay() {
     html += '<div class="acquired-talents">';
     bonusFeats.forEach(t => {
       const cls = ALL_CLASSES[t.classKey];
-      html += `<div class="acquired-talent-item">
-        <span class="at-name">${t.talentId}</span>
-        <span class="at-source">${cls?.name || t.classKey} — Aptidão Bônus</span>
-        <button class="at-remove-btn" data-char-level="${t.charLevel}" data-tree="__bonusFeat__" title="Remover">✕</button>
-      </div>`;
+      const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[t.talentId] : null;
+      html += `<div class="acquired-talent-item acquired-feat-item">
+        <div class="at-header">
+          <span class="at-name">${t.talentId}</span>
+          <span class="at-source">${cls?.name || t.classKey} — Aptidão Bônus</span>
+          <button class="at-remove-btn" data-char-level="${t.charLevel}" data-tree="__bonusFeat__" title="Remover">✕</button>
+        </div>`;
+      if (featData?.description) {
+        html += `<div class="at-feat-desc">${featData.description}</div>`;
+      }
+      html += `</div>`;
     });
     html += '</div>';
   } else if (pendingSlots.length === 0) {
@@ -1060,20 +1154,41 @@ function openBonusFeatModal(classKey, charLevel) {
   const body  = document.getElementById('talent-modal-body');
   if (!modal || !body) return;
 
-  title.textContent = `SELECT BONUS FEAT — ${cls.name.toUpperCase()} (Character Level ${charLevel})`;
+  title.textContent = `APTIDÃO BÔNUS — ${cls.name.toUpperCase()} (Nível ${charLevel})`;
 
-  let html = '<div class="tm-tree"><div class="tm-tree-name">Bonus Feat List</div><div class="tm-talents">';
+  let html = '<div class="tm-tree"><div class="tm-tree-name">Lista de Aptidões Bônus</div><div class="tm-talents">';
   (cls.bonusFeatList || []).forEach(featName => {
     const alreadyHas = acquiredTalents.some(t => t.talentId === featName && t.treeKey === '__bonusFeat__' && t.classKey === classKey);
-    html += `<div class="tm-talent tm-available tm-feat-item" data-feat="${featName}">
-      <div class="tm-talent-name">${featName}${alreadyHas ? ' ✓' : ''}</div>
-    </div>`;
+    const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[featName] : null;
+    const { locked: prereqLocked, missing } = checkFeatPrereqs(featName);
+    const multiSelect = featData?.multiSelect || false;
+    const locked = prereqLocked || (alreadyHas && !multiSelect);
+
+    html += `<div class="tm-talent ${locked ? 'tm-locked' : 'tm-available'} tm-feat-item" data-feat="${featName}">
+      <div class="tm-talent-name">${featName}${alreadyHas ? ' ✓' : ''}</div>`;
+
+    if (featData?.prereqText && featData.prereqText !== '—') {
+      const missingClass = prereqLocked ? 'tm-prereq-fail' : 'tm-prereq-ok';
+      html += `<div class="tm-prereq ${missingClass}">Pré-req: ${featData.prereqText}</div>`;
+    }
+    if (prereqLocked && missing.length) {
+      html += `<div class="tm-prereq tm-prereq-fail">Faltando: ${missing.join(', ')}</div>`;
+    }
+    if (featData?.description) {
+      html += `<div class="tm-talent-desc">${featData.description}</div>`;
+    }
+    if (featData?.multiSelect) {
+      html += `<div class="tm-multi-note">Pode ser escolhida múltiplas vezes</div>`;
+    }
+
+    html += `</div>`;
   });
   html += '</div></div>';
 
   body.innerHTML = html;
 
-  body.querySelectorAll('.tm-feat-item').forEach(el => {
+  body.querySelectorAll('.tm-feat-item.tm-available').forEach(el => {
+    el.style.cursor = 'pointer';
     el.addEventListener('click', () => {
       const feat = el.dataset.feat;
       acquiredTalents.push({ classKey, treeKey: '__bonusFeat__', talentId: feat, charLevel });
