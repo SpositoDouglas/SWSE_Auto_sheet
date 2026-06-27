@@ -15,7 +15,7 @@ Ficha de personagem digital para o sistema **Star Wars Saga Edition** (SWSE), co
 - **Retrato** — carregamento de imagem local salvo em base64.
 - **Auto-save** — salva automaticamente no `localStorage` com debounce de 600 ms.
 - **Export / Import JSON** — exporta e importa a ficha completa em JSON.
-- **Tema "Datapad Imperial"** — fundo animado com campo estelar via Canvas, fontes Orbitron + Share Tech Mono + Exo 2.
+- **Tema "Datapad Imperial"** — fundo escuro estático em gradiente, fontes Orbitron + Share Tech Mono + Exo 2.
 
 ## Como usar
 

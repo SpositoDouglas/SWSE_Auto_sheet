@@ -179,47 +179,6 @@ function numVal(id, fallback = 0) {
 }
 
 // ============================================================
-//  STARFIELD CANVAS
-// ============================================================
-
-function initStarfield() {
-  const canvas = document.getElementById('starfield');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-
-  function draw() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    // deep space gradient
-    const grad = ctx.createRadialGradient(
-      canvas.width * 0.5, canvas.height * 0.35, 0,
-      canvas.width * 0.5, canvas.height * 0.5,  Math.max(canvas.width, canvas.height) * 0.7
-    );
-    grad.addColorStop(0, '#0e1224');
-    grad.addColorStop(1, '#060810');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // stars
-    const count = Math.floor((canvas.width * canvas.height) / 3000);
-    for (let i = 0; i < count; i++) {
-      const x    = Math.random() * canvas.width;
-      const y    = Math.random() * canvas.height;
-      const r    = Math.random() * 1.2 + 0.2;
-      const a    = Math.random() * 0.75 + 0.2;
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,255,255,${a.toFixed(2)})`;
-      ctx.fill();
-    }
-  }
-
-  draw();
-  window.addEventListener('resize', draw);
-}
-
-// ============================================================
 //  DOM BUILDERS
 // ============================================================
 
@@ -1765,7 +1724,6 @@ function bindEvents() {
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  initStarfield();
   buildWeapons();
   buildSkills();
   buildFeats();
