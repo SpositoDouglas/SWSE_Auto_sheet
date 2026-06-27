@@ -624,6 +624,7 @@ function isSkillTrained(skillId) {
   return cb ? cb.checked : false;
 }
 
+let _checkingConditionalFeat = false; // guarda de reentrância p/ characterHasFeat
 function characterHasFeat(name) {
   const norm = n => n.toLowerCase().replace(/[-\s]+/g, ' ').trim();
   const target = norm(name);
@@ -638,6 +639,18 @@ function characterHasFeat(name) {
   const inputs = document.querySelectorAll('[id^="feat-"]');
   for (const inp of inputs) {
     if (norm(inp.value || '') === target) return true;
+  }
+  // Aptidões condicionais de espécie (concedidas quando a condição é atendida).
+  // Guarda contra reentrância: conditionalFeatMet() chama checkFeatPrereqs(),
+  // que pode chamar characterHasFeat() de volta.
+  if (!_checkingConditionalFeat) {
+    const sp = activeSpeciesKey ? SPECIES_DATA[activeSpeciesKey] : null;
+    if (sp && Array.isArray(sp.conditionalFeats)) {
+      _checkingConditionalFeat = true;
+      const granted = sp.conditionalFeats.some(cf => norm(cf.feat) === target && conditionalFeatMet(cf));
+      _checkingConditionalFeat = false;
+      if (granted) return true;
+    }
   }
   return false;
 }
@@ -753,6 +766,30 @@ function getPendingLevelFeatSlots() {
 // Entradas de acquiredTalents que representam aptidões (não talentos de árvore)
 function isFeatEntry(t) {
   return t.treeKey === '__bonusFeat__' || t.treeKey === '__levelFeat__';
+}
+
+// Condição de uma aptidão condicional de espécie está atendida?
+//  - requiresTrained (se houver): a perícia precisa estar treinada
+//  - os pré-requisitos da própria aptidão (Des/BAB/etc.) precisam ser cumpridos
+function conditionalFeatMet(cf) {
+  if (cf.requiresTrained && !isSkillTrained(cf.requiresTrained)) return false;
+  const { locked } = checkFeatPrereqs(cf.feat);
+  return !locked;
+}
+
+// Aptidões condicionais da espécie ativa, já com o status (atendida ou não).
+function getSpeciesConditionalFeats() {
+  const data = activeSpeciesKey ? SPECIES_DATA[activeSpeciesKey] : null;
+  if (!data || !Array.isArray(data.conditionalFeats)) return [];
+  return data.conditionalFeats.map(cf => {
+    const fd = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[cf.feat] : null;
+    return {
+      feat: cf.feat,
+      met: conditionalFeatMet(cf),
+      condText: cf.condText || (fd && fd.prereqText !== '—' ? fd.prereqText : '') || '',
+      desc: cf.desc || fd?.description || '',
+    };
+  });
 }
 
 // Aptidões iniciais concedidas pelas classes do personagem (automáticas).
@@ -1223,13 +1260,16 @@ function buildBonusFeatsDisplay() {
   const pendingLevel = getPendingLevelFeatSlots();
 
   const startingFeats = getStartingFeats();
+  const condFeats  = getSpeciesConditionalFeats();
+  const condMet    = condFeats.filter(c => c.met);
+  const condUnmet  = condFeats.filter(c => !c.met);
   const bonusFeats = acquiredTalents.filter(t => t.treeKey === '__bonusFeat__');
   const levelFeats = acquiredTalents.filter(t => t.treeKey === '__levelFeat__');
 
   let html = '';
 
-  // Aptidões: iniciais da classe (automáticas) + bônus de classe + ganhas por nível
-  if (startingFeats.length > 0 || bonusFeats.length > 0 || levelFeats.length > 0) {
+  // Aptidões: iniciais da classe + condicionais de espécie (atendidas) + bônus + de nível
+  if (startingFeats.length > 0 || condMet.length > 0 || bonusFeats.length > 0 || levelFeats.length > 0) {
     html += '<div class="acquired-talents">';
     startingFeats.forEach(sf => {
       const cls = ALL_CLASSES[sf.classKey];
@@ -1237,6 +1277,12 @@ function buildBonusFeatsDisplay() {
       html += `<div class="acquired-talent-item acquired-talent-item--auto has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
           <span class="at-name">${sf.name}</span>
           <span class="at-source">${cls?.name || sf.classKey} — Inicial</span>
+        </div>`;
+    });
+    condMet.forEach(c => {
+      html += `<div class="acquired-talent-item acquired-talent-item--species has-tooltip" data-tooltip="${escTooltip(c.desc)}">
+          <span class="at-name">${c.feat}</span>
+          <span class="at-source">Espécie — Condicional</span>
         </div>`;
     });
     bonusFeats.forEach(t => {
@@ -1257,9 +1303,18 @@ function buildBonusFeatsDisplay() {
         </div>`;
     });
     html += '</div>';
-  } else if (pendingBonus.length === 0 && pendingLevel.length === 0) {
+  } else if (pendingBonus.length === 0 && pendingLevel.length === 0 && condUnmet.length === 0) {
     html += '<p class="no-talents-msg">Nenhuma aptidão adquirida.</p>';
   }
+
+  // Aptidões condicionais de espécie ainda não atendidas (informativo)
+  condUnmet.forEach(c => {
+    html += `<div class="talent-pick-slot talent-pick-slot--cond">
+      <span class="talent-pick-label">
+        Aptidão condicional (espécie): ${c.feat}${c.condText ? ` — requer ${c.condText}` : ''}
+      </span>
+    </div>`;
+  });
 
   // Slots pendentes de aptidão bônus de classe
   pendingBonus.forEach(slot => {
@@ -1635,6 +1690,8 @@ function recalcAll() {
   recalcSkills(mods);
   recalcDamageThreshold();
   updateXpStatus();
+  // Aptidões condicionais de espécie dependem de atributos/BAB/perícias treinadas
+  buildBonusFeatsDisplay();
 }
 
 // ============================================================

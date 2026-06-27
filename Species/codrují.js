@@ -5,6 +5,13 @@ const SPECIES_CODRUJI = {
   abilityAdj: {},
   speed: '6 sq',
   autoLangs: ['Básico', 'Codruês'],
+  // Aptidões condicionais: concedidas gratuitamente quando a condição é atendida.
+  //   feat            -> nome (chave em ALL_FEATS quando aplicável)
+  //   requiresTrained -> id de perícia que precisa estar treinada (opcional)
+  //   condText        -> texto do requisito p/ exibição (default: pré-req da aptidão)
+  conditionalFeats: [
+    { feat: 'Maestria com Duas Armas I' },
+  ],
   traits: [
     { name: 'Estatura Mediana', desc: 'Codru-Ji não recebem bônus ou penalidades especiais por seu tamanho.' },
     { name: 'Aptidão Condicional: Maestria com Duas Armas I', desc: 'O Codru-Ji recebe a aptidão Maestria com Duas Armas I como aptidão bônus desde que cumpra os pré-requisitos (Destreza mínima 13 e Bônus de Ataque Base +1).' },
