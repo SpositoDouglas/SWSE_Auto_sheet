@@ -632,8 +632,8 @@ function characterHasFeat(name) {
     const cls = ALL_CLASSES[entry.classKey];
     if (cls?.startingFeats?.some(f => norm(f) === target)) return true;
   }
-  // Acquired bonus feats
-  if (acquiredTalents.some(t => t.treeKey === '__bonusFeat__' && norm(t.talentId) === target)) return true;
+  // Acquired bonus feats (de classe) e aptidões ganhas por nível
+  if (acquiredTalents.some(t => (t.treeKey === '__bonusFeat__' || t.treeKey === '__levelFeat__') && norm(t.talentId) === target)) return true;
   // Free-text feat inputs
   const inputs = document.querySelectorAll('[id^="feat-"]');
   for (const inp of inputs) {
@@ -736,6 +736,25 @@ function getPendingBonusFeatSlots() {
   return pending;
 }
 
+// Aptidões ganhas pelo nível de personagem (Tabela 3-1: níveis 1,3,6,9,12,15,18).
+// Não são limitadas à lista de aptidões bônus de classe — um slot por nível.
+function getPendingLevelFeatSlots() {
+  const pending = [];
+  const total = getCharLevel();
+  for (let charLv = 1; charLv <= total; charLv++) {
+    if (LEVEL_BENEFITS[charLv] && LEVEL_BENEFITS[charLv].feat) {
+      const already = acquiredTalents.some(t => t.charLevel === charLv && t.treeKey === '__levelFeat__');
+      if (!already) pending.push({ charLevel: charLv });
+    }
+  }
+  return pending;
+}
+
+// Entradas de acquiredTalents que representam aptidões (não talentos de árvore)
+function isFeatEntry(t) {
+  return t.treeKey === '__bonusFeat__' || t.treeKey === '__levelFeat__';
+}
+
 function hasTalent(talentId) {
   return acquiredTalents.some(t => t.talentId === talentId);
 }
@@ -800,6 +819,16 @@ function buildClassSection() {
     actionsEl.appendChild(btn);
   }
 
+  // Desfazer último nível (corrigir subida de nível errada)
+  if (getCharLevel() > 0) {
+    const undoBtn = document.createElement('button');
+    undoBtn.className = 'class-undo-btn';
+    undoBtn.textContent = '↩ DESFAZER NÍVEL';
+    undoBtn.title = 'Remove o último nível ganho (PV e escolhas desse nível)';
+    undoBtn.addEventListener('click', undoLastLevel);
+    actionsEl.appendChild(undoBtn);
+  }
+
   // Update auto-fields
   const totalLv = getCharLevel();
   const lvEl = document.getElementById('total-level');
@@ -852,6 +881,15 @@ function startLevelUp(classKey, isNew) {
   const cls = ALL_CLASSES[classKey];
   if (!cls) return;
   const charLv = getCharLevel() + 1;
+
+  // Gate por XP: só permite ganhar o nível se o XP total comportá-lo (Tabela 3-1)
+  const xpAllowed = levelFromXP(numVal('xp-total', 0));
+  if (charLv > xpAllowed) {
+    const needed = XP_THRESHOLDS[charLv - 1];
+    showNotification(`XP insuficiente para o nível ${charLv}º (necessário ${fmtXP(needed)} XP).`, true);
+    return;
+  }
+
   const classLv = isNew ? 1 : (getClassLevel(classKey) + 1);
 
   pendingLevelUp = { classKey, classLv, charLv, isNew };
@@ -958,6 +996,112 @@ function confirmLevelUp() {
   showNotification(`Nível ${charLv} — ${cls.name}! +${hpGained} PV`);
 }
 
+// Retrocede o último nível de personagem (desfaz uma subida de nível errada).
+// Remove os PV ganhos, ajusta o nível de classe e apaga as escolhas (talento/
+// aptidões) feitas naquele nível.
+function undoLastLevel() {
+  if (hpByLevel.length === 0) {
+    showNotification('Não há nível para desfazer.', true);
+    return;
+  }
+
+  const removedCharLevel = hpByLevel.length;
+  const last    = hpByLevel[hpByLevel.length - 1];
+  const cls     = ALL_CLASSES[last.classKey];
+  const clsName = cls ? cls.name : last.classKey;
+
+  if (!confirm(
+    `Desfazer o nível ${removedCharLevel}º (${clsName})?\n` +
+    `Isso remove os PV ganhos e as escolhas (talento/aptidões) desse nível.`
+  )) return;
+
+  // Remove a entrada de PV deste nível
+  hpByLevel.pop();
+
+  // Ajusta o nível de classe (ou remove a classe se cair a 0)
+  const entry = classLevels.find(e => e.classKey === last.classKey);
+  if (entry) {
+    if (last.classLv <= 1) {
+      classLevels = classLevels.filter(e => e.classKey !== last.classKey);
+    } else {
+      entry.level = last.classLv - 1;
+    }
+  }
+
+  // Remove todas as escolhas atreladas a este nível de personagem
+  acquiredTalents = acquiredTalents.filter(t => t.charLevel !== removedCharLevel);
+
+  // Recalcula PV máximo
+  const hpMaxEl = document.getElementById('hp-max');
+  if (hpMaxEl) {
+    hpMaxEl.value = hpByLevel.length ? hpByLevel.reduce((s, e) => s + e.total, 0) : '';
+  }
+
+  buildClassSection();
+  buildTalentsDisplay();
+  buildBonusFeatsDisplay();
+  scheduleSave();
+
+  showNotification(`Nível ${removedCharLevel}º desfeito (${clsName}).`);
+}
+
+// ============================================================
+//  XP / PROGRESSÃO DE NÍVEL (Tabela 3-1: Benefícios e
+//  Experiência Dependentes do Nível)
+// ============================================================
+
+// Maior nível de personagem permitido pelo total de XP (1–20).
+function levelFromXP(xp) {
+  let lv = 1;
+  for (let i = 0; i < XP_THRESHOLDS.length; i++) {
+    if (xp >= XP_THRESHOLDS[i]) lv = i + 1;
+    else break;
+  }
+  return lv;
+}
+
+const fmtXP = n => n.toLocaleString('pt-BR');
+
+// Atualiza a linha de status (benefícios do nível atual, XP p/ próximo
+// nível e aviso de level-up disponível). Chamada por recalcAll().
+function updateXpStatus() {
+  const statusEl = document.getElementById('xp-level-status');
+  if (!statusEl) return;
+
+  const xp        = numVal('xp-total', 0);
+  const charLv    = getCharLevel();          // nível já atribuído às classes
+  const displayLv = charLv || 1;
+  const xpLv      = levelFromXP(xp);
+
+  // Benefícios do nível total atual (Tabela 3-1)
+  const ben = LEVEL_BENEFITS[displayLv] || {};
+  const badges = [];
+  if (ben.feat)         badges.push('<span class="xp-badge xp-badge--feat">APTIDÃO</span>');
+  if (ben.abilityBoost) badges.push('<span class="xp-badge xp-badge--abil">AUMENTO DE HABILIDADE</span>');
+  const benefitHtml = badges.length
+    ? `Nível ${displayLv}º concede: ${badges.join(' ')}`
+    : `Nível ${displayLv}º: sem aptidão ou aumento de habilidade`;
+
+  // XP para o próximo nível
+  let nextHtml;
+  if (displayLv >= 20) {
+    nextHtml = '<span class="xp-status-item">Nível máximo (20º) atingido</span>';
+  } else {
+    const nextThreshold = XP_THRESHOLDS[displayLv];      // XP exigido p/ displayLv+1
+    const remaining     = Math.max(0, nextThreshold - xp);
+    nextHtml = `<span class="xp-status-item">Próximo nível (${displayLv + 1}º): faltam <strong>${fmtXP(remaining)}</strong> XP (de ${fmtXP(nextThreshold)})</span>`;
+  }
+
+  // Aviso de level-up liberado por XP
+  let prompt = '';
+  if (xpLv > charLv && charLv < 20) {
+    prompt = `<span class="xp-levelup-ready">↑ XP suficiente para o nível ${xpLv}º — suba de nível nas classes acima</span>`;
+  }
+
+  statusEl.innerHTML =
+    `<span class="xp-status-item">${benefitHtml}</span>` + nextHtml + prompt;
+}
+
 function renderClassTraits() {
   const panel = document.getElementById('class-traits-panel');
   const body  = document.getElementById('class-traits-body');
@@ -1001,10 +1145,10 @@ function buildTalentsDisplay() {
   let html = '';
 
   // List acquired talents
-  if (acquiredTalents.filter(t => t.treeKey !== '__bonusFeat__').length > 0) {
+  if (acquiredTalents.filter(t => !isFeatEntry(t)).length > 0) {
     html += '<div class="acquired-talents">';
     acquiredTalents
-      .filter(t => t.treeKey !== '__bonusFeat__')
+      .filter(t => !isFeatEntry(t))
       .forEach(t => {
         const cls = ALL_CLASSES[t.classKey];
         const tree = cls?.talentTrees.find(tr => tr.key === t.treeKey);
@@ -1047,7 +1191,7 @@ function buildTalentsDisplay() {
   container.querySelectorAll('.at-remove-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const cl = parseInt(btn.dataset.charLevel);
-      acquiredTalents = acquiredTalents.filter(t => !(t.charLevel === cl && t.treeKey !== '__bonusFeat__'));
+      acquiredTalents = acquiredTalents.filter(t => !(t.charLevel === cl && !isFeatEntry(t)));
       buildTalentsDisplay();
       scheduleSave();
     });
@@ -1058,31 +1202,41 @@ function buildBonusFeatsDisplay() {
   const container = document.getElementById('class-bonus-feats-display');
   if (!container) return;
 
-  const pendingSlots = getPendingBonusFeatSlots();
+  const pendingBonus = getPendingBonusFeatSlots();
+  const pendingLevel = getPendingLevelFeatSlots();
+
+  const bonusFeats = acquiredTalents.filter(t => t.treeKey === '__bonusFeat__');
+  const levelFeats = acquiredTalents.filter(t => t.treeKey === '__levelFeat__');
 
   let html = '';
 
-  // Acquired bonus feats
-  const bonusFeats = acquiredTalents.filter(t => t.treeKey === '__bonusFeat__');
-  if (bonusFeats.length > 0) {
+  // Aptidões adquiridas (bônus de classe + ganhas por nível)
+  if (bonusFeats.length > 0 || levelFeats.length > 0) {
     html += '<div class="acquired-talents">';
     bonusFeats.forEach(t => {
       const cls = ALL_CLASSES[t.classKey];
       const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[t.talentId] : null;
-      const tooltipText = featData?.description || '';
-      html += `<div class="acquired-talent-item has-tooltip" data-tooltip="${escTooltip(tooltipText)}">
+      html += `<div class="acquired-talent-item has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
           <span class="at-name">${t.talentId}</span>
           <span class="at-source">${cls?.name || t.classKey} — Aptidão Bônus</span>
           <button class="at-remove-btn" data-char-level="${t.charLevel}" data-tree="__bonusFeat__" title="Remover">✕</button>
         </div>`;
     });
+    levelFeats.forEach(t => {
+      const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[t.talentId] : null;
+      html += `<div class="acquired-talent-item has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
+          <span class="at-name">${t.talentId}</span>
+          <span class="at-source">Nível ${t.charLevel}º — Aptidão</span>
+          <button class="at-remove-btn" data-char-level="${t.charLevel}" data-tree="__levelFeat__" title="Remover">✕</button>
+        </div>`;
+    });
     html += '</div>';
-  } else if (pendingSlots.length === 0) {
-    html += '<p class="no-talents-msg">Nenhuma aptidão bônus adquirida.</p>';
+  } else if (pendingBonus.length === 0 && pendingLevel.length === 0) {
+    html += '<p class="no-talents-msg">Nenhuma aptidão adquirida.</p>';
   }
 
-  // Pending bonus feat slots
-  pendingSlots.forEach(slot => {
+  // Slots pendentes de aptidão bônus de classe
+  pendingBonus.forEach(slot => {
     const cls = ALL_CLASSES[slot.classKey];
     html += `<div class="talent-pick-slot">
       <span class="talent-pick-label">
@@ -1094,19 +1248,47 @@ function buildBonusFeatsDisplay() {
     </div>`;
   });
 
+  // Slots pendentes de aptidão ganha por nível (lista completa, não limitada)
+  pendingLevel.forEach(slot => {
+    html += `<div class="talent-pick-slot talent-pick-slot--level">
+      <span class="talent-pick-label">
+        Aptidão de Nível disponível: Personagem nível ${slot.charLevel}º
+      </span>
+      <button class="level-feat-pick-btn" data-char-level="${slot.charLevel}">
+        + Escolher Aptidão
+      </button>
+    </div>`;
+  });
+
   container.innerHTML = html;
 
-  // Bind pick buttons
+  // Pick — aptidão bônus de classe
   container.querySelectorAll('.bonus-feat-pick-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       openBonusFeatModal(btn.dataset.class, parseInt(btn.dataset.charLevel));
     });
   });
 
+  // Pick — aptidão de nível
+  container.querySelectorAll('.level-feat-pick-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openLevelFeatModal(parseInt(btn.dataset.charLevel));
+    });
+  });
+
+  // Remover
   container.querySelectorAll('.at-remove-btn[data-tree="__bonusFeat__"]').forEach(btn => {
     btn.addEventListener('click', () => {
       const cl = parseInt(btn.dataset.charLevel);
       acquiredTalents = acquiredTalents.filter(t => !(t.charLevel === cl && t.treeKey === '__bonusFeat__'));
+      buildBonusFeatsDisplay();
+      scheduleSave();
+    });
+  });
+  container.querySelectorAll('.at-remove-btn[data-tree="__levelFeat__"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cl = parseInt(btn.dataset.charLevel);
+      acquiredTalents = acquiredTalents.filter(t => !(t.charLevel === cl && t.treeKey === '__levelFeat__'));
       buildBonusFeatsDisplay();
       scheduleSave();
     });
@@ -1199,7 +1381,7 @@ function openBonusFeatModal(classKey, charLevel) {
 
   let html = '<div class="tm-tree"><div class="tm-tree-name">Lista de Aptidões Bônus</div><div class="tm-talents">';
   (cls.bonusFeatList || []).forEach(featName => {
-    const alreadyHas = acquiredTalents.some(t => t.talentId === featName && t.treeKey === '__bonusFeat__' && t.classKey === classKey);
+    const alreadyHas = acquiredTalents.some(t => t.talentId === featName && isFeatEntry(t));
     const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[featName] : null;
     const { locked: prereqLocked, missing } = checkFeatPrereqs(featName);
     const multiSelect = featData?.multiSelect || false;
@@ -1233,6 +1415,67 @@ function openBonusFeatModal(classKey, charLevel) {
     el.addEventListener('click', () => {
       const feat = el.dataset.feat;
       acquiredTalents.push({ classKey, treeKey: '__bonusFeat__', talentId: feat, charLevel });
+      modal.close();
+      buildBonusFeatsDisplay();
+      scheduleSave();
+    });
+  });
+
+  modal.showModal();
+}
+
+// ---- Aptidão de nível (lista completa, não limitada à lista de classe) ----
+
+function openLevelFeatModal(charLevel) {
+  const modal = document.getElementById('talent-modal');
+  const title = document.getElementById('talent-modal-title');
+  const body  = document.getElementById('talent-modal-body');
+  if (!modal || !body) return;
+
+  title.textContent = `APTIDÃO DE NÍVEL — PERSONAGEM NÍVEL ${charLevel}º`;
+
+  const featNames = (typeof ALL_FEATS !== 'undefined')
+    ? Object.keys(ALL_FEATS).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+    : [];
+
+  let html = `<div class="tm-tree">
+    <div class="tm-tree-name">Aptidões — lista completa</div>
+    <div class="tm-tree-desc">Aptidões ganhas pelo nível de personagem não são limitadas à lista de aptidões bônus de classe. Escolha qualquer aptidão cujos pré-requisitos você cumpra.</div>
+    <div class="tm-talents">`;
+
+  featNames.forEach(featName => {
+    const featData    = ALL_FEATS[featName];
+    const multiSelect = featData?.multiSelect || false;
+    const alreadyHas  = acquiredTalents.some(t => t.talentId === featName && isFeatEntry(t));
+    const { locked: prereqLocked, missing } = checkFeatPrereqs(featName);
+    const locked = prereqLocked || (alreadyHas && !multiSelect);
+
+    html += `<div class="tm-talent ${locked ? 'tm-locked' : 'tm-available'} tm-feat-item" data-feat="${featName}">
+      <div class="tm-talent-name">${featName}${alreadyHas ? ' ✓' : ''}</div>`;
+
+    if (featData?.prereqText && featData.prereqText !== '—') {
+      html += `<div class="tm-prereq ${prereqLocked ? 'tm-prereq-fail' : 'tm-prereq-ok'}">Pré-req: ${featData.prereqText}</div>`;
+    }
+    if (prereqLocked && missing.length) {
+      html += `<div class="tm-prereq tm-prereq-fail">Faltando: ${missing.join(', ')}</div>`;
+    }
+    if (featData?.description) {
+      html += `<div class="tm-talent-desc">${featData.description}</div>`;
+    }
+    if (multiSelect) {
+      html += `<div class="tm-multi-note">Pode ser escolhida múltiplas vezes</div>`;
+    }
+    html += `</div>`;
+  });
+  html += '</div></div>';
+
+  body.innerHTML = html;
+
+  body.querySelectorAll('.tm-feat-item.tm-available').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => {
+      const feat = el.dataset.feat;
+      acquiredTalents.push({ classKey: null, treeKey: '__levelFeat__', talentId: feat, charLevel });
       modal.close();
       buildBonusFeatsDisplay();
       scheduleSave();
@@ -1365,6 +1608,7 @@ function recalcAll() {
   recalcDefenses(mods);
   recalcSkills(mods);
   recalcDamageThreshold();
+  updateXpStatus();
 }
 
 // ============================================================
@@ -1697,7 +1941,10 @@ function bindEvents() {
   }
 
   // Auto-save on all input changes
-  document.addEventListener('input',  e => { if (e.target.id !== 'species') scheduleSave(); });
+  document.addEventListener('input',  e => {
+    if (e.target.id === 'xp-total') updateXpStatus(); // feedback ao vivo de progressão
+    if (e.target.id !== 'species') scheduleSave();
+  });
   document.addEventListener('change', e => { if (e.target.id !== 'species') { recalcAll(); scheduleSave(); } });
 
   // Talent modal close

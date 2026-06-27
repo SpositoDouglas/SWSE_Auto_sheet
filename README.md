@@ -4,7 +4,9 @@ Ficha de personagem digital para o sistema **Star Wars Saga Edition** (SWSE), co
 
 ## Funcionalidades
 
-- **Classes com multiclasse** — 5 classes heroicas (Jedi, Nobre, Malandro, Batedor, Soldado) com progressão por nível. Suporte completo a multiclasse: cada nível pode avançar em qualquer classe já adquirida ou adicionar uma nova.
+- **Classes com multiclasse** — 5 classes heroicas (Jedi, Nobre, Malandro, Batedor, Soldado) com progressão por nível. Suporte completo a multiclasse: cada nível pode avançar em qualquer classe já adquirida ou adicionar uma nova. Botão **Desfazer Nível** retrocede o último nível ganho (PV e escolhas) caso a classe escolhida tenha sido errada.
+- **Progressão por XP** — o campo de Experiência (na ficha principal) controla a subida de nível: só é possível ganhar um nível quando o XP total atinge o limite da Tabela 3-1. A ficha mostra o XP que falta para o próximo nível e indica quando o nível atual concede **Aptidão** e/ou **Aumento de Habilidade**.
+- **Aptidões por nível** — nos níveis 1, 3, 6, 9, 12, 15 e 18 (Tabela 3-1) a ficha abre um slot para escolher uma aptidão no mesmo estilo das aptidões bônus de classe, porém da lista completa (não limitada à lista da classe).
 - **HP automático** — nível 1 usa o máximo do dado da classe; nos demais, o usuário digita o resultado da rolagem e o modificador de CON é aplicado automaticamente (mínimo 1).
 - **Defesas auto-calculadas** — Fortitude, Reflexo e Vontade calculados com `10 + nível heróico + melhor bônus de classe + modificador de atributo + misc`.
 - **Árvores de Talentos** — modal interativo com as 4 árvores de cada classe, pré-requisitos verificados automaticamente, seleção com um clique.

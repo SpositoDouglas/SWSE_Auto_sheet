@@ -299,6 +299,51 @@ input[type="number"].field-input { text-align: center; }
 
 .char-info-fields .span2 { grid-column: span 2; }
 
+/* XP / PROGRESSÃO DE NÍVEL ---------------------------------- */
+.xp-level-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  margin-top: 9px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.xp-status-item strong { color: var(--text-bright); font-weight: 700; }
+
+.xp-badge {
+  display: inline-block;
+  font-family: var(--font-head);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-bright);
+  color: var(--text-bright);
+}
+
+.xp-badge--feat { background: rgba(120, 180, 255, 0.12); border-color: rgba(120, 180, 255, 0.5); }
+.xp-badge--abil { background: rgba(120, 255, 180, 0.12); border-color: rgba(120, 255, 180, 0.5); }
+
+.xp-levelup-ready {
+  font-family: var(--font-head);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #0b0b0b;
+  background: var(--accent);
+  padding: 3px 9px;
+  border-radius: var(--radius);
+  animation: xpPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes xpPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
 /* ============================================================
    MAIN SHEET GRID
    ============================================================ */
@@ -1730,7 +1775,7 @@ select.species-select option {
   flex: 1;
 }
 
-.talent-pick-btn, .bonus-feat-pick-btn {
+.talent-pick-btn, .bonus-feat-pick-btn, .level-feat-pick-btn {
   font-family: var(--font-head);
   font-size: 9px;
   letter-spacing: 0.1em;
@@ -1743,9 +1788,44 @@ select.species-select option {
   white-space: nowrap;
   transition: all 0.15s;
 }
-.talent-pick-btn:hover, .bonus-feat-pick-btn:hover {
+.talent-pick-btn:hover, .bonus-feat-pick-btn:hover, .level-feat-pick-btn:hover {
   background: rgba(255,230,0,0.2);
   border-color: rgba(255,230,0,0.6);
+}
+
+/* Slot de aptidão ganha por nível (azul, p/ distinguir das bônus de classe) */
+.talent-pick-slot--level {
+  background: rgba(120,180,255,0.05);
+  border-color: rgba(120,180,255,0.3);
+}
+.talent-pick-slot--level .talent-pick-label { color: rgba(150,195,255,0.8); }
+.level-feat-pick-btn {
+  background: rgba(120,180,255,0.12);
+  border-color: rgba(120,180,255,0.35);
+  color: rgba(180,210,255,0.95);
+}
+.level-feat-pick-btn:hover {
+  background: rgba(120,180,255,0.22);
+  border-color: rgba(120,180,255,0.6);
+}
+
+/* Botão de desfazer nível */
+.class-undo-btn {
+  font-family: var(--font-head);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  background: rgba(192,57,43,0.12);
+  border: 1px dashed rgba(192,57,43,0.45);
+  color: rgba(230,150,140,0.9);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.class-undo-btn:hover {
+  background: rgba(192,57,43,0.22);
+  border-color: rgba(192,57,43,0.8);
+  color: #ffd9d2;
 }
 
 .no-talents-msg {
