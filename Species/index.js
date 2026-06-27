@@ -2,6 +2,8 @@
 
 const SPECIES_DATA = {
   humano:      SPECIES_HUMANO,
+  codruji:     SPECIES_CODRUJI,
+  jawa:        SPECIES_JAWA,
   bothano:     SPECIES_BOTHANO,
   cereano:     SPECIES_CEREANO,
   duros:       SPECIES_DUROS,
