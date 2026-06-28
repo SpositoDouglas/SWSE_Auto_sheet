@@ -94,6 +94,7 @@ const CLASS_SCOUNDREL = {
           description: 'A qualquer momento que seu oponente estiver surpreendido ou, de outra maneira, tenha seu bônus de Destreza na Defesa de Reflexos negado, você causa 1d6 pontos de dano extra com um ataque corpo-a-corpo ou à distância bem sucedido. Você precisa estar a até 6 quadrados de distância do alvo para fazer um ataque furtivo com uma arma à distância. Você pode escolher este talento mais de uma vez; cada vez que o fizer, seu dano do ataque furtivo aumenta em +1d6 (até o máximo de +10d6).',
           prerequisites: [],
           multiSelect: true,
+          maxSelect: 10,
         },
         {
           id: 'combatant',

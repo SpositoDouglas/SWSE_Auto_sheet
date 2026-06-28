@@ -131,6 +131,8 @@ const CLASS_NOBLE = {
           name: 'Coordenar',
           description: 'Quando usa este talento, utilizando uma ação padrão, todos os aliados que estiverem dentro de sua linha de visão recebem +1 de bônus adicional quando usarem uma ação de prestar auxílio até o começo do seu próximo turno. Você pode escolher este talento mais de uma vez; cada vez que o fizer, o bônus concedido pelo talento Coordenar aumenta em +1 (para um máximo de +5).',
           prerequisites: ['bornLeader'],
+          multiSelect: true,
+          maxSelect: 5,
         },
         {
           id: 'commandAtDistance',
@@ -180,6 +182,7 @@ const CLASS_NOBLE = {
           name: 'Habilidade Espontânea',
           description: 'Uma vez por dia, você pode realizar um teste de uma perícia sem treinamento como se você fosse treinado nela. Exceção: você não pode usar este talento para realizar um teste sem treinamento de Usar a Força a menos que possua a aptidão Sensitivo à Força. Você pode selecionar este talento mais de uma vez; cada vez que fizer, você poderá utilizá-lo uma vez a mais por dia.',
           prerequisites: ['educated'],
+          multiSelect: true,
         },
       ],
     },

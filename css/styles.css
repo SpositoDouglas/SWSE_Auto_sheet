@@ -2039,6 +2039,12 @@ select.species-select option {
   margin-bottom: 3px;
 }
 
+.tm-pick-count {
+  font-size: 9px;
+  color: rgba(120,255,180,0.9);
+  letter-spacing: 0.04em;
+}
+
 .tm-talent-desc {
   font-size: 10px;
   color: var(--text-dim);

@@ -866,6 +866,11 @@ function hasTalent(talentId) {
   return acquiredTalents.some(t => t.talentId === talentId);
 }
 
+// Quantas vezes um talento foi escolhido (para talentos repetíveis com limite).
+function countTalent(talentId) {
+  return acquiredTalents.filter(t => t.talentId === talentId).length;
+}
+
 function talentPrereqsMet(talent) {
   if (!talent.prerequisites || talent.prerequisites.length === 0) return true;
   return talent.prerequisites.every(req => hasTalent(req));
@@ -1629,11 +1634,15 @@ function openTalentModal(classKey, charLevel) {
 
     tree.talents.forEach(talent => {
       const prereqMet = talentPrereqsMet(talent);
-      const alreadyHas = hasTalent(talent.id) && !talent.multiSelect;
-      const locked = !prereqMet || alreadyHas;
+      const picked = countTalent(talent.id);
+      // Limite de escolhas: maxSelect (se definido); senão 1 para não-repetível, ∞ para multiSelect.
+      const maxPicks = talent.maxSelect || (talent.multiSelect ? Infinity : 1);
+      const atLimit = picked >= maxPicks;
+      const locked = !prereqMet || atLimit;
 
+      const checkMark = picked > 0 ? ` <span class="tm-pick-count">✓${picked > 1 || talent.multiSelect ? ` ×${picked}` : ''}</span>` : '';
       html += `<div class="tm-talent ${locked ? 'tm-locked' : 'tm-available'}" data-talent-id="${talent.id}" data-tree="${tree.key}">
-        <div class="tm-talent-name">${talent.name}${alreadyHas ? ' ✓' : ''}</div>`;
+        <div class="tm-talent-name">${talent.name}${checkMark}</div>`;
 
       if (talent.prerequisites?.length) {
         const prereqNames = talent.prerequisites.map(pid => {
@@ -1652,7 +1661,10 @@ function openTalentModal(classKey, charLevel) {
         html += `<div class="tm-prereq tm-prereq-feat">BAB: +${talent.requiresBab}</div>`;
       }
       if (talent.multiSelect) {
-        html += `<div class="tm-multi-note">Pode ser escolhido múltiplas vezes</div>`;
+        const limitNote = talent.maxSelect
+          ? `Pode ser escolhido até ${talent.maxSelect}× (escolhido ${picked}/${talent.maxSelect})`
+          : 'Pode ser escolhido múltiplas vezes';
+        html += `<div class="tm-multi-note">${limitNote}</div>`;
       }
 
       html += `<div class="tm-talent-desc">${talent.description}</div>
