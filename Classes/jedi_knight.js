@@ -62,5 +62,9 @@ const CLASS_JEDI_KNIGHT = {
         { id: 'vaapad', name: 'Vaapad', description: 'Atacando com um sabre-de-luz, você obtém acerto crítico com um 19 ou 20 natural. Um 19 natural não é acerto automático; se obter 19 natural e ainda errar, você não obtém crítico.', prerequisites: ['juyo'], requiresFeat: 'Foco em Arma (sabres-de-luz); Especialização em Arma (sabres-de-luz)', requiresBab: 12 },
       ],
     },
+    // Também pode escolher talentos das árvores de Especialista em Armaduras (Soldado)
+    // e de Combate com Sabre-de-Luz (Jedi)
+    ...classTrees(CLASS_SOLDIER, 'armorSpecialist'),
+    ...classTrees(CLASS_JEDI, 'lightsaberCombat'),
   ],
 };

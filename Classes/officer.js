@@ -50,5 +50,8 @@ const CLASS_OFFICER = {
         { id: 'tacticalEdge', name: 'Margem Tática', description: 'Você pode usar os talentos Táticas de Assalto, Táticas de Posicionamento Estratégico ou Táticas de Campo como uma ação rápida ao invés de uma ação de movimento, desde que possua o talento em questão.', prerequisites: [] },
       ],
     },
+    // Também pode escolher talentos das árvores da Liderança (Nobre) e do Comando (Soldado)
+    ...classTrees(CLASS_NOBLE, 'leadership'),
+    ...classTrees(CLASS_SOLDIER, 'commando'),
   ],
 };

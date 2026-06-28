@@ -51,5 +51,8 @@ const CLASS_ELITE_TROOPER = {
         { id: 'controlledBurst', name: 'Rajada Controlada', description: 'A penalidade ao atacar em modo de disparo automático ou empregando a aptidão Rajada de Tiros é reduzida em 2. Se a arma só funciona em disparo automático, você não sofre penalidade na jogada de ataque.', prerequisites: [] },
       ],
     },
+    // Também pode escolher talentos das árvores do Comando (Soldado) e da Camuflagem (Batedor)
+    ...classTrees(CLASS_SOLDIER, 'commando'),
+    ...classTrees(CLASS_SCOUT, 'camouflage'),
   ],
 };

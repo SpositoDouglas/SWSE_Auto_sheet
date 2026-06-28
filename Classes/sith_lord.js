@@ -28,5 +28,7 @@ const CLASS_SITH_LORD = {
     5:  ['forceSecret', 'talent'],
   },
   bonusFeatList: [],
-  talentTrees: (typeof CLASS_SITH_APPRENTICE !== 'undefined') ? CLASS_SITH_APPRENTICE.talentTrees : [],
+  // Apenas a árvore Sith (o Aprendiz inclui outras árvores que NÃO se aplicam ao
+  // Lorde Sith). Também pode escolher de quaisquer árvores da Força (Capítulo 6).
+  talentTrees: classTrees(CLASS_SITH_APPRENTICE, 'sith'),
 };

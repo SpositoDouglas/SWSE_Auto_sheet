@@ -44,5 +44,8 @@ const CLASS_BOUNTY_HUNTER = {
         { id: 'noPlaceToHide', name: 'Sem Lugar para se Esconder', description: 'Você pode escolher jogar novamente qualquer teste de Obter Informação feito para localizar um indivíduo específico, mas você deve manter o resultado da nova jogada mesmo se ele for pior.', prerequisites: [] },
       ],
     },
+    // Também pode escolher talentos das árvores da Má Sorte (Malandro) e da Consciência (Batedor)
+    ...classTrees(CLASS_SCOUNDREL, 'misfortune'),
+    ...classTrees(CLASS_SCOUT, 'awareness'),
   ],
 };

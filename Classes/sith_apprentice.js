@@ -46,5 +46,10 @@ const CLASS_SITH_APPRENTICE = {
         { id: 'cruelStrike', name: 'Ataque Cruel', description: 'Quando obtiver um acerto crítico com um sabre-de-luz, você pode gastar um ponto da Força para fazer o alvo cair 2 passos no marcador de condição.', prerequisites: [], requiresFeat: 'Foco em Arma (sabres-de-luz); Especialização em Arma (sabres-de-luz)' },
       ],
     },
+    // Também pode escolher talentos das árvores de Especialista em Armaduras (Soldado),
+    // de Combate com Sabre-de-Luz (Jedi) e do Duelista (Cavaleiro Jedi)
+    ...classTrees(CLASS_SOLDIER, 'armorSpecialist'),
+    ...classTrees(CLASS_JEDI, 'lightsaberCombat'),
+    ...classTrees(CLASS_JEDI_KNIGHT, 'duelist'),
   ],
 };

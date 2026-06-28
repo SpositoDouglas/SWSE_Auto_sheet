@@ -53,5 +53,7 @@ const CLASS_CRIME_LORD = {
         { id: 'impelAlly2', name: 'Impelir Aliado II', description: 'Você pode gastar duas ações rápidas para conceder a um aliado a habilidade de realizar uma ação padrão ou de movimento. O aliado precisa realizar essa ação imediatamente em seu turno e antes de fazer qualquer coisa.', prerequisites: ['impelAlly1'] },
       ],
     },
+    // Também pode escolher talentos da árvore da Influência (Nobre)
+    ...classTrees(CLASS_NOBLE, 'influence'),
   ],
 };

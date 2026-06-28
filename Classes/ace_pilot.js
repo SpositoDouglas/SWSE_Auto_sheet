@@ -55,5 +55,7 @@ const CLASS_ACE_PILOT = {
         { id: 'targetSystems', name: 'Acertar Sistemas', description: 'Toda vez que você causar um dano que iguale ou exceda o limite de dano do veículo, você faz esse veículo cair 1 passo em seu marcador de condição.', prerequisites: ['expertGunner'] },
       ],
     },
+    // Também pode escolher talentos da árvore do Espaçonauta (Malandro)
+    ...classTrees(CLASS_SCOUNDREL, 'spacer'),
   ],
 };

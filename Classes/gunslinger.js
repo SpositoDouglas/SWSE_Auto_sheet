@@ -49,5 +49,8 @@ const CLASS_GUNSLINGER = {
         { id: 'trigger', name: 'Eficaz no Gatilho', description: 'Você não sofre penalidade na sua jogada de ataque quando estiver usando a aptidão Tiro Rápido.', prerequisites: [] },
       ],
     },
+    // Também pode escolher talentos das árvores da Sorte (Malandro) e da Consciência (Batedor)
+    ...classTrees(CLASS_SCOUNDREL, 'fortune'),
+    ...classTrees(CLASS_SCOUT, 'awareness'),
   ],
 };
