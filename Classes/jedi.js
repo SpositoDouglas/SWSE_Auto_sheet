@@ -38,7 +38,7 @@ const CLASS_JEDI = {
     20: ['bonusFeat'],
   },
   bonusFeatList: [
-    'Ataque Acrobático', 'Bênção da Força', 'Treinamento na Força', 'Defesas Aprimoradas',
+    'Ataque Acrobático', 'Treinamento na Força', 'Defesas Aprimoradas',
     'Defesa Corpo-a-Corpo', 'Ataque Poderoso', 'Saque Rápido', 'Foco em Perícia', 'Treinamento em Perícia',
     'Foco em Arma (sabres-de-luz)', 'Maestria com Duas Armas I', 'Maestria com Duas Armas II',
     'Maestria com Duas Armas III', 'Trespassar', 'Trespassar Aprimorado',
