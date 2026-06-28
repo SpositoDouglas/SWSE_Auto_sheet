@@ -7,11 +7,25 @@
 // ============================================================
 
 const ALL_CLASSES = {
+  // Classes base (heroicas)
   jedi:      CLASS_JEDI,
   noble:     CLASS_NOBLE,
   scoundrel: CLASS_SCOUNDREL,
   scout:     CLASS_SCOUT,
   soldier:   CLASS_SOLDIER,
+  // Classes de prestígio
+  acePilot:        CLASS_ACE_PILOT,
+  bountyHunter:    CLASS_BOUNTY_HUNTER,
+  crimeLord:       CLASS_CRIME_LORD,
+  eliteTrooper:    CLASS_ELITE_TROOPER,
+  forceAdept:      CLASS_FORCE_ADEPT,
+  forceDisciple:   CLASS_FORCE_DISCIPLE,
+  gunslinger:      CLASS_GUNSLINGER,
+  jediKnight:      CLASS_JEDI_KNIGHT,
+  jediMaster:      CLASS_JEDI_MASTER,
+  officer:         CLASS_OFFICER,
+  sithApprentice:  CLASS_SITH_APPRENTICE,
+  sithLord:        CLASS_SITH_LORD,
 };
 
 // XP thresholds per character level (index 0 = level 1)

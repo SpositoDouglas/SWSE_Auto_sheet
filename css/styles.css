@@ -1573,6 +1573,34 @@ select.species-select option {
   color: #ff6666;
 }
 
+/* Selo de prestígio no painel de características de classe */
+.class-trait-prestige {
+  font-family: var(--font-head);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: rgba(210,195,255,0.95);
+  border: 1px solid rgba(170,140,255,0.45);
+  background: rgba(150,120,255,0.12);
+  border-radius: var(--radius);
+  padding: 1px 5px;
+  vertical-align: middle;
+}
+
+/* Classes de prestígio no seletor */
+.class-selector-label--prestige { color: rgba(180,150,255,0.8); }
+.class-choice-btn--prestige {
+  border-color: rgba(170,140,255,0.45);
+  color: rgba(210,195,255,0.95);
+  background: rgba(150,120,255,0.10);
+}
+.class-choice-btn--prestige:hover { background: rgba(150,120,255,0.2); }
+.class-choice-btn--locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+.class-choice-btn--locked:hover { background: rgba(150,120,255,0.10); }
+
 /* HP Roll Panel */
 .hp-roll-panel {
   width: 100%;

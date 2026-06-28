@@ -1,0 +1,50 @@
+'use strict';
+
+const CLASS_SITH_APPRENTICE = {
+  key: 'sithApprentice',
+  name: 'Aprendiz Sith',
+  prestige: true,
+  description: 'O aprendiz Sith combina maestria em combate com o poder do lado negro para criar uma personificação viva de fúria e selvageria. Dedicado à conquista e subjugação de qualquer obstáculo para a tradição Sith. Jedi Caído: um Jedi que se torna aprendiz Sith mantém as características de sua classe Jedi (exceto poderes [Lado da Luz]).',
+  prereqs: {
+    minLevel: 7,
+    trainedSkills: ['useTheForce'],
+    feats: ['Sensitivo à Força', 'Proficiência com Armas (Sabres-de-luz)'],
+    notes: ['Valor do Lado Negro igual ao valor de Sabedoria', 'Deve ser membro da tradição Sith'],
+  },
+  hitDie: 10,
+  startingHP: 10,
+  trainedSkillsBase: 0,
+  defenseBonus: { fort: 2, ref: 2, will: 2 },
+  baseAttack: [1,2,3,4,5,6,7,8,9,10],
+  classSkills: ['acrobatics','deception','initiative','know1','know2','know3','know4','perception','persuasion','useTheForce'],
+  startingFeats: [],
+  levelFeatures: {
+    1:  ['defenseBonus', 'talent'],
+    2:  ['forceTechnique'],
+    3:  ['talent'],
+    4:  ['forceTechnique'],
+    5:  ['talent'],
+    6:  ['forceTechnique'],
+    7:  ['talent'],
+    8:  ['forceTechnique'],
+    9:  ['talent'],
+    10: ['forceTechnique'],
+  },
+  bonusFeatList: [],
+  talentTrees: [
+    {
+      key: 'sith',
+      name: 'Árvore de Talentos do Sith',
+      description: 'A tradição Sith acredita na ordem imposta pela tirania. Desde os dias antigos, os Sith conspiram para aniquilar os Jedi e tudo o que eles representam.',
+      talents: [
+        { id: 'darkHeal', name: 'Cura Sombria', description: 'Gaste um ponto da Força para curar feridas drenando a energia vital de outra criatura a até 6 quadrados (ação padrão; exige jogada de ataque à distância bem sucedida). Se o ataque igualar ou exceder a Defesa de Fortitude do alvo, você causa 1d6 de dano por nível de classe e restaura igual quantidade de PV. Se falhar, não surte efeito.', prerequisites: [] },
+        { id: 'darkScourge', name: 'Flagelo Negro', description: 'Você dedicou sua vida a aniquilar os Jedi. Contra personagens Jedi, você recebe um bônus do lado negro de +1 nas jogadas de ataque.', prerequisites: [] },
+        { id: 'darkSideAdept', name: 'Adepto do Lado Negro', description: 'Poderes da Força fortemente vinculados ao lado negro fluem mais facilmente. Você pode jogar novamente qualquer teste de Usar a Força para ativar poderes [lado negro], mas deve manter o novo resultado, mesmo pior.', prerequisites: [] },
+        { id: 'darkSideMaster', name: 'Mestre do Lado Negro', description: 'Como Adepto do Lado Negro, exceto que você pode gastar um ponto da Força para utilizar o melhor dos dois resultados dos testes de Usar a Força.', prerequisites: ['darkSideAdept'] },
+        { id: 'forceDeception', name: 'Dissimulação da Força', description: 'Você pode usar seu modificador de Usar a Força ao invés de Dissimulação quando usar a Força para encobrir seus atos vis (e é considerado treinado em Dissimulação para esse fim).', prerequisites: [] },
+        { id: 'improvedDarkHeal', name: 'Cura Sombria Aprimorada', description: 'Sua Cura Sombria melhora: o alcance aumenta para 12 quadrados e, mesmo que o ataque falhe, o alvo recebe metade do dano e você restaura igual quantidade de PV.', prerequisites: ['darkHeal'] },
+        { id: 'cruelStrike', name: 'Ataque Cruel', description: 'Quando obtiver um acerto crítico com um sabre-de-luz, você pode gastar um ponto da Força para fazer o alvo cair 2 passos no marcador de condição.', prerequisites: [], requiresFeat: 'Foco em Arma (sabres-de-luz); Especialização em Arma (sabres-de-luz)' },
+      ],
+    },
+  ],
+};

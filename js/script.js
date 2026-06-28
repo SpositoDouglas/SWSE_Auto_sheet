@@ -706,6 +706,44 @@ function checkFeatPrereqs(featName) {
   return { locked: missing.length > 0, missing };
 }
 
+// Nome em português de uma perícia (para mensagens de pré-requisito)
+function skillDisplayName(id) {
+  const s = (typeof SKILLS !== 'undefined') ? SKILLS.find(sk => sk.id === id) : null;
+  return s ? s.name : id;
+}
+
+// Verifica os pré-requisitos de uma classe de prestígio.
+//  "Duros" (verificáveis, bloqueiam): minLevel, bab, trainedSkills, feats.
+//  "Moles" (notes: talentos de certas árvores, condições especiais): apenas
+//  exibidos como lembrete — o jogador auto-declara que os cumpre.
+function checkClassPrereqs(classKey) {
+  const cls = ALL_CLASSES[classKey];
+  if (!cls || !cls.prereqs) return { locked: false, missing: [], notes: [] };
+  const p = cls.prereqs;
+  const missing = [];
+  const notes = [];
+
+  if (p.minLevel && getCharLevel() < p.minLevel) missing.push(`Nível ${p.minLevel}º`);
+  if (p.bab && getCharBAB() < p.bab) missing.push(`BAB +${p.bab}`);
+  if (Array.isArray(p.trainedSkills)) {
+    p.trainedSkills.forEach(sid => {
+      if (!isSkillTrained(sid)) missing.push('Treinado em ' + skillDisplayName(sid));
+    });
+  }
+  if (Array.isArray(p.feats)) {
+    p.feats.forEach(f => {
+      if (Array.isArray(f)) {              // OR: basta uma das aptidões
+        if (!f.some(o => characterHasFeat(o))) missing.push(f[0]);
+      } else if (!characterHasFeat(f)) {
+        missing.push(f);
+      }
+    });
+  }
+  if (Array.isArray(p.notes)) notes.push(...p.notes);
+
+  return { locked: missing.length > 0, missing, notes };
+}
+
 function getClassDisplayName() {
   if (classLevels.length === 0) return '';
   return classLevels.map(e => {
@@ -842,10 +880,18 @@ function buildClassSection() {
 
     const plusBtn = document.createElement('button');
     plusBtn.className = 'class-plus-btn';
-    plusBtn.title = `Subir de nível em ${cls ? cls.name : e.classKey}`;
-    plusBtn.textContent = '+';
     plusBtn.dataset.classKey = e.classKey;
-    plusBtn.addEventListener('click', () => startLevelUp(e.classKey, false));
+    const maxClassLv = cls ? cls.baseAttack.length : 20;
+    if (e.level >= maxClassLv) {
+      // Classe no nível máximo (relevante para classes de prestígio de 5/10 níveis)
+      plusBtn.textContent = '✓';
+      plusBtn.disabled = true;
+      plusBtn.title = `${cls ? cls.name : e.classKey} já está no nível máximo (${maxClassLv})`;
+    } else {
+      plusBtn.textContent = '+';
+      plusBtn.title = `Subir de nível em ${cls ? cls.name : e.classKey}`;
+      plusBtn.addEventListener('click', () => startLevelUp(e.classKey, false));
+    }
 
     card.appendChild(nameEl);
     card.appendChild(lvEl);
@@ -906,7 +952,9 @@ function showClassSelector(mode) {
   if (!actionsEl) return;
 
   const takenKeys = (mode === 'first') ? [] : classLevels.map(e => e.classKey);
-  const available = Object.keys(ALL_CLASSES).filter(k => !takenKeys.includes(k));
+  const allKeys      = Object.keys(ALL_CLASSES).filter(k => !takenKeys.includes(k));
+  const baseKeys     = allKeys.filter(k => !ALL_CLASSES[k].prestige);
+  const prestigeKeys = allKeys.filter(k =>  ALL_CLASSES[k].prestige);
 
   actionsEl.innerHTML = '';
 
@@ -915,14 +963,48 @@ function showClassSelector(mode) {
   label.textContent = mode === 'first' ? 'Escolha sua classe:' : 'Nova classe:';
   actionsEl.appendChild(label);
 
-  available.forEach(key => {
-    const cls = ALL_CLASSES[key];
+  // Classes base
+  baseKeys.forEach(key => {
     const btn = document.createElement('button');
     btn.className = 'class-choice-btn';
-    btn.textContent = cls.name;
+    btn.textContent = ALL_CLASSES[key].name;
     btn.addEventListener('click', () => startLevelUp(key, mode !== 'first'));
     actionsEl.appendChild(btn);
   });
+
+  // Classes de prestígio — apenas via multiclasse, com pré-requisitos
+  if (mode !== 'first' && prestigeKeys.length) {
+    const plabel = document.createElement('span');
+    plabel.className = 'class-selector-label class-selector-label--prestige';
+    plabel.textContent = 'Prestígio:';
+    actionsEl.appendChild(plabel);
+
+    prestigeKeys.forEach(key => {
+      const cls = ALL_CLASSES[key];
+      const { locked, missing, notes } = checkClassPrereqs(key);
+
+      const btn = document.createElement('button');
+      btn.className = 'class-choice-btn class-choice-btn--prestige' + (locked ? ' class-choice-btn--locked' : '');
+      btn.textContent = cls.name;
+
+      const tip = [];
+      if (missing.length) tip.push('Faltando: ' + missing.join(', '));
+      if (notes.length)   tip.push('Também exige (confirme): ' + notes.join('; '));
+      btn.title = tip.join('\n') || 'Pré-requisitos cumpridos';
+
+      if (locked) {
+        btn.disabled = true;
+      } else {
+        btn.addEventListener('click', () => {
+          if (notes.length) {
+            showNotification('Lembre-se dos requisitos: ' + notes.join('; '));
+          }
+          startLevelUp(key, true);
+        });
+      }
+      actionsEl.appendChild(btn);
+    });
+  }
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'class-choice-btn class-choice-btn--cancel';
@@ -1168,19 +1250,42 @@ function renderClassTraits() {
   classLevels.forEach(e => {
     const cls = ALL_CLASSES[e.classKey];
     if (!cls) return;
-    html += `<div class="class-trait-entry">
-      <div class="class-trait-header">${cls.name.toUpperCase()}</div>
-      <div class="class-trait-row"><span class="ctlbl">Dado de Vida:</span> d${cls.hitDie}</div>
-      <div class="class-trait-row"><span class="ctlbl">Perícias Treinadas:</span> ${cls.trainedSkillsBase} + mod INT</div>
-      <div class="class-trait-row"><span class="ctlbl">Bônus de Defesa:</span> FORT +${cls.defenseBonus.fort||0}, REF +${cls.defenseBonus.ref||0}, VON +${cls.defenseBonus.will||0}</div>
-      <div class="class-trait-row class-trait-feats"><span class="ctlbl">Aptidões Iniciais:</span>
+    const trainedRow = cls.prestige
+      ? ''
+      : `<div class="class-trait-row"><span class="ctlbl">Perícias Treinadas:</span> ${cls.trainedSkillsBase} + mod INT</div>`;
+
+    // Pré-requisitos (classes de prestígio)
+    let prereqRow = '';
+    if (cls.prestige && cls.prereqs) {
+      const p = cls.prereqs;
+      const reqs = [];
+      if (p.minLevel) reqs.push(`Nível ${p.minLevel}º`);
+      if (p.bab) reqs.push(`BAB +${p.bab}`);
+      if (Array.isArray(p.trainedSkills)) p.trainedSkills.forEach(s => reqs.push('Treinado em ' + skillDisplayName(s)));
+      if (Array.isArray(p.feats)) p.feats.forEach(f => reqs.push(Array.isArray(f) ? f[0] : f));
+      if (Array.isArray(p.notes)) p.notes.forEach(n => reqs.push(n));
+      prereqRow = `<div class="class-trait-row"><span class="ctlbl">Pré-requisitos:</span> ${reqs.join('; ')}</div>`;
+    }
+
+    // Aptidões iniciais (só classes base concedem)
+    const featsRow = (cls.startingFeats && cls.startingFeats.length)
+      ? `<div class="class-trait-row class-trait-feats"><span class="ctlbl">Aptidões Iniciais:</span>
         <div class="starting-feats-list">${cls.startingFeats.map(f => {
           const fd = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[f] : null;
           return fd
             ? `<span class="starting-feat-item" title="${fd.description}">${f}${fd.prereqText && fd.prereqText !== '—' ? ` <em>(Pré-req: ${fd.prereqText})</em>` : ''}</span>`
             : `<span class="starting-feat-item">${f}</span>`;
         }).join('')}</div>
-      </div>
+      </div>`
+      : '';
+
+    html += `<div class="class-trait-entry">
+      <div class="class-trait-header">${cls.name.toUpperCase()}${cls.prestige ? ' <span class="class-trait-prestige">Prestígio</span>' : ''}</div>
+      <div class="class-trait-row"><span class="ctlbl">Dado de Vida:</span> d${cls.hitDie}</div>
+      ${trainedRow}
+      <div class="class-trait-row"><span class="ctlbl">Bônus de Defesa:</span> FORT +${cls.defenseBonus.fort||0}, REF +${cls.defenseBonus.ref||0}, VON +${cls.defenseBonus.will||0}</div>
+      ${prereqRow}
+      ${featsRow}
     </div>`;
   });
 
