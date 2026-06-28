@@ -1574,14 +1574,15 @@ function openSpeciesFeatModal(slotName) {
 
   Object.keys(feats)
     .filter(featName => !feats[featName].speciesOnly)
+    // Remove aptidões não-repetíveis já adquiridas por qualquer fonte.
+    .filter(featName => feats[featName].multiSelect || !characterHasFeat(featName))
     .forEach(featName => {
     const featData = feats[featName];
     const { locked, missing } = checkFeatPrereqs(featName);
-    const alreadyHas = characterHasFeat(featName);
-    const isLocked = locked || (alreadyHas && !featData.multiSelect);
+    const isLocked = locked;
 
     html += `<div class="tm-talent ${isLocked ? 'tm-locked' : 'tm-available'} tm-feat-item" data-feat="${featName}">
-      <div class="tm-talent-name">${featName}${alreadyHas ? ' ✓' : ''}</div>`;
+      <div class="tm-talent-name">${featName}</div>`;
     if (featData.prereqText && featData.prereqText !== '—') {
       const cls = locked ? 'tm-prereq-fail' : 'tm-prereq-ok';
       html += `<div class="tm-prereq ${cls}">Pré-req: ${featData.prereqText}</div>`;
@@ -1634,11 +1635,13 @@ function openTalentModal(classKey, charLevel) {
 
     tree.talents.forEach(talent => {
       const prereqMet = talentPrereqsMet(talent);
+      const featMet = !talent.requiresFeat || characterHasFeat(talent.requiresFeat);
+      const babMet  = !talent.requiresBab || getCharBAB() >= talent.requiresBab;
       const picked = countTalent(talent.id);
       // Limite de escolhas: maxSelect (se definido); senão 1 para não-repetível, ∞ para multiSelect.
       const maxPicks = talent.maxSelect || (talent.multiSelect ? Infinity : 1);
       const atLimit = picked >= maxPicks;
-      const locked = !prereqMet || atLimit;
+      const locked = !prereqMet || !featMet || !babMet || atLimit;
 
       const checkMark = picked > 0 ? ` <span class="tm-pick-count">✓${picked > 1 || talent.multiSelect ? ` ×${picked}` : ''}</span>` : '';
       html += `<div class="tm-talent ${locked ? 'tm-locked' : 'tm-available'}" data-talent-id="${talent.id}" data-tree="${tree.key}">
@@ -1655,10 +1658,10 @@ function openTalentModal(classKey, charLevel) {
         html += `<div class="tm-prereq ${prereqMet ? 'tm-prereq-ok' : 'tm-prereq-fail'}">Pré-req: ${prereqNames.join(', ')}</div>`;
       }
       if (talent.requiresFeat) {
-        html += `<div class="tm-prereq tm-prereq-feat">Aptidão: ${talent.requiresFeat}</div>`;
+        html += `<div class="tm-prereq ${featMet ? 'tm-prereq-ok' : 'tm-prereq-fail'}">Aptidão: ${talent.requiresFeat}</div>`;
       }
       if (talent.requiresBab) {
-        html += `<div class="tm-prereq tm-prereq-feat">BAB: +${talent.requiresBab}</div>`;
+        html += `<div class="tm-prereq ${babMet ? 'tm-prereq-ok' : 'tm-prereq-fail'}">BAB: +${talent.requiresBab}</div>`;
       }
       if (talent.multiSelect) {
         const limitNote = talent.maxSelect
@@ -1704,15 +1707,19 @@ function openBonusFeatModal(classKey, charLevel) {
   title.textContent = `APTIDÃO BÔNUS — ${cls.name.toUpperCase()} (Nível ${charLevel})`;
 
   let html = '<div class="tm-tree"><div class="tm-tree-name">Lista de Aptidões Bônus</div><div class="tm-talents">';
-  (cls.bonusFeatList || []).forEach(featName => {
-    const alreadyHas = acquiredTalents.some(t => t.talentId === featName && isFeatEntry(t));
+  (cls.bonusFeatList || [])
+    // Remove aptidões não-repetíveis já adquiridas por qualquer fonte.
+    .filter(featName => {
+      const fd = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[featName] : null;
+      return (fd && fd.multiSelect) || !characterHasFeat(featName);
+    })
+    .forEach(featName => {
     const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[featName] : null;
     const { locked: prereqLocked, missing } = checkFeatPrereqs(featName);
-    const multiSelect = featData?.multiSelect || false;
-    const locked = prereqLocked || (alreadyHas && !multiSelect);
+    const locked = prereqLocked;
 
     html += `<div class="tm-talent ${locked ? 'tm-locked' : 'tm-available'} tm-feat-item" data-feat="${featName}">
-      <div class="tm-talent-name">${featName}${alreadyHas ? ' ✓' : ''}</div>`;
+      <div class="tm-talent-name">${featName}</div>`;
 
     if (featData?.prereqText && featData.prereqText !== '—') {
       const missingClass = prereqLocked ? 'tm-prereq-fail' : 'tm-prereq-ok';
@@ -1761,6 +1768,9 @@ function openLevelFeatModal(charLevel) {
   const featNames = (typeof ALL_FEATS !== 'undefined')
     ? Object.keys(ALL_FEATS)
         .filter(name => !ALL_FEATS[name].speciesOnly)
+        // Remove aptidões não-repetíveis já adquiridas por qualquer fonte
+        // (inicial de classe, espécie automática/condicional/escolha, bônus, nível).
+        .filter(name => ALL_FEATS[name].multiSelect || !characterHasFeat(name))
         .sort((a, b) => a.localeCompare(b, 'pt-BR'))
     : [];
 
@@ -1772,12 +1782,11 @@ function openLevelFeatModal(charLevel) {
   featNames.forEach(featName => {
     const featData    = ALL_FEATS[featName];
     const multiSelect = featData?.multiSelect || false;
-    const alreadyHas  = acquiredTalents.some(t => t.talentId === featName && isFeatEntry(t));
     const { locked: prereqLocked, missing } = checkFeatPrereqs(featName);
-    const locked = prereqLocked || (alreadyHas && !multiSelect);
+    const locked = prereqLocked;
 
     html += `<div class="tm-talent ${locked ? 'tm-locked' : 'tm-available'} tm-feat-item" data-feat="${featName}">
-      <div class="tm-talent-name">${featName}${alreadyHas ? ' ✓' : ''}</div>`;
+      <div class="tm-talent-name">${featName}</div>`;
 
     if (featData?.prereqText && featData.prereqText !== '—') {
       html += `<div class="tm-prereq ${prereqLocked ? 'tm-prereq-fail' : 'tm-prereq-ok'}">Pré-req: ${featData.prereqText}</div>`;
