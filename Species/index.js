@@ -2,6 +2,7 @@
 
 const SPECIES_DATA = {
   humano:      SPECIES_HUMANO,
+  aqualish:    SPECIES_AQUALISH,
   codruji:     SPECIES_CODRUJI,
   jawa:        SPECIES_JAWA,
   bothano:     SPECIES_BOTHANO,
@@ -10,14 +11,17 @@ const SPECIES_DATA = {
   ewok:        SPECIES_EWOK,
   gamorreano:  SPECIES_GAMORREANO,
   gungan:      SPECIES_GUNGAN,
+  hutt:        SPECIES_HUTT,
   ithoriano:   SPECIES_ITHORIANO,
   keldor:      SPECIES_KELDOR,
   moncalamari: SPECIES_MONCALAMARI,
+  neimoidiano: SPECIES_NEIMOIDIANO,
   quarren:     SPECIES_QUARREN,
   rodiano:     SPECIES_RODIANO,
   sullustano:  SPECIES_SULLUSTANO,
   trandoshano: SPECIES_TRANDOSHANO,
   twilek:      SPECIES_TWILEK,
   wookie:      SPECIES_WOOKIE,
+  yuuzhanvong: SPECIES_YUUZHANVONG,
   zabrak:      SPECIES_ZABRAK,
 };

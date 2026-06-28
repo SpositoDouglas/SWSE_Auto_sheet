@@ -254,6 +254,13 @@ const ALL_FEATS = {
     multiSelect: true,
   },
 
+  'Foco em Perícia (Dissimulação)': {
+    description: 'Você recebe +5 de bônus de competência em testes de Dissimulação.',
+    prereqText: 'Dissimulação treinada (traço de espécie Neimoidiano)',
+    prereqs: {},
+    speciesOnly: true,
+  },
+
   'Foco em Perícia (Iniciativa)': {
     description: 'Você recebe +5 de bônus de competência em testes de Iniciativa.',
     prereqText: 'Iniciativa treinada (traço de espécie Cereano)',
