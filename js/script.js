@@ -1089,10 +1089,23 @@ function startLevelUp(classKey, isNew) {
   const totalEl   = document.getElementById('hp-roll-total');
   if (rollInput && !isFirstCharLevel) {
     rollInput.addEventListener('input', () => {
+      // Limita o valor digitado ao intervalo do dado de vida (1 a hitDie).
+      if (rollInput.value !== '') {
+        let r = parseInt(rollInput.value, 10);
+        if (isNaN(r)) {
+          rollInput.value = '';
+        } else {
+          if (r > hitDie) r = hitDie;
+          if (r < 1) r = 1;
+          if (String(r) !== rollInput.value) rollInput.value = r;
+        }
+      }
       const r = parseInt(rollInput.value, 10);
       if (!isNaN(r) && totalEl) {
         const t = Math.max(1, r + conMod);
         totalEl.textContent = t;
+      } else if (totalEl) {
+        totalEl.textContent = '?';
       }
     });
   }

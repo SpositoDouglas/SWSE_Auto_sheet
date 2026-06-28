@@ -261,6 +261,16 @@ body {
 
 input[type="number"].field-input { text-align: center; }
 
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 .notes-textarea {
   width: 100%;
   background: var(--input-bg);
