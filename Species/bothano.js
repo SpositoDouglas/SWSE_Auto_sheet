@@ -9,5 +9,6 @@ const SPECIES_BOTHANO = {
     { name: 'Estatura Mediana', desc: 'Bothanos não recebem bônus ou penalidades por seu tamanho.' },
     { name: 'Vontade de Ferro', desc: '+2 de bônus de espécie à Defesa de Vontade.' },
     { name: 'Aptidão Extra Condicional', desc: 'Um bothano com Obter Informação como perícia treinada recebe Foco em Perícia (Obter Informação) como aptidão bônus.' },
-  ]
+  ],
+  conditionalFeats: [{ feat: 'Foco em Perícia (Obter Informações)', requiresTrained: 'gatherInfo', condText: 'Obter Informações treinado' }],
 };

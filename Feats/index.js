@@ -254,6 +254,55 @@ const ALL_FEATS = {
     multiSelect: true,
   },
 
+  'Foco em Perícia (Iniciativa)': {
+    description: 'Você recebe +5 de bônus de competência em testes de Iniciativa.',
+    prereqText: 'Iniciativa treinada (traço de espécie Cereano)',
+    prereqs: {},
+    speciesOnly: true,
+  },
+
+  'Foco em Perícia (Obter Informações)': {
+    description: 'Você recebe +5 de bônus de competência em testes de Obter Informações.',
+    prereqText: 'Obter Informações treinado (traço de espécie Bothano)',
+    prereqs: {},
+    speciesOnly: true,
+  },
+
+  'Foco em Perícia (Percepção)': {
+    description: 'Você recebe +5 de bônus de competência em testes de Percepção.',
+    prereqText: 'Percepção treinada (traço de espécie Mon Calamari)',
+    prereqs: {},
+    speciesOnly: true,
+  },
+
+  'Foco em Perícia (Persuasão)': {
+    description: 'Você recebe +5 de bônus de competência em testes de Persuasão.',
+    prereqText: 'Persuasão treinada (traço de espécie Quarren)',
+    prereqs: {},
+    speciesOnly: true,
+  },
+
+  'Foco em Perícia (Sobrevivência)': {
+    description: 'Você recebe +5 de bônus de competência em testes de Sobrevivência.',
+    prereqText: 'Sobrevivência treinada (traço de espécie Ewok/Rodiano)',
+    prereqs: {},
+    speciesOnly: true,
+  },
+
+  'Foco em Perícia (Conhecimentos [Ciências Biológicas])': {
+    description: 'Você recebe +5 de bônus de competência em testes de Conhecimentos (Ciências Biológicas).',
+    prereqText: 'Conhecimentos (Ciências Biológicas) treinado (traço de espécie Ithoriano)',
+    prereqs: {},
+    speciesOnly: true,
+  },
+
+  'Fúria Nata': {
+    description: 'Uma vez por dia, utilizando uma ação rápida, você pode entrar em fúria por 5 + modificador de Constituição rodadas. Em fúria recebe +2 de bônus nas jogadas de ataque e dano em corpo-a-corpo, mas não pode usar Mecânica, Furtividade ou Usar a Força. Ao terminar a fúria, cai 1 passo persistente no marcador de condição (recuperação: mínimo 10 minutos de descanso).',
+    prereqText: 'Traço de espécie Wookie',
+    prereqs: {},
+    speciesOnly: true,
+  },
+
   'Franco-Atirador': {
     description: 'Você sempre ignora cobertura leve quando fizer um ataque à distância.',
     prereqText: 'Tiro à Queima-Roupa, Tiro Preciso, BAB +4',
@@ -263,13 +312,13 @@ const ALL_FEATS = {
   'Fúria Assustadora': {
     description: 'Quando estiver em fúria, seus bônus de fúria nas jogadas de ataque e dano corpo-a-corpo aumentam para +5 (ao invés de +2).',
     prereqText: 'Fúria Nata (traço de espécie), BAB +1',
-    prereqs: { bab: 1 },
+    prereqs: { bab: 1, feats: ['Fúria Nata'] },
   },
 
   'Fúria Extra': {
     description: 'Você pode entrar em fúria uma vez a mais por dia.',
     prereqText: 'Fúria Nata (traço de espécie)',
-    prereqs: {},
+    prereqs: { feats: ['Fúria Nata'] },
     multiSelect: true,
   },
 

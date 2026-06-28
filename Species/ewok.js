@@ -11,5 +11,6 @@ const SPECIES_EWOK = {
     { name: 'Olfato', desc: 'Quando a até 10 quadrados de distância, ignora obstáculos e coberturas em testes de Percepção e não recebe penalidade por baixa visibilidade ao rastrear.' },
     { name: 'Sorrateiro', desc: 'Pode refazer um teste de Furtividade, mas o segundo resultado é definitivo mesmo se for inferior ao primeiro.' },
     { name: 'Aptidão Extra Condicional', desc: 'Um ewok com Sobrevivência como perícia treinada recebe Foco em Perícia (Sobrevivência) como aptidão bônus.' },
-  ]
+  ],
+  conditionalFeats: [{ feat: 'Foco em Perícia (Sobrevivência)', requiresTrained: 'survival', condText: 'Sobrevivência treinada' }],
 };

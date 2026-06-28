@@ -10,5 +10,6 @@ const SPECIES_GAMORREANO = {
     { name: 'Primitivos', desc: 'Não recebe a aptidão Proficiência com Armas (pistolas, rifles ou armas pesadas) como aptidão inicial no 1º nível, mesmo se a classe lhes garantir.' },
     { name: 'Grande Fortitude', desc: '+2 de bônus de espécie à Defesa de Fortitude.' },
     { name: 'Aptidão Extra', desc: 'A espécie recebe Limite de Dano Aprimorado como aptidão bônus.' },
-  ]
+  ],
+  autoFeats: ['Limite de Dano Aprimorado'],
 };

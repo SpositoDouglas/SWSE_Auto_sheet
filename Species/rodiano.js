@@ -10,5 +10,6 @@ const SPECIES_RODIANO = {
     { name: 'Percepção Elevada', desc: 'Pode jogar novamente qualquer teste de Percepção (segundo resultado é definitivo).' },
     { name: 'Visão na Penumbra', desc: 'Ignora camuflagem (mas não camuflagem total) pela escuridão.' },
     { name: 'Aptidão Extra Condicional', desc: 'Um rodiano com Sobrevivência como perícia treinada recebe Foco em Perícia (Sobrevivência) automaticamente.' },
-  ]
+  ],
+  conditionalFeats: [{ feat: 'Foco em Perícia (Sobrevivência)', requiresTrained: 'survival', condText: 'Sobrevivência treinada' }],
 };

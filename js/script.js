@@ -563,6 +563,9 @@ function applySpecies(newKey) {
     if (delta !== 0) input.value = (parseInt(input.value, 10) || 0) + delta;
   });
 
+  // Limpa a aptidão de escolha de espécie ao trocar de espécie
+  acquiredTalents = acquiredTalents.filter(t => t.treeKey !== '__speciesFeat__');
+
   activeSpeciesKey = newKey || null;
 
   const speedInput = document.getElementById('speed');
@@ -572,6 +575,7 @@ function applySpecies(newKey) {
   updateAutoLanguages(newData ? newData.autoLangs : []);
   renderSpeciesTraits(newData);
   recalcAll();
+  buildBonusFeatsDisplay();
   scheduleSave();
 }
 
@@ -640,11 +644,17 @@ function characterHasFeat(name) {
   for (const inp of inputs) {
     if (norm(inp.value || '') === target) return true;
   }
+  // Aptidões automáticas de espécie (sempre concedidas)
+  const sp = activeSpeciesKey ? SPECIES_DATA[activeSpeciesKey] : null;
+  if (sp && Array.isArray(sp.autoFeats)) {
+    if (sp.autoFeats.some(f => norm(f) === target)) return true;
+  }
+  // Aptidão de escolha de espécie (ex: Humano Aptidão Extra)
+  if (acquiredTalents.some(t => t.treeKey === '__speciesFeat__' && norm(t.talentId) === target)) return true;
   // Aptidões condicionais de espécie (concedidas quando a condição é atendida).
   // Guarda contra reentrância: conditionalFeatMet() chama checkFeatPrereqs(),
   // que pode chamar characterHasFeat() de volta.
   if (!_checkingConditionalFeat) {
-    const sp = activeSpeciesKey ? SPECIES_DATA[activeSpeciesKey] : null;
     if (sp && Array.isArray(sp.conditionalFeats)) {
       _checkingConditionalFeat = true;
       const granted = sp.conditionalFeats.some(cf => norm(cf.feat) === target && conditionalFeatMet(cf));
@@ -807,10 +817,15 @@ function isFeatEntry(t) {
 }
 
 // Condição de uma aptidão condicional de espécie está atendida?
-//  - requiresTrained (se houver): a perícia precisa estar treinada
-//  - os pré-requisitos da própria aptidão (Des/BAB/etc.) precisam ser cumpridos
+//  - requiresTrained: a perícia precisa estar treinada
+//  - requiresAnyKnowledge: qualquer perícia de Conhecimento treinada
+//  - pré-requisitos da própria aptidão (Des/BAB/etc.) via checkFeatPrereqs
 function conditionalFeatMet(cf) {
   if (cf.requiresTrained && !isSkillTrained(cf.requiresTrained)) return false;
+  if (cf.requiresAnyKnowledge) {
+    const anyKnow = ['know1','know2','know3','know4'].some(id => isSkillTrained(id));
+    if (!anyKnow) return false;
+  }
   const { locked } = checkFeatPrereqs(cf.feat);
   return !locked;
 }
@@ -1370,12 +1385,47 @@ function buildBonusFeatsDisplay() {
   const condUnmet  = condFeats.filter(c => !c.met);
   const bonusFeats = acquiredTalents.filter(t => t.treeKey === '__bonusFeat__');
   const levelFeats = acquiredTalents.filter(t => t.treeKey === '__levelFeat__');
+  const speciesData = activeSpeciesKey ? SPECIES_DATA[activeSpeciesKey] : null;
+  const autoFeats  = speciesData?.autoFeats || [];
+  const choiceFeats = speciesData?.choiceFeats || [];
+  const chosenSpeciesFeats = acquiredTalents.filter(t => t.treeKey === '__speciesFeat__');
+  const pendingChoiceFeats = choiceFeats.filter(
+    cf => !chosenSpeciesFeats.some(t => t.slotName === cf.name)
+  );
 
   let html = '';
 
-  // Aptidões: iniciais da classe + condicionais de espécie (atendidas) + bônus + de nível
-  if (startingFeats.length > 0 || condMet.length > 0 || bonusFeats.length > 0 || levelFeats.length > 0) {
+  const hasAnyAcquired = startingFeats.length > 0 || condMet.length > 0 ||
+    bonusFeats.length > 0 || levelFeats.length > 0 ||
+    autoFeats.length > 0 || chosenSpeciesFeats.length > 0;
+
+  if (hasAnyAcquired) {
     html += '<div class="acquired-talents">';
+    // Aptidões automáticas de espécie (sempre concedidas)
+    autoFeats.forEach(feat => {
+      const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[feat] : null;
+      html += `<div class="acquired-talent-item acquired-talent-item--species has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
+          <span class="at-name">${feat}</span>
+          <span class="at-source">${speciesData?.name || ''} — Aptidão de Espécie</span>
+        </div>`;
+    });
+    // Aptidões de escolha de espécie (ex: Humano — Aptidão Extra)
+    chosenSpeciesFeats.forEach(t => {
+      const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[t.talentId] : null;
+      html += `<div class="acquired-talent-item acquired-talent-item--species has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
+          <span class="at-name">${t.talentId}</span>
+          <span class="at-source">${speciesData?.name || ''} — Aptidão Extra</span>
+          <button class="at-remove-btn" data-tree="__speciesFeat__" data-slot="${escTooltip(t.slotName || '')}" title="Remover">✕</button>
+        </div>`;
+    });
+    // Condicionais atendidas
+    condMet.forEach(c => {
+      html += `<div class="acquired-talent-item acquired-talent-item--species has-tooltip" data-tooltip="${escTooltip(c.desc)}">
+          <span class="at-name">${c.feat}</span>
+          <span class="at-source">${speciesData?.name || ''} — Condicional</span>
+        </div>`;
+    });
+    // Aptidões iniciais de classe
     startingFeats.forEach(sf => {
       const cls = ALL_CLASSES[sf.classKey];
       const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[sf.name] : null;
@@ -1384,12 +1434,7 @@ function buildBonusFeatsDisplay() {
           <span class="at-source">${cls?.name || sf.classKey} — Inicial</span>
         </div>`;
     });
-    condMet.forEach(c => {
-      html += `<div class="acquired-talent-item acquired-talent-item--species has-tooltip" data-tooltip="${escTooltip(c.desc)}">
-          <span class="at-name">${c.feat}</span>
-          <span class="at-source">Espécie — Condicional</span>
-        </div>`;
-    });
+    // Aptidões bônus de classe
     bonusFeats.forEach(t => {
       const cls = ALL_CLASSES[t.classKey];
       const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[t.talentId] : null;
@@ -1399,6 +1444,7 @@ function buildBonusFeatsDisplay() {
           <button class="at-remove-btn" data-char-level="${t.charLevel}" data-tree="__bonusFeat__" title="Remover">✕</button>
         </div>`;
     });
+    // Aptidões de nível
     levelFeats.forEach(t => {
       const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[t.talentId] : null;
       html += `<div class="acquired-talent-item has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
@@ -1408,9 +1454,22 @@ function buildBonusFeatsDisplay() {
         </div>`;
     });
     html += '</div>';
-  } else if (pendingBonus.length === 0 && pendingLevel.length === 0 && condUnmet.length === 0) {
+  } else if (pendingBonus.length === 0 && pendingLevel.length === 0 &&
+             condUnmet.length === 0 && pendingChoiceFeats.length === 0) {
     html += '<p class="no-talents-msg">Nenhuma aptidão adquirida.</p>';
   }
+
+  // Slots pendentes de aptidão de escolha de espécie (ex: Humano)
+  pendingChoiceFeats.forEach(cf => {
+    html += `<div class="talent-pick-slot talent-pick-slot--species">
+      <span class="talent-pick-label">
+        ${cf.name} (${speciesData?.name || 'Espécie'}) — escolha uma aptidão
+      </span>
+      <button class="species-choice-feat-btn" data-slot="${escTooltip(cf.name)}">
+        + Escolher Aptidão
+      </button>
+    </div>`;
+  });
 
   // Aptidões condicionais de espécie ainda não atendidas (informativo)
   condUnmet.forEach(c => {
@@ -1479,6 +1538,73 @@ function buildBonusFeatsDisplay() {
       scheduleSave();
     });
   });
+  container.querySelectorAll('.at-remove-btn[data-tree="__speciesFeat__"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const slot = btn.dataset.slot;
+      acquiredTalents = acquiredTalents.filter(t => !(t.treeKey === '__speciesFeat__' && t.slotName === slot));
+      buildBonusFeatsDisplay();
+      scheduleSave();
+    });
+  });
+  container.querySelectorAll('.species-choice-feat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openSpeciesFeatModal(btn.dataset.slot);
+    });
+  });
+}
+
+// ---- Species choice feat modal ----
+
+function openSpeciesFeatModal(slotName) {
+  const modal = document.getElementById('talent-modal');
+  const title = document.getElementById('talent-modal-title');
+  const body  = document.getElementById('talent-modal-body');
+  if (!modal || !body) return;
+
+  const speciesData = activeSpeciesKey ? SPECIES_DATA[activeSpeciesKey] : null;
+  title.textContent = `APTIDÃO EXTRA — ${speciesData?.name?.toUpperCase() || 'ESPÉCIE'}`;
+
+  const feats = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS : {};
+  let html = '<div class="tm-tree"><div class="tm-tree-name">Escolha qualquer aptidão</div><div class="tm-talents">';
+
+  Object.keys(feats)
+    .filter(featName => !feats[featName].speciesOnly)
+    .forEach(featName => {
+    const featData = feats[featName];
+    const { locked, missing } = checkFeatPrereqs(featName);
+    const alreadyHas = characterHasFeat(featName);
+    const isLocked = locked || (alreadyHas && !featData.multiSelect);
+
+    html += `<div class="tm-talent ${isLocked ? 'tm-locked' : 'tm-available'} tm-feat-item" data-feat="${featName}">
+      <div class="tm-talent-name">${featName}${alreadyHas ? ' ✓' : ''}</div>`;
+    if (featData.prereqText && featData.prereqText !== '—') {
+      const cls = locked ? 'tm-prereq-fail' : 'tm-prereq-ok';
+      html += `<div class="tm-prereq ${cls}">Pré-req: ${featData.prereqText}</div>`;
+    }
+    if (locked && missing.length) {
+      html += `<div class="tm-prereq tm-prereq-fail">Faltando: ${missing.join(', ')}</div>`;
+    }
+    if (featData.description) {
+      html += `<div class="tm-talent-desc">${featData.description}</div>`;
+    }
+    html += '</div>';
+  });
+
+  html += '</div></div>';
+  body.innerHTML = html;
+
+  body.querySelectorAll('.tm-feat-item.tm-available').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => {
+      const feat = el.dataset.feat;
+      acquiredTalents.push({ classKey: '__species__', treeKey: '__speciesFeat__', talentId: feat, slotName });
+      modal.close();
+      buildBonusFeatsDisplay();
+      scheduleSave();
+    });
+  });
+
+  modal.showModal();
 }
 
 // ---- Talent modal ----
@@ -1621,7 +1747,9 @@ function openLevelFeatModal(charLevel) {
   title.textContent = `APTIDÃO DE NÍVEL — PERSONAGEM NÍVEL ${charLevel}º`;
 
   const featNames = (typeof ALL_FEATS !== 'undefined')
-    ? Object.keys(ALL_FEATS).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+    ? Object.keys(ALL_FEATS)
+        .filter(name => !ALL_FEATS[name].speciesOnly)
+        .sort((a, b) => a.localeCompare(b, 'pt-BR'))
     : [];
 
   let html = `<div class="tm-tree">

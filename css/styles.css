@@ -1779,6 +1779,13 @@ select.species-select option {
 }
 .talent-pick-slot--cond .talent-pick-label { color: var(--text-dim); }
 
+/* Slot de escolha de aptidão de espécie (ex: Humano Aptidão Extra) */
+.talent-pick-slot--species {
+  border-color: rgba(120,255,180,0.4);
+  background: rgba(120,255,180,0.04);
+}
+.talent-pick-slot--species .talent-pick-label { color: rgba(180,255,200,0.8); }
+
 
 .at-name {
   font-family: var(--font-head);
@@ -1823,7 +1830,7 @@ select.species-select option {
   flex: 1;
 }
 
-.talent-pick-btn, .bonus-feat-pick-btn, .level-feat-pick-btn {
+.talent-pick-btn, .bonus-feat-pick-btn, .level-feat-pick-btn, .species-choice-feat-btn {
   font-family: var(--font-head);
   font-size: 9px;
   letter-spacing: 0.1em;
@@ -1836,7 +1843,7 @@ select.species-select option {
   white-space: nowrap;
   transition: all 0.15s;
 }
-.talent-pick-btn:hover, .bonus-feat-pick-btn:hover, .level-feat-pick-btn:hover {
+.talent-pick-btn:hover, .bonus-feat-pick-btn:hover, .level-feat-pick-btn:hover, .species-choice-feat-btn:hover {
   background: rgba(255,230,0,0.2);
   border-color: rgba(255,230,0,0.6);
 }
@@ -1855,6 +1862,17 @@ select.species-select option {
 .level-feat-pick-btn:hover {
   background: rgba(120,180,255,0.22);
   border-color: rgba(120,180,255,0.6);
+}
+
+/* Botão de escolha de aptidão de espécie (verde, combina com o slot) */
+.species-choice-feat-btn {
+  background: rgba(120,255,180,0.12);
+  border-color: rgba(120,255,180,0.35);
+  color: rgba(180,255,210,0.95);
+}
+.species-choice-feat-btn:hover {
+  background: rgba(120,255,180,0.22);
+  border-color: rgba(120,255,180,0.6);
 }
 
 /* Botão de desfazer nível */

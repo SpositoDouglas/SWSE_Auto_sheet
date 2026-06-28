@@ -10,7 +10,7 @@ const SPECIES_CODRUJI = {
   //   requiresTrained -> id de perícia que precisa estar treinada (opcional)
   //   condText        -> texto do requisito p/ exibição (default: pré-req da aptidão)
   conditionalFeats: [
-    { feat: 'Maestria com Duas Armas I' },
+    { feat: 'Maestria com Duas Armas I', condText: 'DEX 13 e BAB +1' },
   ],
   traits: [
     { name: 'Estatura Mediana', desc: 'Codru-Ji não recebem bônus ou penalidades especiais por seu tamanho.' },
