@@ -4,6 +4,7 @@ import { classTrees } from './_shared.js';
 import { CLASS_SCOUT } from './scout.js';
 import { CLASS_SOLDIER } from './soldier.js';
 
+/** @type {import('../src/types/game.js').ClassData} */
 export const CLASS_ELITE_TROOPER = {
   key: 'eliteTrooper',
   name: 'Soldado de Elite',

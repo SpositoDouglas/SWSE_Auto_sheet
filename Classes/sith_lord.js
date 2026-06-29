@@ -5,6 +5,7 @@ import { CLASS_SITH_APPRENTICE } from './sith_apprentice.js';
 
 // Reaproveita a árvore do Sith do Aprendiz Sith (sith_apprentice.js deve ser
 // carregado antes). O Lorde Sith também escolhe de quaisquer árvores da Força.
+/** @type {import('../src/types/game.js').ClassData} */
 export const CLASS_SITH_LORD = {
   key: 'sithLord',
   name: 'Lorde Sith',

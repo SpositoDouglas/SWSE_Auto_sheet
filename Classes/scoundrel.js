@@ -1,5 +1,6 @@
 'use strict';
 
+/** @type {import('../src/types/game.js').ClassData} */
 export const CLASS_SCOUNDREL = {
   key: 'scoundrel',
   name: 'Malandro',
