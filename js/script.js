@@ -399,6 +399,8 @@ function toggleDarkSide(score) {
     });
   }
 
+  // Atualiza a árvore do Lado Negro (depende do Valor do Lado Negro)
+  buildForceTalentsDisplay();
   saveData();
 }
 
@@ -797,6 +799,22 @@ function getPendingLevelFeatSlots() {
 // Entradas de acquiredTalents que representam aptidões (não talentos de árvore)
 function isFeatEntry(t) {
   return t.treeKey === '__bonusFeat__' || t.treeKey === '__levelFeat__';
+}
+
+// Talento da Força (ocupa o mesmo slot de talento, mas é exibido em painel próprio).
+function isForceTalent(t) {
+  return t.classKey === '__force__';
+}
+
+// Personagem tem a aptidão Sensitivo à Força?
+function characterIsForceSensitive() {
+  return characterHasFeat('Sensitivo à Força');
+}
+
+// Maior Valor do Lado Negro atualmente marcado.
+function getDarkSideScore() {
+  const filled = [...document.querySelectorAll('.ds-pip.filled')];
+  return filled.length ? Math.max(...filled.map(p => parseInt(p.dataset.score, 10) || 0)) : 0;
 }
 
 // Condição de uma aptidão condicional de espécie está atendida?
@@ -1319,12 +1337,11 @@ function buildTalentsDisplay() {
 
   let html = '';
 
-  // List acquired talents
-  if (acquiredTalents.filter(t => !isFeatEntry(t)).length > 0) {
+  // List acquired class talents (exclui talentos da Força, que têm painel próprio)
+  const classTalents = acquiredTalents.filter(t => !isFeatEntry(t) && !isForceTalent(t));
+  if (classTalents.length > 0) {
     html += '<div class="acquired-talents">';
-    acquiredTalents
-      .filter(t => !isFeatEntry(t))
-      .forEach(t => {
+    classTalents.forEach(t => {
         const cls = ALL_CLASSES[t.classKey];
         const tree = cls?.talentTrees.find(tr => tr.key === t.treeKey);
         const talent = tree?.talents.find(tl => tl.id === t.talentId);
@@ -1362,15 +1379,191 @@ function buildTalentsDisplay() {
     });
   });
 
-  // Bind remove buttons
+  // Bind remove buttons (apenas talentos de classe)
   container.querySelectorAll('.at-remove-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const cl = parseInt(btn.dataset.charLevel);
-      acquiredTalents = acquiredTalents.filter(t => !(t.charLevel === cl && !isFeatEntry(t)));
+      acquiredTalents = acquiredTalents.filter(t => !(t.charLevel === cl && !isFeatEntry(t) && !isForceTalent(t)));
       buildTalentsDisplay();
+      buildForceTalentsDisplay();
       scheduleSave();
     });
   });
+
+  buildForceTalentsDisplay();
+}
+
+// ---- TALENTOS DA FORÇA (painel exclusivo p/ Sensitivo à Força) ----
+
+function buildForceTalentsDisplay() {
+  const panel = document.getElementById('force-talents-panel');
+  const container = document.getElementById('force-talents-display');
+  if (!panel || !container) return;
+
+  const sensitive = characterIsForceSensitive();
+  const forceTalents = acquiredTalents.filter(isForceTalent);
+
+  // Painel só aparece para quem é Sensitivo à Força (ou já tem talentos da Força)
+  if (!sensitive && forceTalents.length === 0) {
+    panel.style.display = 'none';
+    container.innerHTML = '';
+    return;
+  }
+  panel.style.display = '';
+
+  const pendingSlots = getPendingTalentSlots();
+  let html = '';
+
+  if (forceTalents.length > 0) {
+    html += '<div class="acquired-talents">';
+    forceTalents.forEach(t => {
+      const tree = ALL_FORCE_TALENTS.find(tr => tr.key === t.treeKey);
+      const talent = tree?.talents.find(tl => tl.id === t.talentId);
+      if (!talent) return;
+      html += `<div class="acquired-talent-item has-tooltip" data-tooltip="${escTooltip(talent.description)}">
+        <span class="at-name">${talent.name}</span>
+        <span class="at-source">${tree?.name || t.treeKey}</span>
+        <button class="at-remove-btn" data-char-level="${t.charLevel}" data-force="1" title="Remover talento">✕</button>
+      </div>`;
+    });
+    html += '</div>';
+  } else if (pendingSlots.length === 0) {
+    html += '<p class="no-talents-msg">Nenhum talento da Força adquirido.</p>';
+  }
+
+  // Slots pendentes podem ser preenchidos com um talento da Força
+  if (sensitive) {
+    pendingSlots.forEach(slot => {
+      const cls = ALL_CLASSES[slot.classKey];
+      html += `<div class="talent-pick-slot talent-pick-slot--force">
+        <span class="talent-pick-label">
+          Talento disponível: ${cls?.name || slot.classKey} nível ${slot.classLv} (Personagem nível ${slot.charLevel}º)
+        </span>
+        <button class="force-talent-pick-btn" data-char-level="${slot.charLevel}">
+          + Talento da Força
+        </button>
+      </div>`;
+    });
+  }
+
+  container.innerHTML = html;
+
+  container.querySelectorAll('.force-talent-pick-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openForceTalentModal(parseInt(btn.dataset.charLevel));
+    });
+  });
+  container.querySelectorAll('.at-remove-btn[data-force]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cl = parseInt(btn.dataset.charLevel);
+      acquiredTalents = acquiredTalents.filter(t => !(t.charLevel === cl && isForceTalent(t)));
+      buildTalentsDisplay();
+      buildForceTalentsDisplay();
+      scheduleSave();
+    });
+  });
+}
+
+// Verifica os pré-requisitos de um talento da Força.
+function forceTalentLocked(talent, tree) {
+  const missing = [];
+  // Árvore do Lado Negro exige Valor do Lado Negro ≥ 1
+  if (tree.requiresDarkSide && getDarkSideScore() < 1) {
+    missing.push('Valor do Lado Negro ≥ 1');
+  }
+  // Pré-requisitos de outros talentos (da Força)
+  (talent.prerequisites || []).forEach(pid => {
+    if (!acquiredTalents.some(t => isForceTalent(t) && t.talentId === pid)) {
+      const name = findForceTalentName(pid);
+      missing.push(name);
+    }
+  });
+  // Atributo mínimo
+  if (talent.requiresAbility) {
+    const labels = { str: 'Força', dex: 'Destreza', con: 'Constituição', int: 'Inteligência', wis: 'Sabedoria', cha: 'Carisma' };
+    for (const [ab, min] of Object.entries(talent.requiresAbility)) {
+      if (getAbilityScore(ab) < min) missing.push(`${labels[ab] || ab} ${min}`);
+    }
+  }
+  // Poder da Força necessário (ex.: Visões requer Visão Distante)
+  if (talent.requiresPower && !acquiredForcePowers.includes(talent.requiresPower)) {
+    missing.push(`Poder: ${talent.requiresPower}`);
+  }
+  return { locked: missing.length > 0, missing };
+}
+
+function findForceTalentName(id) {
+  for (const tree of ALL_FORCE_TALENTS) {
+    const t = tree.talents.find(tl => tl.id === id);
+    if (t) return t.name;
+  }
+  return id;
+}
+
+function openForceTalentModal(charLevel) {
+  const modal = document.getElementById('talent-modal');
+  const title = document.getElementById('talent-modal-title');
+  const body  = document.getElementById('talent-modal-body');
+  if (!modal || !body || typeof ALL_FORCE_TALENTS === 'undefined') return;
+
+  title.textContent = `TALENTO DA FORÇA — ESCOLHA (Personagem nível ${charLevel}º)`;
+
+  let html = '';
+  ALL_FORCE_TALENTS.forEach(tree => {
+    html += `<div class="tm-tree">
+      <div class="tm-tree-name">${tree.name}</div>
+      <div class="tm-tree-desc">${tree.description}</div>
+      <div class="tm-talents">`;
+
+    tree.talents.forEach(talent => {
+      const picked = acquiredTalents.filter(t => isForceTalent(t) && t.talentId === talent.id).length;
+      const { locked: prereqLocked, missing } = forceTalentLocked(talent, tree);
+      const maxPicks = talent.multiSelect ? Infinity : 1;
+      const atLimit = picked >= maxPicks;
+      const locked = prereqLocked || atLimit;
+
+      const checkMark = picked > 0 ? ` <span class="tm-pick-count">✓${picked > 1 || talent.multiSelect ? ` ×${picked}` : ''}</span>` : '';
+      html += `<div class="tm-talent ${locked ? 'tm-locked' : 'tm-available'}" data-talent-id="${talent.id}" data-tree="${tree.key}">
+        <div class="tm-talent-name">${talent.name}${checkMark}</div>`;
+
+      if (talent.prerequisites?.length || tree.requiresDarkSide || talent.requiresAbility || talent.requiresPower) {
+        const reqText = [];
+        if (tree.requiresDarkSide) reqText.push('Valor do Lado Negro ≥ 1');
+        (talent.prerequisites || []).forEach(pid => reqText.push(findForceTalentName(pid)));
+        if (talent.requiresAbility) {
+          const labels = { str: 'Força', dex: 'Destreza', con: 'Constituição', int: 'Inteligência', wis: 'Sabedoria', cha: 'Carisma' };
+          for (const [ab, min] of Object.entries(talent.requiresAbility)) reqText.push(`${labels[ab] || ab} ${min}`);
+        }
+        if (talent.requiresPower) reqText.push(`Poder: ${talent.requiresPower}`);
+        html += `<div class="tm-prereq ${prereqLocked ? 'tm-prereq-fail' : 'tm-prereq-ok'}">Pré-req: ${reqText.join(', ')}</div>`;
+      }
+      if (prereqLocked && missing.length) {
+        html += `<div class="tm-prereq tm-prereq-fail">Faltando: ${missing.join(', ')}</div>`;
+      }
+      if (talent.multiSelect) {
+        html += `<div class="tm-multi-note">Pode ser escolhido múltiplas vezes</div>`;
+      }
+      html += `<div class="tm-talent-desc">${talent.description}</div>
+      </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  body.innerHTML = html;
+
+  body.querySelectorAll('.tm-available').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => {
+      acquiredTalents.push({ classKey: '__force__', treeKey: el.dataset.tree, talentId: el.dataset.talentId, charLevel });
+      modal.close();
+      buildTalentsDisplay();
+      buildForceTalentsDisplay();
+      scheduleSave();
+    });
+  });
+
+  modal.showModal();
 }
 
 // Preenche dois painéis:
@@ -2117,6 +2310,8 @@ function recalcAll() {
   buildBonusFeatsDisplay();
   // Poderes da Força dependem do modificador de Sabedoria e da aptidão Treinamento na Força
   buildForcePowersDisplay();
+  // Talentos da Força aparecem para Sensitivo à Força; Lado Negro depende do Valor do Lado Negro
+  buildForceTalentsDisplay();
 }
 
 // ============================================================

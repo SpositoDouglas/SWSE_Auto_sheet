@@ -1922,7 +1922,7 @@ select.species-select option {
   flex: 1;
 }
 
-.talent-pick-btn, .bonus-feat-pick-btn, .level-feat-pick-btn, .species-choice-feat-btn {
+.talent-pick-btn, .bonus-feat-pick-btn, .level-feat-pick-btn, .species-choice-feat-btn, .force-talent-pick-btn {
   font-family: var(--font-head);
   font-size: 9px;
   letter-spacing: 0.1em;
@@ -1935,9 +1935,20 @@ select.species-select option {
   white-space: nowrap;
   transition: all 0.15s;
 }
-.talent-pick-btn:hover, .bonus-feat-pick-btn:hover, .level-feat-pick-btn:hover, .species-choice-feat-btn:hover {
+.talent-pick-btn:hover, .bonus-feat-pick-btn:hover, .level-feat-pick-btn:hover, .species-choice-feat-btn:hover, .force-talent-pick-btn:hover {
   background: rgba(255,230,0,0.2);
   border-color: rgba(255,230,0,0.6);
+}
+
+/* Botão de talento da Força (roxo, combina com o slot --force) */
+.force-talent-pick-btn {
+  background: rgba(150,120,255,0.12);
+  border-color: rgba(150,120,255,0.35);
+  color: rgba(200,185,255,0.95);
+}
+.force-talent-pick-btn:hover {
+  background: rgba(150,120,255,0.22);
+  border-color: rgba(150,120,255,0.6);
 }
 
 /* Slot de aptidão ganha por nível (azul, p/ distinguir das bônus de classe) */
