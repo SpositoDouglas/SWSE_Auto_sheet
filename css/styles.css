@@ -1250,6 +1250,47 @@ input[type="number"] {
   padding-bottom: 4px;
 }
 
+#force-powers-container { padding: 8px; }
+
+.fp-slots-info {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 2px 2px 8px;
+  letter-spacing: 0.04em;
+}
+.fp-slots-info strong { color: var(--text-bright); }
+
+.fp-descriptor {
+  font-size: 9px;
+  color: rgba(150,195,255,0.85);
+  letter-spacing: 0.04em;
+}
+
+.talent-pick-slot--force {
+  border-color: rgba(150,120,255,0.35);
+  background: rgba(150,120,255,0.05);
+}
+.talent-pick-slot--force .talent-pick-label { color: rgba(190,170,255,0.85); }
+
+.force-power-pick-btn {
+  font-family: var(--font-head);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  background: rgba(150,120,255,0.12);
+  border: 1px solid rgba(150,120,255,0.35);
+  color: rgba(200,185,255,0.95);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.force-power-pick-btn:hover {
+  background: rgba(150,120,255,0.22);
+  border-color: rgba(150,120,255,0.6);
+}
+
 .lang-line,
 .fp-line {
   background: transparent;
@@ -2153,6 +2194,7 @@ select.species-select option {
   color: var(--text);
   font-size: 11px;
   line-height: 1.55;
+  white-space: pre-line; /* preserva as quebras de linha (Tempo/Alvo/Especial) */
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.15s ease;

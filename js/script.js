@@ -133,6 +133,8 @@ let activeSpeciesAutoLangCount = 0;
 let classLevels      = [];
 let hpByLevel        = [];
 let acquiredTalents  = [];
+// acquiredForcePowers: ['Mover Objeto', 'Impulso', ...] — pode repetir (cada repetição = uso extra)
+let acquiredForcePowers = [];
 let pendingLevelUp   = null; // {classKey, charLevel, isNew} while waiting HP roll
 
 const EXTRA_SKILLS_COUNT = 4;
@@ -140,7 +142,6 @@ const WEAPONS_COUNT      = 5;
 const FEATS_COUNT        = 14;
 const EQUIPMENT_ROWS     = 14;
 const LANGUAGES_COUNT    = 8;
-const FORCE_POWERS_COUNT = 14;
 const TALENTS_COUNT      = 16;
 const ADD_FEATS_COUNT    = 16;
 
@@ -1571,6 +1572,166 @@ function buildBonusFeatsDisplay() {
   });
 }
 
+// ============================================================
+//  PODERES DA FORÇA
+// ============================================================
+
+// Conta quantas vezes uma aptidão foi adquirida (todas as fontes).
+function countFeat(name) {
+  const norm = n => n.toLowerCase().replace(/[-\s]+/g, ' ').trim();
+  const target = norm(name);
+  let count = 0;
+  // Iniciais de classe
+  for (const entry of classLevels) {
+    const cls = ALL_CLASSES[entry.classKey];
+    if (cls?.startingFeats) count += cls.startingFeats.filter(f => norm(f) === target).length;
+  }
+  // Bônus e de nível (aptidões adquiridas)
+  count += acquiredTalents.filter(t =>
+    (t.treeKey === '__bonusFeat__' || t.treeKey === '__levelFeat__') && norm(t.talentId) === target
+  ).length;
+  // Inputs de texto livre de aptidões
+  document.querySelectorAll('[id^="feat-"]').forEach(inp => {
+    if (norm(inp.value || '') === target) count++;
+  });
+  return count;
+}
+
+// Calcula os slots de poderes da Força do personagem.
+//   - cada Treinamento na Força concede 1 + mod. SAB (mínimo 1) poderes
+//   - total = nº de Treinamento na Força × poderes por seleção
+function getForcePowerSlots() {
+  const ftCount = countFeat('Treinamento na Força');
+  const wisMod  = abilityMod(numVal('wis-score', 10)) || 0;
+  const perSelection = Math.max(1, 1 + wisMod);
+  return { ftCount, wisMod, perSelection, total: ftCount * perSelection };
+}
+
+// Monta o texto do tooltip de um poder da Força.
+function forcePowerTooltip(name) {
+  const p = (typeof ALL_FORCE_POWERS !== 'undefined') ? ALL_FORCE_POWERS[name] : null;
+  if (!p) return '';
+  let txt = p.description || '';
+  if (p.time)    txt += `\n\nTempo: ${p.time}`;
+  if (p.target)  txt += `\nAlvo: ${p.target}`;
+  if (p.special) txt += `\n\nEspecial: ${p.special}`;
+  return txt;
+}
+
+function buildForcePowersDisplay() {
+  const container = document.getElementById('force-powers-container');
+  if (!container) return;
+
+  const { ftCount, total } = getForcePowerSlots();
+  const acquired = acquiredForcePowers.length;
+  const pending  = total - acquired;
+
+  let html = '';
+
+  // Sem a aptidão Treinamento na Força e sem poderes
+  if (ftCount === 0 && acquired === 0) {
+    html += `<p class="no-talents-msg">Adquira a aptidão <strong>Treinamento na Força</strong> (na seção Aptidões) para aprender Poderes da Força.</p>`;
+    container.innerHTML = html;
+    return;
+  }
+
+  // Cabeçalho com a contagem de slots
+  html += `<div class="fp-slots-info">Poderes conhecidos: <strong>${acquired}</strong> de <strong>${total}</strong></div>`;
+
+  // Lista de poderes adquiridos
+  if (acquired > 0) {
+    html += '<div class="acquired-talents">';
+    acquiredForcePowers.forEach((name, idx) => {
+      const p = (typeof ALL_FORCE_POWERS !== 'undefined') ? ALL_FORCE_POWERS[name] : null;
+      const desc = p?.descriptor ? ` <span class="fp-descriptor">${p.descriptor}</span>` : '';
+      html += `<div class="acquired-talent-item has-tooltip" data-tooltip="${escTooltip(forcePowerTooltip(name))}">
+          <span class="at-name">${name}${desc}</span>
+          <span class="at-source">${p?.time || ''}</span>
+          <button class="at-remove-btn" data-fp-index="${idx}" title="Remover poder">✕</button>
+        </div>`;
+    });
+    html += '</div>';
+  }
+
+  // Slots pendentes
+  if (pending > 0) {
+    html += `<div class="talent-pick-slot talent-pick-slot--force">
+      <span class="talent-pick-label">
+        Poder da Força disponível (${acquired}/${total})
+      </span>
+      <button class="force-power-pick-btn">+ Escolher Poder</button>
+    </div>`;
+  } else if (pending < 0) {
+    // Excedente (ex.: Sabedoria reduziu) — usuário deve remover poderes
+    html += `<div class="talent-pick-slot talent-pick-slot--cond">
+      <span class="talent-pick-label">
+        Você conhece ${acquired} poderes, mas só tem direito a ${total}. Remova ${-pending} poder(es).
+      </span>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+
+  // Escolher poder
+  container.querySelectorAll('.force-power-pick-btn').forEach(btn => {
+    btn.addEventListener('click', () => openForcePowerModal());
+  });
+
+  // Remover poder
+  container.querySelectorAll('.at-remove-btn[data-fp-index]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = parseInt(btn.dataset.fpIndex, 10);
+      acquiredForcePowers.splice(i, 1);
+      buildForcePowersDisplay();
+      scheduleSave();
+    });
+  });
+}
+
+function openForcePowerModal() {
+  const modal = document.getElementById('talent-modal');
+  const title = document.getElementById('talent-modal-title');
+  const body  = document.getElementById('talent-modal-body');
+  if (!modal || !body || typeof ALL_FORCE_POWERS === 'undefined') return;
+
+  const acquired = acquiredForcePowers.length;
+  const total = getForcePowerSlots().total;
+  title.textContent = `PODER DA FORÇA — ESCOLHA (${acquired}/${total})`;
+
+  let html = '<div class="tm-tree"><div class="tm-tree-name">Poderes da Força</div>' +
+    '<div class="tm-tree-desc">Você pode escolher o mesmo poder mais de uma vez; cada escolha adiciona um uso extra ao seu conjunto.</div>' +
+    '<div class="tm-talents">';
+
+  Object.keys(ALL_FORCE_POWERS)
+    .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+    .forEach(name => {
+      const p = ALL_FORCE_POWERS[name];
+      const owned = acquiredForcePowers.filter(n => n === name).length;
+      const ownedMark = owned > 0 ? ` <span class="tm-pick-count">✓ ×${owned}</span>` : '';
+      html += `<div class="tm-talent tm-available tm-feat-item" data-power="${escTooltip(name)}">
+        <div class="tm-talent-name">${name}${p.descriptor ? ` <span class="fp-descriptor">${p.descriptor}</span>` : ''}${ownedMark}</div>
+        <div class="tm-prereq tm-prereq-ok">Tempo: ${p.time} · Alvo: ${p.target}</div>
+        <div class="tm-talent-desc">${p.description}</div>
+        ${p.special ? `<div class="tm-multi-note">Especial: ${p.special}</div>` : ''}
+      </div>`;
+    });
+
+  html += '</div></div>';
+  body.innerHTML = html;
+
+  body.querySelectorAll('.tm-feat-item.tm-available').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => {
+      acquiredForcePowers.push(el.dataset.power);
+      modal.close();
+      buildForcePowersDisplay();
+      scheduleSave();
+    });
+  });
+
+  modal.showModal();
+}
+
 // ---- Species choice feat modal ----
 
 function openSpeciesFeatModal(slotName) {
@@ -1959,6 +2120,8 @@ function recalcAll() {
   updateXpStatus();
   // Aptidões condicionais de espécie dependem de atributos/BAB/perícias treinadas
   buildBonusFeatsDisplay();
+  // Poderes da Força dependem do modificador de Sabedoria e da aptidão Treinamento na Força
+  buildForcePowersDisplay();
 }
 
 // ============================================================
@@ -1984,6 +2147,7 @@ function collectData() {
   data['__classLevels']     = JSON.stringify(classLevels);
   data['__hpByLevel']       = JSON.stringify(hpByLevel);
   data['__acquiredTalents'] = JSON.stringify(acquiredTalents);
+  data['__acquiredForcePowers'] = JSON.stringify(acquiredForcePowers);
 
   // Dark side score
   const filled = [...document.querySelectorAll('.ds-pip.filled')];
@@ -2045,12 +2209,14 @@ function restoreData(data) {
     classLevels     = data['__classLevels']     ? JSON.parse(data['__classLevels'])     : [];
     hpByLevel       = data['__hpByLevel']       ? JSON.parse(data['__hpByLevel'])       : [];
     acquiredTalents = data['__acquiredTalents'] ? JSON.parse(data['__acquiredTalents']) : [];
-  } catch { classLevels = []; hpByLevel = []; acquiredTalents = []; }
+    acquiredForcePowers = data['__acquiredForcePowers'] ? JSON.parse(data['__acquiredForcePowers']) : [];
+  } catch { classLevels = []; hpByLevel = []; acquiredTalents = []; acquiredForcePowers = []; }
 
   recalcAll();
   buildClassSection();
   buildTalentsDisplay();
   buildBonusFeatsDisplay();
+  buildForcePowersDisplay();
 
   // Restore species state without re-applying adjustments (scores already include them)
   const restoredKey = document.getElementById('species')?.value || null;
@@ -2247,6 +2413,7 @@ function newCharacter() {
   classLevels     = [];
   hpByLevel       = [];
   acquiredTalents = [];
+  acquiredForcePowers = [];
   pendingLevelUp  = null;
   const hpPanel   = document.getElementById('hp-roll-panel');
   if (hpPanel) hpPanel.style.display = 'none';
@@ -2275,6 +2442,7 @@ function newCharacter() {
   buildClassSection();
   buildTalentsDisplay();
   buildBonusFeatsDisplay();
+  buildForcePowersDisplay();
   recalcAll();
   showNotification('Nova ficha criada!');
 }
@@ -2327,10 +2495,10 @@ document.addEventListener('DOMContentLoaded', () => {
   buildDarkSideTrack();
   buildEquipmentTable();
   buildSimpleList('languages-container',    'lang',   LANGUAGES_COUNT,    'lang-line',    '');
-  buildSimpleList('force-powers-container', 'fp',     FORCE_POWERS_COUNT, 'fp-line',      '');
   buildClassSection();
   buildTalentsDisplay();
   buildBonusFeatsDisplay();
+  buildForcePowersDisplay();
 
   setupTabs();
   setupPortrait();
