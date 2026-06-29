@@ -106,6 +106,14 @@
             <label class="field-label">DESTINO</label>
             <input class="field-input" id="destiny" data-key="destiny" type="text" autocomplete="off">
           </div>
+          <div class="field-group span2">
+            <label class="field-label">PONTOS DA FORÇA</label>
+            <input class="field-input centered-input" id="force-points" data-key="force-points" type="number" min="0" autocomplete="off">
+          </div>
+          <div class="field-group span2">
+            <label class="field-label">PONTOS DE DESTINO</label>
+            <input class="field-input centered-input" id="destiny-points" data-key="destiny-points" type="number" min="0" autocomplete="off">
+          </div>
         </div>
         <div class="xp-level-status" id="xp-level-status"></div>
       </section>
@@ -377,56 +385,6 @@
         <!-- RIGHT COLUMN -->
         <div class="sheet-right">
 
-          <!-- DESCRIPTION -->
-          <section class="panel description-panel">
-            <h2 class="panel-header">DESCRIÇÃO FÍSICA</h2>
-            <div class="description-layout">
-              <div class="portrait-block">
-                <div class="portrait-area" id="portrait-area">
-                  <img id="portrait-img" src="" alt="" style="display:none">
-                  <span class="portrait-placeholder-text" id="portrait-hint">RETRATO</span>
-                </div>
-                <button class="portrait-btn" id="portrait-btn">CARREGAR</button>
-                <button class="portrait-btn" id="portrait-clear" style="display:none">REMOVER</button>
-                <input type="file" id="portrait-input" accept="image/*" hidden>
-              </div>
-              <div class="physical-fields">
-                <div class="field-group">
-                  <label class="field-label">GÊNERO</label>
-                  <input class="field-input" id="gender" data-key="gender" type="text" autocomplete="off">
-                </div>
-                <div class="field-group">
-                  <label class="field-label">IDADE</label>
-                  <input class="field-input" id="age" data-key="age" type="text" autocomplete="off">
-                </div>
-                <div class="field-group">
-                  <label class="field-label">ALTURA</label>
-                  <input class="field-input" id="height" data-key="height" type="text" autocomplete="off">
-                </div>
-                <div class="field-group">
-                  <label class="field-label">MASSA</label>
-                  <input class="field-input" id="mass" data-key="mass" type="text" autocomplete="off">
-                </div>
-                <div class="field-group">
-                  <label class="field-label">CABELO</label>
-                  <input class="field-input" id="hair" data-key="hair" type="text" autocomplete="off">
-                </div>
-                <div class="field-group">
-                  <label class="field-label">OLHOS</label>
-                  <input class="field-input" id="eyes" data-key="eyes" type="text" autocomplete="off">
-                </div>
-                <div class="field-group">
-                  <label class="field-label">PELE</label>
-                  <input class="field-input" id="skin" data-key="skin" type="text" autocomplete="off">
-                </div>
-                <div class="field-group">
-                  <label class="field-label">MÃO DOMINANTE</label>
-                  <input class="field-input" id="handed" data-key="handed" type="text" autocomplete="off">
-                </div>
-              </div>
-            </div>
-          </section>
-
           <!-- SKILLS -->
           <section class="panel skills-panel">
             <h2 class="panel-header">PERÍCIAS</h2>
@@ -458,32 +416,12 @@
 
       </div><!-- end main-sheet-grid -->
 
-      <!-- BOTTOM ROW -->
+      <!-- BOTTOM ROW: combat notes + dark side -->
       <div class="bottom-row">
 
         <section class="panel combat-notes-panel">
           <h2 class="panel-header">NOTAS DE COMBATE</h2>
           <textarea class="notes-textarea" id="combat-notes" data-key="combat-notes" rows="7"></textarea>
-        </section>
-
-        <section class="panel feats-panel">
-          <h2 class="panel-header">FEITOS (FEATS)</h2>
-          <div id="feats-container"></div>
-        </section>
-
-      </div>
-
-      <!-- FOOTER ROW -->
-      <div class="footer-row">
-
-        <section class="panel force-points-panel">
-          <h2 class="panel-header">PONTOS DE FORÇA</h2>
-          <input class="big-number-input" id="force-points" data-key="force-points" type="number" min="0" autocomplete="off">
-        </section>
-
-        <section class="panel destiny-points-panel">
-          <h2 class="panel-header">PONTOS DE DESTINO</h2>
-          <input class="big-number-input" id="destiny-points" data-key="destiny-points" type="number" min="0" autocomplete="off">
         </section>
 
         <section class="panel dark-side-panel">
@@ -493,74 +431,8 @@
 
       </div>
 
-      <!-- SPECIES TRAITS -->
-      <section class="panel species-traits-panel" id="species-traits-panel" style="display:none">
-        <h2 class="panel-header">CARACTERÍSTICAS DA ESPÉCIE</h2>
-        <div class="species-traits-body" id="species-traits-body"></div>
-      </section>
-
-    </div><!-- end tab-main -->
-
-
-    <!-- ========== TAB 2: EQUIPMENT & EXTRAS ========== -->
-    <div class="tab-pane" id="tab-equipment">
-
-      <div class="equipment-layout">
-
-        <!-- Equipment Table -->
-        <section class="panel equip-table-panel">
-          <h2 class="panel-header">EQUIPAMENTO</h2>
-          <div class="equip-table-wrapper">
-            <table class="equip-table">
-              <thead>
-                <tr>
-                  <th>ITEM</th>
-                  <th>LOCALIZAÇÃO</th>
-                  <th class="wt-col">PESO</th>
-                  <th>ITEM</th>
-                  <th>LOCALIZAÇÃO</th>
-                  <th class="wt-col">PESO</th>
-                </tr>
-              </thead>
-              <tbody id="equipment-tbody"></tbody>
-            </table>
-          </div>
-          <div class="carrying-row">
-            <div class="field-group">
-              <label class="field-label">CAPACIDADE DE CARGA</label>
-              <input class="field-input" id="carrying-capacity" data-key="carrying-capacity" type="text" autocomplete="off">
-            </div>
-            <div class="field-group">
-              <label class="field-label">PESO TOTAL CARREGADO</label>
-              <input class="field-input" id="total-weight" data-key="total-weight" type="text" autocomplete="off">
-            </div>
-          </div>
-        </section>
-
-        <!-- Right side panels -->
-        <div class="equip-right-col">
-
-          <section class="panel credits-panel">
-            <h2 class="panel-header">CRÉDITOS</h2>
-            <textarea class="notes-textarea" id="credits" data-key="credits" rows="3"></textarea>
-          </section>
-
-          <section class="panel languages-panel">
-            <h2 class="panel-header">IDIOMAS</h2>
-            <div id="languages-container"></div>
-          </section>
-
-          <section class="panel force-powers-panel">
-            <h2 class="panel-header">PODERES DA FORÇA</h2>
-            <div id="force-powers-container"></div>
-          </section>
-
-        </div>
-
-      </div><!-- end equipment-layout -->
-
-      <!-- Talents + Additional Feats -->
-      <div class="talents-feats-row">
+      <!-- TALENTOS / APTIDÕES / APTIDÕES EXTRAS / PODERES DA FORÇA -->
+      <div class="extras-grid">
 
         <section class="panel talents-panel">
           <h2 class="panel-header">TALENTOS</h2>
@@ -576,7 +448,125 @@
           </div>
         </section>
 
+        <section class="panel extra-feats-panel">
+          <h2 class="panel-header">APTIDÕES EXTRAS</h2>
+          <div id="extra-feats-display">
+            <!-- built by buildBonusFeatsDisplay() -->
+          </div>
+        </section>
+
+        <section class="panel force-powers-panel">
+          <h2 class="panel-header">PODERES DA FORÇA</h2>
+          <div id="force-powers-container"></div>
+        </section>
+
       </div>
+
+    </div><!-- end tab-main -->
+
+
+    <!-- ========== TAB 2: EQUIPMENT & EXTRAS ========== -->
+    <div class="tab-pane" id="tab-equipment">
+
+      <!-- DESCRIPTION + CREDITS/LANGUAGES -->
+      <div class="description-row">
+
+        <section class="panel description-panel">
+          <h2 class="panel-header">DESCRIÇÃO FÍSICA</h2>
+          <div class="description-layout">
+            <div class="portrait-block">
+              <div class="portrait-area" id="portrait-area">
+                <img id="portrait-img" src="" alt="" style="display:none">
+                <span class="portrait-placeholder-text" id="portrait-hint">RETRATO</span>
+              </div>
+              <button class="portrait-btn" id="portrait-btn">CARREGAR</button>
+              <button class="portrait-btn" id="portrait-clear" style="display:none">REMOVER</button>
+              <input type="file" id="portrait-input" accept="image/*" hidden>
+            </div>
+            <div class="physical-fields">
+              <div class="field-group">
+                <label class="field-label">GÊNERO</label>
+                <input class="field-input" id="gender" data-key="gender" type="text" autocomplete="off">
+              </div>
+              <div class="field-group">
+                <label class="field-label">IDADE</label>
+                <input class="field-input" id="age" data-key="age" type="text" autocomplete="off">
+              </div>
+              <div class="field-group">
+                <label class="field-label">ALTURA</label>
+                <input class="field-input" id="height" data-key="height" type="text" autocomplete="off">
+              </div>
+              <div class="field-group">
+                <label class="field-label">MASSA</label>
+                <input class="field-input" id="mass" data-key="mass" type="text" autocomplete="off">
+              </div>
+              <div class="field-group">
+                <label class="field-label">CABELO</label>
+                <input class="field-input" id="hair" data-key="hair" type="text" autocomplete="off">
+              </div>
+              <div class="field-group">
+                <label class="field-label">OLHOS</label>
+                <input class="field-input" id="eyes" data-key="eyes" type="text" autocomplete="off">
+              </div>
+              <div class="field-group">
+                <label class="field-label">PELE</label>
+                <input class="field-input" id="skin" data-key="skin" type="text" autocomplete="off">
+              </div>
+              <div class="field-group">
+                <label class="field-label">MÃO DOMINANTE</label>
+                <input class="field-input" id="handed" data-key="handed" type="text" autocomplete="off">
+              </div>
+            </div>
+          </div>
+          <div class="field-group history-field">
+            <label class="field-label">HISTÓRIA</label>
+            <textarea class="notes-textarea" id="history" data-key="history" rows="6" placeholder="A história de origem do seu personagem..."></textarea>
+          </div>
+        </section>
+
+        <div class="description-side-col">
+          <section class="panel credits-panel">
+            <h2 class="panel-header">CRÉDITOS</h2>
+            <input class="field-input" id="credits" data-key="credits" type="text" autocomplete="off">
+          </section>
+
+          <section class="panel languages-panel">
+            <h2 class="panel-header">IDIOMAS</h2>
+            <div id="languages-container"></div>
+          </section>
+        </div>
+
+      </div><!-- end description-row -->
+
+      <!-- Equipment Table -->
+      <section class="panel equip-table-panel">
+        <h2 class="panel-header">EQUIPAMENTO</h2>
+        <div class="equip-table-wrapper">
+          <table class="equip-table">
+            <thead>
+              <tr>
+                <th>ITEM</th>
+                <th>LOCALIZAÇÃO</th>
+                <th class="wt-col">PESO</th>
+                <th>ITEM</th>
+                <th>LOCALIZAÇÃO</th>
+                <th class="wt-col">PESO</th>
+              </tr>
+            </thead>
+            <tbody id="equipment-tbody"></tbody>
+          </table>
+        </div>
+        <div class="carrying-row">
+          <div class="field-group">
+            <label class="field-label">CAPACIDADE DE CARGA</label>
+            <input class="field-input" id="carrying-capacity" data-key="carrying-capacity" type="text" autocomplete="off">
+          </div>
+          <div class="field-group">
+            <label class="field-label">PESO TOTAL CARREGADO</label>
+            <input class="field-input" id="total-weight" data-key="total-weight" type="text" autocomplete="off">
+          </div>
+        </div>
+      </section>
 
       <!-- Reference links -->
       <section class="panel class-refs-panel">
@@ -635,6 +625,12 @@
       <section class="panel notes-panel">
         <h2 class="panel-header">ANOTAÇÕES GERAIS</h2>
         <textarea class="notes-textarea" id="notes" data-key="notes" rows="8"></textarea>
+      </section>
+
+      <!-- SPECIES TRAITS (final da seção) -->
+      <section class="panel species-traits-panel" id="species-traits-panel" style="display:none">
+        <h2 class="panel-header">CARACTERÍSTICAS DA ESPÉCIE</h2>
+        <div class="species-traits-body" id="species-traits-body"></div>
       </section>
 
     </div><!-- end tab-equipment -->

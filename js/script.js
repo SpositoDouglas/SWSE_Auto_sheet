@@ -139,7 +139,6 @@ let pendingLevelUp   = null; // {classKey, charLevel, isNew} while waiting HP ro
 
 const EXTRA_SKILLS_COUNT = 4;
 const WEAPONS_COUNT      = 5;
-const FEATS_COUNT        = 14;
 const EQUIPMENT_ROWS     = 14;
 const LANGUAGES_COUNT    = 8;
 const TALENTS_COUNT      = 16;
@@ -370,25 +369,6 @@ function buildSkills() {
       custom: true,
     };
     buildSkillRow(skill, extraContainer);
-  }
-}
-
-function buildFeats() {
-  const container = document.getElementById('feats-container');
-  if (!container) return;
-  container.style.padding = '8px';
-  container.style.display = 'flex';
-  container.style.flexDirection = 'column';
-  container.style.gap = '4px';
-
-  for (let i = 0; i < FEATS_COUNT; i++) {
-    const inp = document.createElement('input');
-    inp.className = 'feat-line';
-    inp.type = 'text';
-    inp.id = `feat-${i}`;
-    inp.dataset.key = `feat-${i}`;
-    inp.autocomplete = 'off';
-    container.appendChild(inp);
   }
 }
 
@@ -772,7 +752,9 @@ function getPendingTalentSlots() {
     if (!cls) return;
     const features = cls.levelFeatures[entry.classLv] || [];
     if (features.includes('talent')) {
-      const alreadyPicked = acquiredTalents.some(t => t.charLevel === charLv);
+      // Conta apenas talentos reais nesse nível (ignora aptidões bônus/nível que
+      // compartilham o mesmo charLevel), senão remover o talento não libera o slot.
+      const alreadyPicked = acquiredTalents.some(t => t.charLevel === charLv && !isFeatEntry(t));
       if (!alreadyPicked) {
         pending.push({ classKey: entry.classKey, classLv: entry.classLv, charLevel: charLv });
       }
@@ -1391,9 +1373,14 @@ function buildTalentsDisplay() {
   });
 }
 
+// Preenche dois painéis:
+//   • APTIDÕES        (#class-bonus-feats-display): aptidões bônus de classe
+//   • APTIDÕES EXTRAS (#extra-feats-display): iniciais de classe, de espécie
+//     (automáticas/condicionais/escolha) e ganhas ao subir de nível.
 function buildBonusFeatsDisplay() {
-  const container = document.getElementById('class-bonus-feats-display');
-  if (!container) return;
+  const bonusContainer = document.getElementById('class-bonus-feats-display');
+  const extraContainer = document.getElementById('extra-feats-display');
+  if (!bonusContainer && !extraContainer) return;
 
   const pendingBonus = getPendingBonusFeatSlots();
   const pendingLevel = getPendingLevelFeatSlots();
@@ -1412,164 +1399,172 @@ function buildBonusFeatsDisplay() {
     cf => !chosenSpeciesFeats.some(t => t.slotName === cf.name)
   );
 
-  let html = '';
+  // ---- APTIDÕES: aptidões bônus de classe ----
+  if (bonusContainer) {
+    let html = '';
+    if (bonusFeats.length > 0) {
+      html += '<div class="acquired-talents">';
+      bonusFeats.forEach(t => {
+        const cls = ALL_CLASSES[t.classKey];
+        const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[t.talentId] : null;
+        html += `<div class="acquired-talent-item has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
+            <span class="at-name">${t.talentId}</span>
+            <span class="at-source">${cls?.name || t.classKey} — Aptidão Bônus</span>
+            <button class="at-remove-btn" data-char-level="${t.charLevel}" data-tree="__bonusFeat__" title="Remover">✕</button>
+          </div>`;
+      });
+      html += '</div>';
+    } else if (pendingBonus.length === 0) {
+      html += '<p class="no-talents-msg">Nenhuma aptidão bônus adquirida.</p>';
+    }
 
-  const hasAnyAcquired = startingFeats.length > 0 || condMet.length > 0 ||
-    bonusFeats.length > 0 || levelFeats.length > 0 ||
-    autoFeats.length > 0 || chosenSpeciesFeats.length > 0;
+    // Slots pendentes de aptidão bônus de classe
+    pendingBonus.forEach(slot => {
+      const cls = ALL_CLASSES[slot.classKey];
+      html += `<div class="talent-pick-slot">
+        <span class="talent-pick-label">
+          Aptidão Bônus disponível: ${cls?.name || slot.classKey} nível ${slot.classLv}
+        </span>
+        <button class="bonus-feat-pick-btn" data-class="${slot.classKey}" data-char-level="${slot.charLevel}">
+          + Escolher Aptidão
+        </button>
+      </div>`;
+    });
 
-  if (hasAnyAcquired) {
-    html += '<div class="acquired-talents">';
-    // Aptidões automáticas de espécie (sempre concedidas)
-    autoFeats.forEach(feat => {
-      const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[feat] : null;
-      html += `<div class="acquired-talent-item acquired-talent-item--species has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
-          <span class="at-name">${feat}</span>
-          <span class="at-source">${speciesData?.name || ''} — Aptidão de Espécie</span>
-        </div>`;
+    bonusContainer.innerHTML = html;
+
+    bonusContainer.querySelectorAll('.bonus-feat-pick-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openBonusFeatModal(btn.dataset.class, parseInt(btn.dataset.charLevel));
+      });
     });
-    // Aptidões de escolha de espécie (ex: Humano — Aptidão Extra)
-    chosenSpeciesFeats.forEach(t => {
-      const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[t.talentId] : null;
-      html += `<div class="acquired-talent-item acquired-talent-item--species has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
-          <span class="at-name">${t.talentId}</span>
-          <span class="at-source">${speciesData?.name || ''} — Aptidão Extra</span>
-          <button class="at-remove-btn" data-tree="__speciesFeat__" data-slot="${escTooltip(t.slotName || '')}" title="Remover">✕</button>
-        </div>`;
+    bonusContainer.querySelectorAll('.at-remove-btn[data-tree="__bonusFeat__"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cl = parseInt(btn.dataset.charLevel);
+        acquiredTalents = acquiredTalents.filter(t => !(t.charLevel === cl && t.treeKey === '__bonusFeat__'));
+        buildBonusFeatsDisplay();
+        scheduleSave();
+      });
     });
-    // Condicionais atendidas
-    condMet.forEach(c => {
-      html += `<div class="acquired-talent-item acquired-talent-item--species has-tooltip" data-tooltip="${escTooltip(c.desc)}">
-          <span class="at-name">${c.feat}</span>
-          <span class="at-source">${speciesData?.name || ''} — Condicional</span>
-        </div>`;
-    });
-    // Aptidões iniciais de classe
-    startingFeats.forEach(sf => {
-      const cls = ALL_CLASSES[sf.classKey];
-      const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[sf.name] : null;
-      html += `<div class="acquired-talent-item acquired-talent-item--auto has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
-          <span class="at-name">${sf.name}</span>
-          <span class="at-source">${cls?.name || sf.classKey} — Inicial</span>
-        </div>`;
-    });
-    // Aptidões bônus de classe
-    bonusFeats.forEach(t => {
-      const cls = ALL_CLASSES[t.classKey];
-      const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[t.talentId] : null;
-      html += `<div class="acquired-talent-item has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
-          <span class="at-name">${t.talentId}</span>
-          <span class="at-source">${cls?.name || t.classKey} — Aptidão Bônus</span>
-          <button class="at-remove-btn" data-char-level="${t.charLevel}" data-tree="__bonusFeat__" title="Remover">✕</button>
-        </div>`;
-    });
-    // Aptidões de nível
-    levelFeats.forEach(t => {
-      const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[t.talentId] : null;
-      html += `<div class="acquired-talent-item has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
-          <span class="at-name">${t.talentId}</span>
-          <span class="at-source">Nível ${t.charLevel}º — Aptidão</span>
-          <button class="at-remove-btn" data-char-level="${t.charLevel}" data-tree="__levelFeat__" title="Remover">✕</button>
-        </div>`;
-    });
-    html += '</div>';
-  } else if (pendingBonus.length === 0 && pendingLevel.length === 0 &&
-             condUnmet.length === 0 && pendingChoiceFeats.length === 0) {
-    html += '<p class="no-talents-msg">Nenhuma aptidão adquirida.</p>';
   }
 
-  // Slots pendentes de aptidão de escolha de espécie (ex: Humano)
-  pendingChoiceFeats.forEach(cf => {
-    html += `<div class="talent-pick-slot talent-pick-slot--species">
-      <span class="talent-pick-label">
-        ${cf.name} (${speciesData?.name || 'Espécie'}) — escolha uma aptidão
-      </span>
-      <button class="species-choice-feat-btn" data-slot="${escTooltip(cf.name)}">
-        + Escolher Aptidão
-      </button>
-    </div>`;
-  });
+  // ---- APTIDÕES EXTRAS: iniciais de classe, de espécie e ganhas por nível ----
+  if (extraContainer) {
+    let html = '';
+    const hasAnyExtra = startingFeats.length > 0 || condMet.length > 0 ||
+      levelFeats.length > 0 || autoFeats.length > 0 || chosenSpeciesFeats.length > 0;
 
-  // Aptidões condicionais de espécie ainda não atendidas (informativo)
-  condUnmet.forEach(c => {
-    html += `<div class="talent-pick-slot talent-pick-slot--cond">
-      <span class="talent-pick-label">
-        Aptidão condicional (espécie): ${c.feat}${c.condText ? ` — requer ${c.condText}` : ''}
-      </span>
-    </div>`;
-  });
+    if (hasAnyExtra) {
+      html += '<div class="acquired-talents">';
+      // Aptidões automáticas de espécie (sempre concedidas)
+      autoFeats.forEach(feat => {
+        const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[feat] : null;
+        html += `<div class="acquired-talent-item acquired-talent-item--species has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
+            <span class="at-name">${feat}</span>
+            <span class="at-source">${speciesData?.name || ''} — Aptidão de Espécie</span>
+          </div>`;
+      });
+      // Aptidões de escolha de espécie (ex: Humano — Aptidão Extra)
+      chosenSpeciesFeats.forEach(t => {
+        const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[t.talentId] : null;
+        html += `<div class="acquired-talent-item acquired-talent-item--species has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
+            <span class="at-name">${t.talentId}</span>
+            <span class="at-source">${speciesData?.name || ''} — Aptidão Extra</span>
+            <button class="at-remove-btn" data-tree="__speciesFeat__" data-slot="${escTooltip(t.slotName || '')}" title="Remover">✕</button>
+          </div>`;
+      });
+      // Condicionais atendidas
+      condMet.forEach(c => {
+        html += `<div class="acquired-talent-item acquired-talent-item--species has-tooltip" data-tooltip="${escTooltip(c.desc)}">
+            <span class="at-name">${c.feat}</span>
+            <span class="at-source">${speciesData?.name || ''} — Condicional</span>
+          </div>`;
+      });
+      // Aptidões iniciais de classe
+      startingFeats.forEach(sf => {
+        const cls = ALL_CLASSES[sf.classKey];
+        const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[sf.name] : null;
+        html += `<div class="acquired-talent-item acquired-talent-item--auto has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
+            <span class="at-name">${sf.name}</span>
+            <span class="at-source">${cls?.name || sf.classKey} — Inicial</span>
+          </div>`;
+      });
+      // Aptidões ganhas ao subir de nível
+      levelFeats.forEach(t => {
+        const featData = (typeof ALL_FEATS !== 'undefined') ? ALL_FEATS[t.talentId] : null;
+        html += `<div class="acquired-talent-item has-tooltip" data-tooltip="${escTooltip(featData?.description || '')}">
+            <span class="at-name">${t.talentId}</span>
+            <span class="at-source">Nível ${t.charLevel}º — Aptidão</span>
+            <button class="at-remove-btn" data-char-level="${t.charLevel}" data-tree="__levelFeat__" title="Remover">✕</button>
+          </div>`;
+      });
+      html += '</div>';
+    } else if (pendingLevel.length === 0 && condUnmet.length === 0 && pendingChoiceFeats.length === 0) {
+      html += '<p class="no-talents-msg">Nenhuma aptidão extra.</p>';
+    }
 
-  // Slots pendentes de aptidão bônus de classe
-  pendingBonus.forEach(slot => {
-    const cls = ALL_CLASSES[slot.classKey];
-    html += `<div class="talent-pick-slot">
-      <span class="talent-pick-label">
-        Aptidão Bônus disponível: ${cls?.name || slot.classKey} nível ${slot.classLv}
-      </span>
-      <button class="bonus-feat-pick-btn" data-class="${slot.classKey}" data-char-level="${slot.charLevel}">
-        + Escolher Aptidão
-      </button>
-    </div>`;
-  });
-
-  // Slots pendentes de aptidão ganha por nível (lista completa, não limitada)
-  pendingLevel.forEach(slot => {
-    html += `<div class="talent-pick-slot talent-pick-slot--level">
-      <span class="talent-pick-label">
-        Aptidão de Nível disponível: Personagem nível ${slot.charLevel}º
-      </span>
-      <button class="level-feat-pick-btn" data-char-level="${slot.charLevel}">
-        + Escolher Aptidão
-      </button>
-    </div>`;
-  });
-
-  container.innerHTML = html;
-
-  // Pick — aptidão bônus de classe
-  container.querySelectorAll('.bonus-feat-pick-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      openBonusFeatModal(btn.dataset.class, parseInt(btn.dataset.charLevel));
+    // Slots pendentes de aptidão de escolha de espécie (ex: Humano)
+    pendingChoiceFeats.forEach(cf => {
+      html += `<div class="talent-pick-slot talent-pick-slot--species">
+        <span class="talent-pick-label">
+          ${cf.name} (${speciesData?.name || 'Espécie'}) — escolha uma aptidão
+        </span>
+        <button class="species-choice-feat-btn" data-slot="${escTooltip(cf.name)}">
+          + Escolher Aptidão
+        </button>
+      </div>`;
     });
-  });
 
-  // Pick — aptidão de nível
-  container.querySelectorAll('.level-feat-pick-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      openLevelFeatModal(parseInt(btn.dataset.charLevel));
+    // Aptidões condicionais de espécie ainda não atendidas (informativo)
+    condUnmet.forEach(c => {
+      html += `<div class="talent-pick-slot talent-pick-slot--cond">
+        <span class="talent-pick-label">
+          Aptidão condicional (espécie): ${c.feat}${c.condText ? ` — requer ${c.condText}` : ''}
+        </span>
+      </div>`;
     });
-  });
 
-  // Remover
-  container.querySelectorAll('.at-remove-btn[data-tree="__bonusFeat__"]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const cl = parseInt(btn.dataset.charLevel);
-      acquiredTalents = acquiredTalents.filter(t => !(t.charLevel === cl && t.treeKey === '__bonusFeat__'));
-      buildBonusFeatsDisplay();
-      scheduleSave();
+    // Slots pendentes de aptidão ganha por nível total
+    pendingLevel.forEach(slot => {
+      html += `<div class="talent-pick-slot talent-pick-slot--level">
+        <span class="talent-pick-label">
+          Aptidão de Nível disponível: Personagem nível ${slot.charLevel}º
+        </span>
+        <button class="level-feat-pick-btn" data-char-level="${slot.charLevel}">
+          + Escolher Aptidão
+        </button>
+      </div>`;
     });
-  });
-  container.querySelectorAll('.at-remove-btn[data-tree="__levelFeat__"]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const cl = parseInt(btn.dataset.charLevel);
-      acquiredTalents = acquiredTalents.filter(t => !(t.charLevel === cl && t.treeKey === '__levelFeat__'));
-      buildBonusFeatsDisplay();
-      scheduleSave();
+
+    extraContainer.innerHTML = html;
+
+    extraContainer.querySelectorAll('.level-feat-pick-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openLevelFeatModal(parseInt(btn.dataset.charLevel));
+      });
     });
-  });
-  container.querySelectorAll('.at-remove-btn[data-tree="__speciesFeat__"]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const slot = btn.dataset.slot;
-      acquiredTalents = acquiredTalents.filter(t => !(t.treeKey === '__speciesFeat__' && t.slotName === slot));
-      buildBonusFeatsDisplay();
-      scheduleSave();
+    extraContainer.querySelectorAll('.species-choice-feat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openSpeciesFeatModal(btn.dataset.slot);
+      });
     });
-  });
-  container.querySelectorAll('.species-choice-feat-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      openSpeciesFeatModal(btn.dataset.slot);
+    extraContainer.querySelectorAll('.at-remove-btn[data-tree="__levelFeat__"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cl = parseInt(btn.dataset.charLevel);
+        acquiredTalents = acquiredTalents.filter(t => !(t.charLevel === cl && t.treeKey === '__levelFeat__'));
+        buildBonusFeatsDisplay();
+        scheduleSave();
+      });
     });
-  });
+    extraContainer.querySelectorAll('.at-remove-btn[data-tree="__speciesFeat__"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const slot = btn.dataset.slot;
+        acquiredTalents = acquiredTalents.filter(t => !(t.treeKey === '__speciesFeat__' && t.slotName === slot));
+        buildBonusFeatsDisplay();
+        scheduleSave();
+      });
+    });
+  }
 }
 
 // ============================================================
@@ -2491,7 +2486,6 @@ function bindEvents() {
 document.addEventListener('DOMContentLoaded', () => {
   buildWeapons();
   buildSkills();
-  buildFeats();
   buildDarkSideTrack();
   buildEquipmentTable();
   buildSimpleList('languages-container',    'lang',   LANGUAGES_COUNT,    'lang-line',    '');
