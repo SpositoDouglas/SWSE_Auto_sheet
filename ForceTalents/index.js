@@ -15,7 +15,7 @@
  *   requiresPower  (no talento): nome de Poder da Força que precisa conhecer
  *   multiSelect    (no talento): pode ser escolhido várias vezes
  */
-const ALL_FORCE_TALENTS = [
+export const ALL_FORCE_TALENTS = [
   {
     key: 'forceAlter',
     name: 'Árvore de Talentos de Alterar',

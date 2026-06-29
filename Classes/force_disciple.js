@@ -1,9 +1,12 @@
 'use strict';
 
+import { CLASS_FORCE_ADEPT } from './force_adept.js';
+
 // Reaproveita as árvores de talentos do Adepto da Força (force_adept.js deve
 // ser carregado antes deste arquivo no index.html). O Discípulo também pode
 // escolher de quaisquer árvores de talentos da Força (Capítulo 6).
-const CLASS_FORCE_DISCIPLE = {
+/** @type {import('../src/types/game.js').ClassData} */
+export const CLASS_FORCE_DISCIPLE = {
   key: 'forceDisciple',
   name: 'Discípulo da Força',
   prestige: true,

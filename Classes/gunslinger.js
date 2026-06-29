@@ -1,6 +1,11 @@
 'use strict';
 
-const CLASS_GUNSLINGER = {
+import { classTrees } from './_shared.js';
+import { CLASS_SCOUNDREL } from './scoundrel.js';
+import { CLASS_SCOUT } from './scout.js';
+
+/** @type {import('../src/types/game.js').ClassData} */
+export const CLASS_GUNSLINGER = {
   key: 'gunslinger',
   name: 'Pistoleiro',
   prestige: true,

@@ -8,7 +8,7 @@
 // classes base, cujas árvores ele referencia).
 //
 // Uso: ...classTrees(CLASS_SOLDIER, 'armorSpecialist', 'commando')
-function classTrees(classObj, ...keys) {
+export function classTrees(classObj, ...keys) {
   if (!classObj || !Array.isArray(classObj.talentTrees)) return [];
   return classObj.talentTrees.filter(t => keys.includes(t.key));
 }

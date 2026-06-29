@@ -1,6 +1,7 @@
 'use strict';
 
-const SPECIES_SULLUSTANO = {
+/** @type {import('../src/types/game.js').SpeciesData} */
+export const SPECIES_SULLUSTANO = {
   name: 'Sullustano',
   abilityAdj: { dex: 2, con: -2 },
   speed: '6 sq',

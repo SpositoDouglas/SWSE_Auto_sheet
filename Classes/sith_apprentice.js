@@ -1,6 +1,12 @@
 'use strict';
 
-const CLASS_SITH_APPRENTICE = {
+import { classTrees } from './_shared.js';
+import { CLASS_JEDI } from './jedi.js';
+import { CLASS_JEDI_KNIGHT } from './jedi_knight.js';
+import { CLASS_SOLDIER } from './soldier.js';
+
+/** @type {import('../src/types/game.js').ClassData} */
+export const CLASS_SITH_APPRENTICE = {
   key: 'sithApprentice',
   name: 'Aprendiz Sith',
   prestige: true,

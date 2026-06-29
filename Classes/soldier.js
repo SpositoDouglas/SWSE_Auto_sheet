@@ -1,6 +1,7 @@
 'use strict';
 
-const CLASS_SOLDIER = {
+/** @type {import('../src/types/game.js').ClassData} */
+export const CLASS_SOLDIER = {
   key: 'soldier',
   name: 'Soldado',
   description: 'Os soldados combinam disciplina com habilidades marciais para se tornarem os melhores combatentes na galáxia. Soldados podem ser leais defensores daqueles em necessidade, saqueadores cruéis, ou bravos aventureiros. Também podem ser mercenários, campeões da nobreza, ou assassinos de coração frio. Eles lutam por glória, por honra, para fazer a coisa certa, para ganhar poder, para adquirir riquezas ou simplesmente pela emoção da batalha.',

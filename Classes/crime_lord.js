@@ -1,6 +1,10 @@
 'use strict';
 
-const CLASS_CRIME_LORD = {
+import { classTrees } from './_shared.js';
+import { CLASS_NOBLE } from './noble.js';
+
+/** @type {import('../src/types/game.js').ClassData} */
+export const CLASS_CRIME_LORD = {
   key: 'crimeLord',
   name: 'Senhor do Crime',
   prestige: true,

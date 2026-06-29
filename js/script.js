@@ -1,5 +1,12 @@
 'use strict';
 
+import { ALL_CLASSES, XP_THRESHOLDS, LEVEL_BENEFITS, MULTICLASS_EXCLUDED } from '../Classes/index.js';
+import { SPECIES_DATA } from '../Species/index.js';
+import { ALL_FEATS } from '../Feats/index.js';
+import { ALL_FORCE_POWERS } from '../ForcePowers/index.js';
+import { ALL_FORCE_TALENTS } from '../ForceTalents/index.js';
+import { calcMod, calcDefense, calcSkill, calcHpPerLevel, calcHpLevel1, calcMulticlassBAB } from '../src/logic/calculations.js';
+
 // ============================================================
 //  STAR WARS SAGA EDITION — FICHA ONLINE
 // ============================================================
@@ -151,7 +158,7 @@ const ADD_FEATS_COUNT    = 16;
 function abilityMod(score) {
   const s = parseInt(score, 10);
   if (isNaN(s)) return null;
-  return Math.floor((s - 10) / 2);
+  return calcMod(s);
 }
 
 function fmtMod(mod) {
@@ -589,14 +596,11 @@ function getBestDefBonus() {
 
 function getCharBAB() {
   // SWSE multiclass: highest BAB among classes at their current level
-  let best = 0;
-  classLevels.forEach(e => {
+  const babs = classLevels.map(e => {
     const cls = ALL_CLASSES[e.classKey];
-    if (!cls) return;
-    const bab = cls.baseAttack[e.level - 1] || 0;
-    if (bab > best) best = bab;
+    return cls ? (cls.baseAttack[e.level - 1] || 0) : 0;
   });
-  return best;
+  return calcMulticlassBAB(babs);
 }
 
 // ── Feat prerequisite helpers ─────────────────────────────────────────────────
@@ -1131,13 +1135,13 @@ function confirmLevelUp() {
 
   let hpGained;
   if (charLv === 1) {
-    hpGained = cls.startingHP + conMod;
+    hpGained = calcHpLevel1(cls.startingHP, conMod);
   } else {
     if (isNaN(roll) || roll < 1 || roll > cls.hitDie) {
       showNotification(`Digite um resultado válido (1–${cls.hitDie})`, true);
       return;
     }
-    hpGained = Math.max(1, roll + conMod);
+    hpGained = calcHpPerLevel(roll, conMod);
   }
 
   // Update hpByLevel
@@ -2195,9 +2199,15 @@ function recalcAbilityMods() {
     const mod = isNaN(score) ? null : abilityMod(score);
     mods[a] = mod;
 
+    // Os #*-mod foram migrados para o componente Alpine (x-text). Este write
+    // é no-op (elemento inexistente); mantido como fallback se o id voltar.
     const modEl = document.getElementById(`${a}-mod`);
     if (modEl) modEl.textContent = fmtMod(mod);
   });
+
+  // Notifica o componente Alpine de Atributos para reler os scores e
+  // re-renderizar os modificadores (cobre digitação, espécie, novo, restore).
+  document.dispatchEvent(new CustomEvent('scores-changed'));
 
   return mods;
 }
@@ -2229,7 +2239,7 @@ function recalcDefenses(mods) {
 
     if (abilMod !== null) {
       const misc  = numVal(d.miscId);
-      const total = 10 + heroicLevel + d.clsBonus + abilMod + misc;
+      const total = calcDefense({ level: heroicLevel, classBonuses: [d.clsBonus], abilityMod: abilMod, misc });
       if (totalEl) totalEl.textContent = total;
     } else {
       if (totalEl) totalEl.textContent = '—';
@@ -2276,9 +2286,8 @@ function recalcSkills(mods) {
       return;
     }
 
-    let total = halfLevel + abilMod + misc;
-    if (trained) total += 5;
-    if (focus)   total += 5; // Foco em Perícia: +5 de bônus de competência
+    // ½ nível + mod + misc + 5 (treinado) + 5 (foco) — ver calcSkill
+    const total = calcSkill({ level: numVal('total-level', 1), abilityMod: abilMod, misc, trained, focus });
 
     totalEl.textContent = total >= 0 ? '+' + total : total;
     totalEl.title = '';

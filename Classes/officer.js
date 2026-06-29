@@ -1,6 +1,11 @@
 'use strict';
 
-const CLASS_OFFICER = {
+import { classTrees } from './_shared.js';
+import { CLASS_NOBLE } from './noble.js';
+import { CLASS_SOLDIER } from './soldier.js';
+
+/** @type {import('../src/types/game.js').ClassData} */
+export const CLASS_OFFICER = {
   key: 'officer',
   name: 'Oficial',
   prestige: true,

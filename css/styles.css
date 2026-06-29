@@ -2266,3 +2266,48 @@ select.species-select option {
 .has-tooltip {
   cursor: help;
 }
+
+/* ============================================================
+   CONTAINER QUERIES — Responsividade moderna
+   O container é registrado no wrapper .datapad; as regras abaixo
+   ajustam os DESCENDENTES conforme a largura do datapad (não o viewport).
+   (Container queries só estilizam descendentes, nunca o próprio container.)
+   ============================================================ */
+
+.datapad {
+  container-type: inline-size;
+  container-name: datapad;
+}
+
+/* Layout principal: 2 colunas → 1; perícias sobem; atributos em 3 col */
+@container datapad (max-width: 1100px) {
+  .main-sheet-grid { grid-template-columns: 1fr; }
+  .sheet-right { order: -1; }
+  .abilities-row { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+/* Telas estreitas: tudo em 1 coluna */
+@container datapad (max-width: 800px) {
+  .char-info-fields { grid-template-columns: repeat(4, 1fr); }
+  .abilities-row { grid-template-columns: 1fr; }
+  .bottom-row,
+  .equipment-layout,
+  .talents-feats-row,
+  .extras-grid,
+  .description-row { grid-template-columns: 1fr; }
+}
+
+/* Header compacto + defesas/quebras verticais em telas pequenas */
+@container datapad (max-width: 600px) {
+  .datapad-header { flex-direction: column; gap: 8px; }
+  .header-toolbar { flex-wrap: wrap; justify-content: center; }
+  .sw-wordmark { font-size: clamp(1rem, 5vw, 1.8rem); }
+  .defense-breakdown { flex-wrap: wrap; gap: 4px; }
+  .defenses-top-row { flex-direction: column; }
+}
+
+/* Tamanhos de fonte fluidos em telas médias/pequenas */
+@container datapad (max-width: 768px) {
+  .panel-header { font-size: clamp(0.6rem, 2vw, 0.75rem); }
+  .field-label { font-size: clamp(0.5rem, 1.5vw, 0.65rem); }
+}

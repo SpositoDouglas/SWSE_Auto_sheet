@@ -1,6 +1,7 @@
 'use strict';
 
-const CLASS_FORCE_ADEPT = {
+/** @type {import('../src/types/game.js').ClassData} */
+export const CLASS_FORCE_ADEPT = {
   key: 'forceAdept',
   name: 'Adepto da Força',
   prestige: true,
