@@ -1,23 +1,25 @@
 # Star Wars Saga Edition — Ficha de Personagem Automática
 
-Ficha de personagem digital para o sistema **Star Wars Saga Edition** (SWSE), construída como uma aplicação web estática — sem servidor, sem dependências, sem build. Basta abrir o `index.html` no navegador.
+Ficha de personagem digital para o sistema **Star Wars Saga Edition** (SWSE). Funciona direto no navegador, **mesmo sem internet**, e pode ser **instalada no seu dispositivo** como um aplicativo.
 
 ## Funcionalidades
 
-- **Classes com multiclasse** — 5 classes heroicas (Jedi, Nobre, Malandro, Batedor, Soldado) com progressão por nível. Suporte completo a multiclasse: cada nível pode avançar em qualquer classe já adquirida ou adicionar uma nova. Botão **Desfazer Nível** retrocede o último nível ganho (PV e escolhas) caso a classe escolhida tenha sido errada.
-- **Progressão por XP** — o campo de Experiência (na ficha principal) controla a subida de nível: só é possível ganhar um nível quando o XP total atinge o limite da Tabela 3-1. A ficha mostra o XP que falta para o próximo nível e indica quando o nível atual concede **Aptidão** e/ou **Aumento de Habilidade**.
-- **Aptidões por nível** — nos níveis 1, 3, 6, 9, 12, 15 e 18 (Tabela 3-1) a ficha abre um slot para escolher uma aptidão no mesmo estilo das aptidões bônus de classe, porém da lista completa (não limitada à lista da classe).
-- **HP automático** — nível 1 usa o máximo do dado da classe; nos demais, o usuário digita o resultado da rolagem e o modificador de CON é aplicado automaticamente (mínimo 1).
-- **Defesas auto-calculadas** — Fortitude, Reflexo e Vontade calculados com `10 + nível heróico + melhor bônus de classe + modificador de atributo + misc`.
-- **Árvores de Talentos** — modal interativo com as 4 árvores de cada classe, pré-requisitos verificados automaticamente, seleção com um clique.
-- **Aptidões Bônus** — seleção das aptidões bônus de classe em cada nível par.
-- **Sistema de Espécies** — 17 espécies com ajustes de atributo, deslocamento, idiomas automáticos e painel de características.
-- **Perícias** — cálculo automático de `½ nível + mod. atributo + misc + 5 (treinado) + 5 (foco)`.
-- **Pontuação do Lado Sombrio** — trilha clicável de 25 pips.
-- **Retrato** — carregamento de imagem local salvo em base64.
-- **Auto-save** — salva automaticamente no `localStorage` com debounce de 600 ms.
-- **Export / Import JSON** — exporta e importa a ficha completa em JSON.
-- **Tema "Datapad Imperial"** — fundo escuro estático em gradiente, fontes Orbitron + Share Tech Mono + Exo 2.
+- **Classes heroicas com multiclasse** — Jedi, Nobre, Malandro, Batedor e Soldado, com progressão por nível. Cada nível pode avançar em uma classe já adquirida ou adicionar uma nova. O botão **Desfazer Nível** retrocede o último nível ganho (PV e escolhas) caso a classe escolhida tenha sido errada.
+- **Classes de prestígio** — 12 classes avançadas disponíveis: Ás da Pilotagem, Caçador de Recompensas, Senhor do Crime, Soldado de Elite, Adepto da Força, Discípulo da Força, Pistoleiro, Cavaleiro Jedi, Mestre Jedi, Oficial, Aprendiz Sith e Lorde Sith.
+- **Progressão por XP** — o campo de Experiência controla a subida de nível: só é possível subir quando o XP total atinge o limite necessário. A ficha mostra o quanto falta para o próximo nível e avisa quando o nível concede **Aptidão** e/ou **Aumento de Habilidade**.
+- **Aptidões com descrição e pré-requisitos** — cada aptidão mostra o que concede e o que exige; as que você não atende ficam **bloqueadas**, evitando escolhas inválidas. As aptidões são separadas em **Aptidões** (bônus de classe) e **Aptidões Extras** (iniciais de classe, concedidas pela espécie e ganhas ao subir de nível).
+- **Árvores de Talentos** — escolha visual das árvores de cada classe, com pré-requisitos conferidos automaticamente e talentos que podem ser escolhidos mais de uma vez (respeitando o limite quando há).
+- **Talentos da Força** — uma seção própria que aparece para personagens Sensitivos à Força, com as quatro árvores de Talentos da Força (Alterar, Controlar, Lado Negro e Sentidos).
+- **Poderes da Força** — aprendidos pela aptidão Treinamento na Força, com a quantidade de poderes calculada automaticamente e a descrição completa de cada poder.
+- **Espécies** — 23 espécies com ajustes de atributo, deslocamento, idiomas e características próprias. Algumas concedem aptidões automaticamente, outras de forma condicional (conforme as perícias treinadas) ou por escolha (como a aptidão extra do Humano).
+- **Descrições no toque do mouse** — passe o mouse sobre qualquer talento, aptidão ou poder para ver a descrição completa; clique para fixar a descrição na tela.
+- **HP, Defesas e Perícias automáticas** — tudo calculado conforme as regras enquanto você preenche.
+- **Pontuação do Lado Sombrio** — trilha clicável de 25 pontos.
+- **Descrição física e História** — campos para detalhar a aparência do personagem, retrato e um espaço dedicado para escrever a história de origem.
+- **Pontos da Força e de Destino** — campos próprios na ficha principal.
+- **Salvamento automático** — a ficha guarda tudo sozinha enquanto você edita, e oferece **Exportar / Importar** para backup ou para transferir entre dispositivos.
+- **Funciona offline e instalável** — depois de aberta uma vez, a ficha funciona sem internet e pode ser instalada como aplicativo.
+- **Tema "Datapad Imperial"** — visual escuro inspirado nos painéis do Império.
 
 ## Como usar
 
