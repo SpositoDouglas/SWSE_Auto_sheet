@@ -16,7 +16,7 @@
  *     trainedSkills: array de skill IDs que precisam estar treinadas
  *   multiSelect  : true se pode ser escolhida várias vezes (para grupos/armas diferentes)
  */
-const ALL_FEATS = {
+export const ALL_FEATS = {
 
   // ── A ──────────────────────────────────────────────────────────────────────
 

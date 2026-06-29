@@ -15,7 +15,7 @@
  * concede 1 + modificador de Sabedoria (mínimo 1) poderes a cada vez. O mesmo
  * poder pode ser escolhido mais de uma vez (cada escolha = um uso extra).
  */
-const ALL_FORCE_POWERS = {
+export const ALL_FORCE_POWERS = {
   'Atordoamento da Força': {
     descriptor: '',
     time: 'Ação padrão',

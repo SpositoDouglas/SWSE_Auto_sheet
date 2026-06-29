@@ -1,8 +1,10 @@
 'use strict';
 
+import { CLASS_JEDI_KNIGHT } from './jedi_knight.js';
+
 // Reaproveita a árvore do Duelista do Cavaleiro Jedi (jedi_knight.js deve ser
 // carregado antes). O Mestre Jedi também escolhe de quaisquer árvores da Força.
-const CLASS_JEDI_MASTER = {
+export const CLASS_JEDI_MASTER = {
   key: 'jediMaster',
   name: 'Mestre Jedi',
   prestige: true,

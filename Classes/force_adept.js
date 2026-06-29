@@ -1,6 +1,6 @@
 'use strict';
 
-const CLASS_FORCE_ADEPT = {
+export const CLASS_FORCE_ADEPT = {
   key: 'forceAdept',
   name: 'Adepto da Força',
   prestige: true,

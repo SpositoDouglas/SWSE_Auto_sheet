@@ -1,6 +1,6 @@
 'use strict';
 
-const CLASS_SCOUT = {
+export const CLASS_SCOUT = {
   key: 'scout',
   name: 'Batedor',
   description: 'Os batedores são exploradores e aventureiros naturais cheios de curiosidade e treinados para todo tipo de situação nos ambientes onde geralmente operam. Os batedores tendem a ser independentes, alistando-se onde os pagamentos são generosos e suas habilidades são melhores utilizadas e testadas. Eles sabem como reconhecer o perigo e localizar o básico necessário para a sobrevivência. O batedor busca conhecimento, tentando resolver mistérios, e procura ser sempre o primeiro a ver algo novo e diferente.',

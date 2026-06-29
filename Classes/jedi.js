@@ -1,6 +1,6 @@
 'use strict';
 
-const CLASS_JEDI = {
+export const CLASS_JEDI = {
   key: 'jedi',
   name: 'Jedi',
   description: 'O Jedi combina treinamento físico com o domínio da Força. Os Jedi concentram-se nas virtudes em combate, na defesa, e no treinamento com sabre-de-luz. Eles também são os embaixadores da Ordem Jedi, protegendo a República de todos os perigos. Poucos são fortes o bastante na Força e possuem a devoção necessária para seguir o caminho Jedi, mas esses poucos são recompensados com uma poderosa aliada.',

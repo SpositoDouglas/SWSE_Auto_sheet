@@ -1,6 +1,6 @@
 'use strict';
 
-const CLASS_SCOUNDREL = {
+export const CLASS_SCOUNDREL = {
   key: 'scoundrel',
   name: 'Malandro',
   description: 'Malandros são ladinos – bons, maus, e neutros – que vivem à margem da lei ou lutam contra ela para atingir algum objetivo maior. Eles podem vir de qualquer planeta ou região da galáxia. Muitos usam sua sagacidade e destreza para realizar tarefas e muitos contam com seu carisma como um plano b quando tudo o mais falha. Os malandros sobrevivem com ousadia, esperteza, trapaça e duas caras. Eles atuam por seu bom senso, por mentiras, trapaças, roubos, e até mesmo lutando quando se faz necessário.',

@@ -1,6 +1,10 @@
 'use strict';
 
-const CLASS_BOUNTY_HUNTER = {
+import { classTrees } from './_shared.js';
+import { CLASS_SCOUNDREL } from './scoundrel.js';
+import { CLASS_SCOUT } from './scout.js';
+
+export const CLASS_BOUNTY_HUNTER = {
   key: 'bountyHunter',
   name: 'Caçador de Recompensas',
   prestige: true,

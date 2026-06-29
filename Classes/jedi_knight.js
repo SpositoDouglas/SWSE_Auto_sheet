@@ -1,6 +1,10 @@
 'use strict';
 
-const CLASS_JEDI_KNIGHT = {
+import { classTrees } from './_shared.js';
+import { CLASS_JEDI } from './jedi.js';
+import { CLASS_SOLDIER } from './soldier.js';
+
+export const CLASS_JEDI_KNIGHT = {
   key: 'jediKnight',
   name: 'Cavaleiro Jedi',
   prestige: true,

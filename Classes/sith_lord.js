@@ -1,8 +1,11 @@
 'use strict';
 
+import { classTrees } from './_shared.js';
+import { CLASS_SITH_APPRENTICE } from './sith_apprentice.js';
+
 // Reaproveita a árvore do Sith do Aprendiz Sith (sith_apprentice.js deve ser
 // carregado antes). O Lorde Sith também escolhe de quaisquer árvores da Força.
-const CLASS_SITH_LORD = {
+export const CLASS_SITH_LORD = {
   key: 'sithLord',
   name: 'Lorde Sith',
   prestige: true,

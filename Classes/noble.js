@@ -1,6 +1,6 @@
 'use strict';
 
-const CLASS_NOBLE = {
+export const CLASS_NOBLE = {
   key: 'noble',
   name: 'Nobre',
   description: 'Os membros da classe nobre empregam sua inteligência e carisma naturais para trilhar seu caminho pela galáxia. Da verdadeira realeza aos oficialmente eleitos, comandantes militares a senhores do crime, comerciantes, mercadores, embaixadores, astros do holovídeo e magnatas de corporações influentes, os tipos de personagens que aparecem na classe nobre são variados e numerosos. Com um sorriso vencedor, uma língua afiada, uma poderosa mensagem, ou a promessa de cumprir seus compromissos, o nobre comanda com respeito, faz amigos, e inevitavelmente influencia as pessoas.',

@@ -4,10 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Star Wars Saga Edition — Ficha de Personagem</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Exo+2:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <!-- Fontes, Tailwind e o tema (css/styles.css) são importados via src/main.js -->
 </head>
 <body>
 
@@ -657,63 +654,7 @@
     </div>
   </dialog>
 
-  <!-- FEATS DATA -->
-  <script src="Feats/index.js"></script>
-
-  <!-- FORCE POWERS DATA -->
-  <script src="ForcePowers/index.js"></script>
-
-  <!-- FORCE TALENTS DATA -->
-  <script src="ForceTalents/index.js"></script>
-
-  <!-- SPECIES DATA FILES -->
-  <script src="Species/humano.js"></script>
-  <script src="Species/aqualish.js"></script>
-  <script src="Species/codrují.js"></script>
-  <script src="Species/jawa.js"></script>
-  <script src="Species/bothano.js"></script>
-  <script src="Species/cereano.js"></script>
-  <script src="Species/duros.js"></script>
-  <script src="Species/ewok.js"></script>
-  <script src="Species/gamorreano.js"></script>
-  <script src="Species/gungan.js"></script>
-  <script src="Species/hutt.js"></script>
-  <script src="Species/ithoriano.js"></script>
-  <script src="Species/keldor.js"></script>
-  <script src="Species/moncalamari.js"></script>
-  <script src="Species/neimoidiano.js"></script>
-  <script src="Species/quarren.js"></script>
-  <script src="Species/rodiano.js"></script>
-  <script src="Species/sullustano.js"></script>
-  <script src="Species/trandoshano.js"></script>
-  <script src="Species/twilek.js"></script>
-  <script src="Species/wookie.js"></script>
-  <script src="Species/yuuzhanvong.js"></script>
-  <script src="Species/zabrak.js"></script>
-  <script src="Species/index.js"></script>
-
-  <!-- CLASS DATA FILES -->
-  <script src="Classes/jedi.js"></script>
-  <script src="Classes/noble.js"></script>
-  <script src="Classes/scoundrel.js"></script>
-  <script src="Classes/scout.js"></script>
-  <script src="Classes/soldier.js"></script>
-  <!-- Classes de prestígio (ordem importa: dependências de árvores reaproveitadas) -->
-  <script src="Classes/_shared.js"></script>
-  <script src="Classes/ace_pilot.js"></script>
-  <script src="Classes/bounty_hunter.js"></script>
-  <script src="Classes/crime_lord.js"></script>
-  <script src="Classes/elite_trooper.js"></script>
-  <script src="Classes/force_adept.js"></script>
-  <script src="Classes/force_disciple.js"></script>
-  <script src="Classes/gunslinger.js"></script>
-  <script src="Classes/jedi_knight.js"></script>
-  <script src="Classes/jedi_master.js"></script>
-  <script src="Classes/officer.js"></script>
-  <script src="Classes/sith_apprentice.js"></script>
-  <script src="Classes/sith_lord.js"></script>
-  <script src="Classes/index.js"></script>
-
-  <script src="js/script.js"></script>
+  <!-- Ponto de entrada ES Module (Vite) — substitui as ~45 tags <script> globais -->
+  <script type="module" src="/src/main.js"></script>
 </body>
 </html>

@@ -1,5 +1,11 @@
 'use strict';
 
+import { ALL_CLASSES, XP_THRESHOLDS, LEVEL_BENEFITS, MULTICLASS_EXCLUDED } from '../Classes/index.js';
+import { SPECIES_DATA } from '../Species/index.js';
+import { ALL_FEATS } from '../Feats/index.js';
+import { ALL_FORCE_POWERS } from '../ForcePowers/index.js';
+import { ALL_FORCE_TALENTS } from '../ForceTalents/index.js';
+
 // ============================================================
 //  STAR WARS SAGA EDITION — FICHA ONLINE
 // ============================================================

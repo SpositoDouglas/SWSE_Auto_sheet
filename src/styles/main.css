@@ -1,0 +1,23 @@
+/* ============================================================
+   CSS principal — Tailwind v4 + tema "Datapad Imperial" existente
+   ============================================================
+
+   Importamos o Tailwind SEM o preflight (reset base) para não alterar
+   o visual atual. As utilidades (flex, grid, p-4, font-orbitron, etc.)
+   e o tema ficam disponíveis; o css/styles.css continua mandando no design.
+   Para ativar o preflight depois, troque os imports do Tailwind por:
+     @import "tailwindcss";
+*/
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* Tema Datapad Imperial existente (mantido intacto) */
+@import "../../css/styles.css";
+
+/* Famílias de fonte do tema expostas como utilitários Tailwind (uso futuro) */
+@theme {
+  --font-orbitron: 'Orbitron', 'Courier New', monospace;
+  --font-mono: 'Share Tech Mono', 'Courier New', monospace;
+  --font-exo: 'Exo 2', 'Arial', sans-serif;
+}

@@ -1,6 +1,6 @@
 'use strict';
 
-const SPECIES_RODIANO = {
+export const SPECIES_RODIANO = {
   name: 'Rodiano',
   abilityAdj: { dex: 2, wis: -2, cha: -2 },
   speed: '6 sq',
