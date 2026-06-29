@@ -18,8 +18,8 @@ import './styles/main.css';
 // ── Alpine.js (disponível para migração incremental dos componentes) ──
 import Alpine from 'alpinejs';
 window.Alpine = Alpine; // expõe para o DevTools
-// Componentes Alpine (registrados antes do start) serão adicionados aqui,
-// um por vez, conforme a migração incremental (ex.: import './components/attributes.js').
+// Componentes Alpine (registrados antes do start), um por vez:
+import './components/attributes.js';
 
 // ── Lógica principal da ficha (importa os dados via ES Modules) ──
 import '../js/script.js';

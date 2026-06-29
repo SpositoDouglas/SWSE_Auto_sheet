@@ -2201,9 +2201,15 @@ function recalcAbilityMods() {
     const mod = isNaN(score) ? null : abilityMod(score);
     mods[a] = mod;
 
+    // Os #*-mod foram migrados para o componente Alpine (x-text). Este write
+    // é no-op (elemento inexistente); mantido como fallback se o id voltar.
     const modEl = document.getElementById(`${a}-mod`);
     if (modEl) modEl.textContent = fmtMod(mod);
   });
+
+  // Notifica o componente Alpine de Atributos para reler os scores e
+  // re-renderizar os modificadores (cobre digitação, espécie, novo, restore).
+  document.dispatchEvent(new CustomEvent('scores-changed'));
 
   return mods;
 }

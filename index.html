@@ -130,8 +130,8 @@
           <!-- ROW: Abilities + HP + Condition -->
           <div class="abilities-row">
 
-            <!-- ABILITIES -->
-            <section class="panel abilities-panel">
+            <!-- ABILITIES (componente Alpine: bind dos scores + modificador reativo) -->
+            <section class="panel abilities-panel" x-data="characterAttributes()">
               <h2 class="panel-header">ATRIBUTOS</h2>
               <div class="abilities-grid">
                 <div class="ability-labels">
@@ -139,33 +139,33 @@
                 </div>
                 <div class="ability-row" data-ability="str">
                   <div class="ability-name"><span class="ability-abbr">STR</span><span class="ability-full">Força</span></div>
-                  <input class="ability-score" id="str-score" data-key="str-score" type="number" min="1" max="40" autocomplete="off">
-                  <div class="ability-mod" id="str-mod">—</div>
+                  <input class="ability-score" id="str-score" data-key="str-score" x-model.number="str" type="number" min="1" max="40" autocomplete="off">
+                  <div class="ability-mod" x-text="modText('str')">—</div>
                 </div>
                 <div class="ability-row" data-ability="dex">
                   <div class="ability-name"><span class="ability-abbr">DEX</span><span class="ability-full">Destreza</span></div>
-                  <input class="ability-score" id="dex-score" data-key="dex-score" type="number" min="1" max="40" autocomplete="off">
-                  <div class="ability-mod" id="dex-mod">—</div>
+                  <input class="ability-score" id="dex-score" data-key="dex-score" x-model.number="dex" type="number" min="1" max="40" autocomplete="off">
+                  <div class="ability-mod" x-text="modText('dex')">—</div>
                 </div>
                 <div class="ability-row" data-ability="con">
                   <div class="ability-name"><span class="ability-abbr">CON</span><span class="ability-full">Constituição</span></div>
-                  <input class="ability-score" id="con-score" data-key="con-score" type="number" min="1" max="40" autocomplete="off">
-                  <div class="ability-mod" id="con-mod">—</div>
+                  <input class="ability-score" id="con-score" data-key="con-score" x-model.number="con" type="number" min="1" max="40" autocomplete="off">
+                  <div class="ability-mod" x-text="modText('con')">—</div>
                 </div>
                 <div class="ability-row" data-ability="int">
                   <div class="ability-name"><span class="ability-abbr">INT</span><span class="ability-full">Inteligência</span></div>
-                  <input class="ability-score" id="int-score" data-key="int-score" type="number" min="1" max="40" autocomplete="off">
-                  <div class="ability-mod" id="int-mod">—</div>
+                  <input class="ability-score" id="int-score" data-key="int-score" x-model.number="int" type="number" min="1" max="40" autocomplete="off">
+                  <div class="ability-mod" x-text="modText('int')">—</div>
                 </div>
                 <div class="ability-row" data-ability="wis">
                   <div class="ability-name"><span class="ability-abbr">WIS</span><span class="ability-full">Sabedoria</span></div>
-                  <input class="ability-score" id="wis-score" data-key="wis-score" type="number" min="1" max="40" autocomplete="off">
-                  <div class="ability-mod" id="wis-mod">—</div>
+                  <input class="ability-score" id="wis-score" data-key="wis-score" x-model.number="wis" type="number" min="1" max="40" autocomplete="off">
+                  <div class="ability-mod" x-text="modText('wis')">—</div>
                 </div>
                 <div class="ability-row" data-ability="cha">
                   <div class="ability-name"><span class="ability-abbr">CHA</span><span class="ability-full">Carisma</span></div>
-                  <input class="ability-score" id="cha-score" data-key="cha-score" type="number" min="1" max="40" autocomplete="off">
-                  <div class="ability-mod" id="cha-mod">—</div>
+                  <input class="ability-score" id="cha-score" data-key="cha-score" x-model.number="cha" type="number" min="1" max="40" autocomplete="off">
+                  <div class="ability-mod" x-text="modText('cha')">—</div>
                 </div>
               </div>
             </section>
