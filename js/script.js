@@ -1667,7 +1667,7 @@ function buildBonusFeatsDisplay() {
       btn.addEventListener('click', () => {
         const cl = parseInt(btn.dataset.charLevel);
         acquiredTalents = acquiredTalents.filter(t => !(t.charLevel === cl && t.treeKey === '__bonusFeat__'));
-        buildBonusFeatsDisplay();
+        recalcAll();
         scheduleSave();
       });
     });
@@ -1777,7 +1777,7 @@ function buildBonusFeatsDisplay() {
       btn.addEventListener('click', () => {
         const cl = parseInt(btn.dataset.charLevel);
         acquiredTalents = acquiredTalents.filter(t => !(t.charLevel === cl && t.treeKey === '__levelFeat__'));
-        buildBonusFeatsDisplay();
+        recalcAll();
         scheduleSave();
       });
     });
@@ -1785,7 +1785,7 @@ function buildBonusFeatsDisplay() {
       btn.addEventListener('click', () => {
         const slot = btn.dataset.slot;
         acquiredTalents = acquiredTalents.filter(t => !(t.treeKey === '__speciesFeat__' && t.slotName === slot));
-        buildBonusFeatsDisplay();
+        recalcAll();
         scheduleSave();
       });
     });
@@ -1806,9 +1806,10 @@ function countFeat(name) {
     const cls = ALL_CLASSES[entry.classKey];
     if (cls?.startingFeats) count += cls.startingFeats.filter(f => norm(f) === target).length;
   }
-  // Bônus e de nível (aptidões adquiridas)
+  // Bônus, de nível e de escolha de espécie (aptidões adquiridas)
   count += acquiredTalents.filter(t =>
-    (t.treeKey === '__bonusFeat__' || t.treeKey === '__levelFeat__') && norm(t.talentId) === target
+    (t.treeKey === '__bonusFeat__' || t.treeKey === '__levelFeat__' || t.treeKey === '__speciesFeat__')
+    && norm(t.talentId) === target
   ).length;
   // Inputs de texto livre de aptidões
   document.querySelectorAll('[id^="feat-"]').forEach(inp => {
@@ -2122,7 +2123,7 @@ function openSpeciesFeatModal(slotName) {
       const feat = el.dataset.feat;
       acquiredTalents.push({ classKey: '__species__', treeKey: '__speciesFeat__', talentId: feat, slotName });
       modal.close();
-      buildBonusFeatsDisplay();
+      recalcAll();
       scheduleSave();
     });
   });
@@ -2264,7 +2265,9 @@ function openBonusFeatModal(classKey, charLevel) {
       const feat = el.dataset.feat;
       acquiredTalents.push({ classKey, treeKey: '__bonusFeat__', talentId: feat, charLevel });
       modal.close();
-      buildBonusFeatsDisplay();
+      // recalcAll reconstrói tudo que depende de aptidões: Aptidões, Poderes da
+      // Força (Treinamento na Força), Talentos da Força (Sensitivo à Força), etc.
+      recalcAll();
       scheduleSave();
     });
   });
@@ -2329,7 +2332,8 @@ function openLevelFeatModal(charLevel) {
       const feat = el.dataset.feat;
       acquiredTalents.push({ classKey: null, treeKey: '__levelFeat__', talentId: feat, charLevel });
       modal.close();
-      buildBonusFeatsDisplay();
+      // recalcAll reconstrói tudo que depende de aptidões (ver acima).
+      recalcAll();
       scheduleSave();
     });
   });
