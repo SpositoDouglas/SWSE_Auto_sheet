@@ -1335,6 +1335,13 @@ input[type="number"] {
 }
 .fp-slots-info strong { color: var(--text-bright); }
 
+/* Grupos Técnicas/Segredos dentro do painel "Técnicas e Segredos da Força" */
+.ft-group + .ft-group {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
 .fp-descriptor {
   font-size: 9px;
   color: rgba(150,195,255,0.85);
@@ -1347,7 +1354,7 @@ input[type="number"] {
 }
 .talent-pick-slot--force .talent-pick-label { color: rgba(190,170,255,0.85); }
 
-.force-power-pick-btn {
+.force-power-pick-btn, .force-tech-pick-btn {
   font-family: var(--font-head);
   font-size: 9px;
   letter-spacing: 0.1em;
@@ -1360,7 +1367,7 @@ input[type="number"] {
   white-space: nowrap;
   transition: all 0.15s;
 }
-.force-power-pick-btn:hover {
+.force-power-pick-btn:hover, .force-tech-pick-btn:hover {
   background: rgba(150,120,255,0.22);
   border-color: rgba(150,120,255,0.6);
 }

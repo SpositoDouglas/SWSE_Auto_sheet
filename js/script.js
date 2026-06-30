@@ -5,6 +5,7 @@ import { SPECIES_DATA } from '../Species/index.js';
 import { ALL_FEATS } from '../Feats/index.js';
 import { ALL_FORCE_POWERS } from '../ForcePowers/index.js';
 import { ALL_FORCE_TALENTS } from '../ForceTalents/index.js';
+import { ALL_FORCE_TECHNIQUES, ALL_FORCE_SECRETS } from '../ForceTechniques/index.js';
 import { calcMod, calcDefense, calcSkill, calcHpPerLevel, calcHpLevel1, calcMulticlassBAB, calcDamageBonus, conditionEffect } from '../src/logic/calculations.js';
 
 // ============================================================
@@ -142,6 +143,9 @@ let hpByLevel        = [];
 let acquiredTalents  = [];
 // acquiredForcePowers: ['Mover Objeto', 'Impulso', ...] — pode repetir (cada repetição = uso extra)
 let acquiredForcePowers = [];
+// Técnicas e Segredos da Força: ['Recuperar Ponto da Força', ...] — nomes do catálogo
+let acquiredForceTechniques = [];
+let acquiredForceSecrets    = [];
 let pendingLevelUp   = null; // {classKey, charLevel, isNew} while waiting HP roll
 
 const EXTRA_SKILLS_COUNT = 4;
@@ -808,6 +812,30 @@ function isFeatEntry(t) {
 // Talento da Força (ocupa o mesmo slot de talento, mas é exibido em painel próprio).
 function isForceTalent(t) {
   return t.classKey === '__force__';
+}
+
+// Classes de prestígio que concedem Técnicas (níveis pares) e Segredos da Força.
+const FORCE_TECHNIQUE_CLASSES = ['forceAdept', 'jediKnight', 'sithApprentice'];
+const FORCE_SECRET_CLASSES    = ['forceDisciple', 'jediMaster', 'sithLord'];
+
+// Conta os slots de Técnica e de Segredo concedidos pelas classes do personagem,
+// lendo o `levelFeatures` de cada nível ('forceTechnique' / 'forceSecret').
+function getForceTechSlots() {
+  let techniques = 0, secrets = 0;
+  hpByLevel.forEach(entry => {
+    const cls = ALL_CLASSES[entry.classKey];
+    if (!cls) return;
+    const features = cls.levelFeatures[entry.classLv] || [];
+    if (features.includes('forceTechnique')) techniques++;
+    if (features.includes('forceSecret'))    secrets++;
+  });
+  return { techniques, secrets };
+}
+
+// Personagem tem ao menos uma das classes de Técnicas/Segredos da Força.
+function hasForceTechClass() {
+  return classLevels.some(e =>
+    FORCE_TECHNIQUE_CLASSES.includes(e.classKey) || FORCE_SECRET_CLASSES.includes(e.classKey));
 }
 
 // Personagem tem a aptidão Sensitivo à Força?
@@ -1924,6 +1952,129 @@ function openForcePowerModal() {
   modal.showModal();
 }
 
+// ---- TÉCNICAS E SEGREDOS DA FORÇA (painel exclusivo das classes de prestígio) ----
+
+function buildForceTechDisplay() {
+  const panel = document.getElementById('force-tech-panel');
+  const container = document.getElementById('force-tech-display');
+  if (!panel || !container) return;
+
+  const hasClass = hasForceTechClass();
+  const anyAcquired = acquiredForceTechniques.length > 0 || acquiredForceSecrets.length > 0;
+
+  // Só aparece para quem tem uma das classes (ou já tem algo adquirido).
+  if (!hasClass && !anyAcquired) {
+    panel.style.display = 'none';
+    container.innerHTML = '';
+    return;
+  }
+  panel.style.display = '';
+
+  const { techniques: techTotal, secrets: secretTotal } = getForceTechSlots();
+
+  let html = '';
+  html += renderForceTechGroup('Técnicas da Força', acquiredForceTechniques, techTotal, 'technique', ALL_FORCE_TECHNIQUES);
+  html += renderForceTechGroup('Segredos da Força', acquiredForceSecrets, secretTotal, 'secret', ALL_FORCE_SECRETS);
+
+  container.innerHTML = html;
+
+  container.querySelectorAll('.force-tech-pick-btn').forEach(btn => {
+    btn.addEventListener('click', () => openForceTechModal(btn.dataset.kind));
+  });
+  container.querySelectorAll('.at-remove-btn[data-tech-kind]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = parseInt(btn.dataset.index, 10);
+      const arr = btn.dataset.techKind === 'technique' ? acquiredForceTechniques : acquiredForceSecrets;
+      arr.splice(i, 1);
+      buildForceTechDisplay();
+      scheduleSave();
+    });
+  });
+}
+
+// Renderiza um grupo (Técnicas ou Segredos): contagem, itens adquiridos e botão.
+function renderForceTechGroup(title, acquired, total, kind, catalog) {
+  const pending = total - acquired.length;
+  let html = `<div class="ft-group">
+    <div class="fp-slots-info">${title}: <strong>${acquired.length}</strong> de <strong>${total}</strong></div>`;
+
+  if (acquired.length > 0) {
+    html += '<div class="acquired-talents">';
+    acquired.forEach((name, idx) => {
+      const item = catalog[name];
+      html += `<div class="acquired-talent-item has-tooltip" data-tooltip="${escTooltip(item?.description || name)}">
+        <span class="at-name">${name}</span>
+        <span class="at-source">${kind === 'technique' ? 'Técnica' : 'Segredo'}</span>
+        <button class="at-remove-btn" data-tech-kind="${kind}" data-index="${idx}" title="Remover">✕</button>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  if (pending > 0) {
+    html += `<div class="talent-pick-slot talent-pick-slot--force">
+      <span class="talent-pick-label">${kind === 'technique' ? 'Técnica' : 'Segredo'} da Força disponível (${acquired.length}/${total})</span>
+      <button class="force-tech-pick-btn" data-kind="${kind}">+ Escolher ${kind === 'technique' ? 'Técnica' : 'Segredo'}</button>
+    </div>`;
+  } else if (pending < 0) {
+    html += `<div class="talent-pick-slot talent-pick-slot--cond">
+      <span class="talent-pick-label">Você tem ${acquired.length} ${kind === 'technique' ? 'técnicas' : 'segredos'}, mas só tem direito a ${total}. Remova ${-pending}.</span>
+    </div>`;
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function openForceTechModal(kind) {
+  const modal = document.getElementById('talent-modal');
+  const title = document.getElementById('talent-modal-title');
+  const body  = document.getElementById('talent-modal-body');
+  if (!modal || !body) return;
+
+  const isTech = kind === 'technique';
+  const catalog = isTech ? ALL_FORCE_TECHNIQUES : ALL_FORCE_SECRETS;
+  const acquired = isTech ? acquiredForceTechniques : acquiredForceSecrets;
+  const total = isTech ? getForceTechSlots().techniques : getForceTechSlots().secrets;
+
+  title.textContent = `${isTech ? 'TÉCNICA' : 'SEGREDO'} DA FORÇA — ESCOLHA (${acquired.length}/${total})`;
+
+  let html = `<div class="tm-tree"><div class="tm-tree-name">${isTech ? 'Técnicas' : 'Segredos'} da Força</div>` +
+    `<div class="tm-tree-desc">Uma vez escolhido, ${isTech ? 'uma técnica' : 'um segredo'} da Força não pode ser trocado.</div>` +
+    '<div class="tm-talents">';
+
+  Object.keys(catalog)
+    .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+    .forEach(name => {
+      const item = catalog[name];
+      const owned = acquired.filter(n => n === name).length;
+      // Técnicas/Segredos não são repetíveis, exceto "Mestria com Poder da Força".
+      const alreadyHas = owned > 0 && !item.repeatable;
+      const ownedMark = owned > 0 ? ` <span class="tm-pick-count">✓${item.repeatable ? ` ×${owned}` : ''}</span>` : '';
+      const cls = alreadyHas ? 'tm-talent tm-locked' : 'tm-talent tm-available tm-feat-item';
+      html += `<div class="${cls}" ${alreadyHas ? '' : `data-name="${escTooltip(name)}"`}>
+        <div class="tm-talent-name">${name}${ownedMark}</div>
+        ${item.repeatable ? '<div class="tm-prereq tm-prereq-ok">Pode ser escolhida várias vezes</div>' : ''}
+        <div class="tm-talent-desc">${item.description}</div>
+      </div>`;
+    });
+
+  html += '</div></div>';
+  body.innerHTML = html;
+
+  body.querySelectorAll('.tm-feat-item.tm-available').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => {
+      (isTech ? acquiredForceTechniques : acquiredForceSecrets).push(el.dataset.name);
+      modal.close();
+      buildForceTechDisplay();
+      scheduleSave();
+    });
+  });
+
+  modal.showModal();
+}
+
 // ---- Species choice feat modal ----
 
 function openSpeciesFeatModal(slotName) {
@@ -2409,6 +2560,8 @@ function recalcAll() {
   buildForcePowersDisplay();
   // Talentos da Força aparecem para Sensitivo à Força; Lado Negro depende do Valor do Lado Negro
   buildForceTalentsDisplay();
+  // Técnicas/Segredos da Força aparecem para as classes de prestígio correspondentes
+  buildForceTechDisplay();
 }
 
 // ============================================================
@@ -2435,6 +2588,8 @@ function collectData() {
   data['__hpByLevel']       = JSON.stringify(hpByLevel);
   data['__acquiredTalents'] = JSON.stringify(acquiredTalents);
   data['__acquiredForcePowers'] = JSON.stringify(acquiredForcePowers);
+  data['__acquiredForceTechniques'] = JSON.stringify(acquiredForceTechniques);
+  data['__acquiredForceSecrets']    = JSON.stringify(acquiredForceSecrets);
 
   // Dark side score
   const filled = [...document.querySelectorAll('.ds-pip.filled')];
@@ -2497,13 +2652,16 @@ function restoreData(data) {
     hpByLevel       = data['__hpByLevel']       ? JSON.parse(data['__hpByLevel'])       : [];
     acquiredTalents = data['__acquiredTalents'] ? JSON.parse(data['__acquiredTalents']) : [];
     acquiredForcePowers = data['__acquiredForcePowers'] ? JSON.parse(data['__acquiredForcePowers']) : [];
-  } catch { classLevels = []; hpByLevel = []; acquiredTalents = []; acquiredForcePowers = []; }
+    acquiredForceTechniques = data['__acquiredForceTechniques'] ? JSON.parse(data['__acquiredForceTechniques']) : [];
+    acquiredForceSecrets    = data['__acquiredForceSecrets']    ? JSON.parse(data['__acquiredForceSecrets'])    : [];
+  } catch { classLevels = []; hpByLevel = []; acquiredTalents = []; acquiredForcePowers = []; acquiredForceTechniques = []; acquiredForceSecrets = []; }
 
   recalcAll();
   buildClassSection();
   buildTalentsDisplay();
   buildBonusFeatsDisplay();
   buildForcePowersDisplay();
+  buildForceTechDisplay();
 
   // Restore species state without re-applying adjustments (scores already include them)
   const restoredKey = document.getElementById('species')?.value || null;
@@ -2701,6 +2859,8 @@ function newCharacter() {
   hpByLevel       = [];
   acquiredTalents = [];
   acquiredForcePowers = [];
+  acquiredForceTechniques = [];
+  acquiredForceSecrets    = [];
   pendingLevelUp  = null;
   const hpPanel   = document.getElementById('hp-roll-panel');
   if (hpPanel) hpPanel.style.display = 'none';
@@ -2730,6 +2890,7 @@ function newCharacter() {
   buildTalentsDisplay();
   buildBonusFeatsDisplay();
   buildForcePowersDisplay();
+  buildForceTechDisplay();
   recalcAll();
   showNotification('Nova ficha criada!');
 }
@@ -2785,6 +2946,7 @@ document.addEventListener('DOMContentLoaded', () => {
   buildTalentsDisplay();
   buildBonusFeatsDisplay();
   buildForcePowersDisplay();
+  buildForceTechDisplay();
 
   setupTabs();
   setupPortrait();
