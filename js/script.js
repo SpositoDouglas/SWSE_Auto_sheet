@@ -1822,7 +1822,7 @@ function buildForcePowersDisplay() {
 
   // Sem a aptidão Treinamento na Força e sem poderes
   if (ftCount === 0 && acquired === 0) {
-    html += `<p class="no-talents-msg">Adquira a aptidão <strong>Treinamento na Força</strong> (na seção Aptidões) para aprender Poderes da Força.</p>`;
+    html += `<p class="no-talents-msg">Adquira a aptidão <strong>Treinamento na Força</strong> para aprender Poderes da Força.</p>`;
     container.innerHTML = html;
     return;
   }

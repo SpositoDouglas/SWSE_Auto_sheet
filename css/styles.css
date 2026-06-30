@@ -2311,3 +2311,53 @@ select.species-select option {
   .panel-header { font-size: clamp(0.6rem, 2vw, 0.75rem); }
   .field-label { font-size: clamp(0.5rem, 1.5vw, 0.65rem); }
 }
+
+/* ============================================================
+   DISTRIBUIÇÃO VERTICAL — preenche os espaços vazios
+   Painéis numa mesma linha esticam até a altura do vizinho mais
+   alto; aqui o conteúdo é distribuído para preencher essa altura
+   em vez de ficar agrupado no topo.
+   ============================================================ */
+
+/* Linha Atributos | Pontos de Vida | Condição */
+.abilities-panel,
+.condition-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.abilities-panel .abilities-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.condition-panel .condition-track {
+  flex: 1;
+  justify-content: space-between;
+}
+
+/* Pontuação do Lado Sombrio: espalha os 25 pips na vertical */
+.dark-side-panel {
+  display: flex;
+  flex-direction: column;
+}
+.dark-side-panel .dark-side-track {
+  flex: 1;
+  align-content: space-evenly;
+}
+
+/* Coluna Créditos + Idiomas acompanha a altura da Descrição Física */
+.description-side-col .languages-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.description-side-col #languages-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 6px 0;
+}
