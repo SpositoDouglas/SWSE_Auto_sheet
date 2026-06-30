@@ -49,7 +49,7 @@ export const CLASS_SITH_APPRENTICE = {
         { id: 'darkSideMaster', name: 'Mestre do Lado Negro', description: 'Como Adepto do Lado Negro, exceto que você pode gastar um ponto da Força para utilizar o melhor dos dois resultados dos testes de Usar a Força.', prerequisites: ['darkSideAdept'] },
         { id: 'forceDeception', name: 'Dissimulação da Força', description: 'Você pode usar seu modificador de Usar a Força ao invés de Dissimulação quando usar a Força para encobrir seus atos vis (e é considerado treinado em Dissimulação para esse fim).', prerequisites: [] },
         { id: 'improvedDarkHeal', name: 'Cura Sombria Aprimorada', description: 'Sua Cura Sombria melhora: o alcance aumenta para 12 quadrados e, mesmo que o ataque falhe, o alvo recebe metade do dano e você restaura igual quantidade de PV.', prerequisites: ['darkHeal'] },
-        { id: 'cruelStrike', name: 'Ataque Cruel', description: 'Quando obtiver um acerto crítico com um sabre-de-luz, você pode gastar um ponto da Força para fazer o alvo cair 2 passos no marcador de condição.', prerequisites: [], requiresFeat: 'Foco em Arma (sabres-de-luz); Especialização em Arma (sabres-de-luz)' },
+        { id: 'cruelStrike', name: 'Ataque Cruel', description: 'Quando obtiver um acerto crítico com um sabre-de-luz, você pode gastar um ponto da Força para fazer o alvo cair 2 passos no marcador de condição.', prerequisites: [], requiresFeat: 'Foco em Arma (sabres-de-luz)', requiresTalent: 'Especialização em Arma (sabres-de-luz)' },
       ],
     },
     // Também pode escolher talentos das árvores de Especialista em Armaduras (Soldado),

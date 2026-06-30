@@ -19,7 +19,9 @@
  * @property {string}   name          - Nome do talento (português)
  * @property {string}   description   - Descrição do efeito
  * @property {string[]} prerequisites - IDs de talentos pré-requisito (da mesma classe)
- * @property {string}   [requiresFeat] - Aptidão exigida (ex.: 'Foco em Arma (sabres-de-luz)')
+ * @property {string}   [requiresFeat] - Aptidão exigida (ex.: 'Foco em Arma (sabres-de-luz)'); várias separadas por '; '
+ * @property {string}   [requiresTalent] - Talento exigido por NOME (ex.: 'Defesa com Sabre-de-Luz'); vários separados por '; '
+ * @property {string}   [requiresTrainedSkill] - ID de perícia que precisa estar treinada (ex.: 'initiative')
  * @property {number}   [requiresBab]  - BAB mínimo exigido
  * @property {boolean}  [multiSelect]  - Pode ser escolhido mais de uma vez
  * @property {number}   [maxSelect]    - Limite de escolhas (quando repetível)

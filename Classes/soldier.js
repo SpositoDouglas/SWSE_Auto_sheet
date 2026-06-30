@@ -152,7 +152,7 @@ export const CLASS_SOLDIER = {
           name: 'Interpor-se',
           description: 'Uma vez por rodada, você pode gastar uma ação rápida para proteger um único aliado adjacente de ataques, recebendo o dano e sofrendo seus efeitos ao invés de seu aliado. Até o começo do seu próximo turno, qualquer ataque feito contra o aliado protegido terá como alvo você ao invés dele. Você pode decidir não proteger contra um determinado ataque o aliado protegido, contando que a decisão seja dita antes que a jogada de ataque seja feita.',
           prerequisites: [],
-          requiresFeat: 'Treinamento em Perícia (Iniciativa)',
+          requiresTrainedSkill: 'initiative',
         },
         {
           id: 'indomitable',

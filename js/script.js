@@ -909,6 +909,52 @@ function talentPrereqsMet(talent) {
   return talent.prerequisites.every(req => hasTalent(req));
 }
 
+// Resolve uma entrada de acquiredTalents para o NOME do talento (procura nas
+// árvores de todas as classes e nas árvores de Talentos da Força). Entradas de
+// aptidão (__bonusFeat__ etc.) não resolvem (retornam '').
+function resolveTalentName(t) {
+  const cls = t.classKey && ALL_CLASSES[t.classKey];
+  if (cls?.talentTrees) {
+    for (const tr of cls.talentTrees) {
+      const found = tr.talents.find(x => x.id === t.talentId);
+      if (found) return found.name;
+    }
+  }
+  if (isForceTalent(t)) {
+    const tree = ALL_FORCE_TALENTS.find(tr => tr.key === t.treeKey);
+    const found = tree?.talents.find(x => x.id === t.talentId);
+    if (found) return found.name;
+  }
+  return '';
+}
+
+// O personagem possui um talento com este NOME (em qualquer classe)?
+// Talentos de arma são genéricos (ex.: "Especialização em Arma", escolhendo a
+// arma ao pegar) e a ficha não rastreia a arma escolhida; por isso casamos também
+// pelo nome-base, ignorando o parêntese da arma (ex.: "(sabres-de-luz)").
+function characterHasTalentNamed(name) {
+  const norm = n => n.toLowerCase().replace(/[-\s]+/g, ' ').trim();
+  const base = n => norm(n).replace(/\s*\(.*\)\s*$/, '').trim();
+  const target = norm(name);
+  const targetBase = base(name);
+  return acquiredTalents.some(t => {
+    const rn = resolveTalentName(t);
+    if (!rn) return false;
+    return norm(rn) === target || base(rn) === targetBase;
+  });
+}
+
+// Pré-requisito "A; B" ou "A, B" → todos os itens precisam ser satisfeitos.
+// Tokens genéricos de escolha do jogador (ex.: "Foco em Arma (arma/grupo
+// escolhido)") não podem ser verificados pela ficha — são informativos e não travam.
+function isGenericChoiceReq(token) {
+  return /escolhid/i.test(token);
+}
+function reqListMet(str, predicate) {
+  return str.split(/[;,]/).map(s => s.trim()).filter(Boolean)
+    .every(tok => isGenericChoiceReq(tok) ? true : predicate(tok));
+}
+
 // ---- UI builders ----
 
 function buildClassSection() {
@@ -2153,13 +2199,15 @@ function openTalentModal(classKey, charLevel) {
 
     tree.talents.forEach(talent => {
       const prereqMet = talentPrereqsMet(talent);
-      const featMet = !talent.requiresFeat || characterHasFeat(talent.requiresFeat);
+      const featMet = !talent.requiresFeat || reqListMet(talent.requiresFeat, characterHasFeat);
+      const talentReqMet = !talent.requiresTalent || reqListMet(talent.requiresTalent, characterHasTalentNamed);
+      const skillMet = !talent.requiresTrainedSkill || isSkillTrained(talent.requiresTrainedSkill);
       const babMet  = !talent.requiresBab || getCharBAB() >= talent.requiresBab;
       const picked = countTalent(talent.id);
       // Limite de escolhas: maxSelect (se definido); senão 1 para não-repetível, ∞ para multiSelect.
       const maxPicks = talent.maxSelect || (talent.multiSelect ? Infinity : 1);
       const atLimit = picked >= maxPicks;
-      const locked = !prereqMet || !featMet || !babMet || atLimit;
+      const locked = !prereqMet || !featMet || !talentReqMet || !skillMet || !babMet || atLimit;
 
       const checkMark = picked > 0 ? ` <span class="tm-pick-count">✓${picked > 1 || talent.multiSelect ? ` ×${picked}` : ''}</span>` : '';
       html += `<div class="tm-talent ${locked ? 'tm-locked' : 'tm-available'}" data-talent-id="${talent.id}" data-tree="${tree.key}">
@@ -2177,6 +2225,13 @@ function openTalentModal(classKey, charLevel) {
       }
       if (talent.requiresFeat) {
         html += `<div class="tm-prereq ${featMet ? 'tm-prereq-ok' : 'tm-prereq-fail'}">Aptidão: ${talent.requiresFeat}</div>`;
+      }
+      if (talent.requiresTalent) {
+        html += `<div class="tm-prereq ${talentReqMet ? 'tm-prereq-ok' : 'tm-prereq-fail'}">Talento: ${talent.requiresTalent}</div>`;
+      }
+      if (talent.requiresTrainedSkill) {
+        const skName = (SKILLS.find(s => s.id === talent.requiresTrainedSkill) || {}).name || talent.requiresTrainedSkill;
+        html += `<div class="tm-prereq ${skillMet ? 'tm-prereq-ok' : 'tm-prereq-fail'}">Perícia treinada: ${skName}</div>`;
       }
       if (talent.requiresBab) {
         html += `<div class="tm-prereq ${babMet ? 'tm-prereq-ok' : 'tm-prereq-fail'}">BAB: +${talent.requiresBab}</div>`;

@@ -49,7 +49,7 @@ export const CLASS_FORCE_ADEPT = {
       description: 'Adeptos da Força utilizam-se da Força para sobreviver em mundos periféricos, e frequentemente possuem poderes da Força singulares que utilizam particularmente bem.',
       talents: [
         { id: 'forcePowerAdept', name: 'Adepto do Poder da Força', description: 'Selecione um poder da Força que você conheça. Ao usá-lo, você tem a opção de gastar um ponto da Força para realizar dois testes de Usar a Força, usando o melhor resultado. Selecionável várias vezes (poder diferente; efeitos não acumulam).', prerequisites: [], multiSelect: true },
-        { id: 'fortifiedBody', name: 'Corpo Fortificado', description: 'A Força protege você contra indisposições, toxinas e envenenamento por radiação, tornando-o imune a doenças, venenos e radiação.', prerequisites: [], requiresFeat: 'Equilíbrio' },
+        { id: 'fortifiedBody', name: 'Corpo Fortificado', description: 'A Força protege você contra indisposições, toxinas e envenenamento por radiação, tornando-o imune a doenças, venenos e radiação.', prerequisites: [], requiresTalent: 'Equilíbrio' },
         { id: 'forceTreatment', name: 'Tratamento da Força', description: 'Você pode fazer um teste de Usar a Força no lugar de um teste de Tratar Ferimentos (e é considerado treinado nela para esse fim). Pode administrar primeiros socorros, tratar doenças, venenos e radiação sem kit médico ou medpac.', prerequisites: [] },
       ],
     },
