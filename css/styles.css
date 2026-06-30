@@ -1264,6 +1264,16 @@ input[type="number"] {
   color: #fff;
 }
 
+/* Ponto de queda para o Lado Negro (= valor de Sabedoria): anel de destaque */
+.ds-pip.ds-pip-fall {
+  border-color: var(--danger);
+  border-width: 2px;
+  box-shadow: 0 0 6px rgba(192, 57, 43, 0.65);
+  color: var(--danger);
+  font-weight: bold;
+}
+.ds-pip.ds-pip-fall.filled { color: #fff; }
+
 /* ============================================================
    EQUIPMENT TAB
    ============================================================ */

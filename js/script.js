@@ -383,17 +383,43 @@ function buildSkills() {
   }
 }
 
+// Registro do Valor do Lado Negro (SWSE): 24 caixas-base + 1 por ponto do
+// modificador de Sabedoria. Reconstruída quando a Sabedoria muda, preservando
+// o valor já marcado.
+function darkSideBoxCount() {
+  const wisScore = numVal('wis-score', NaN);
+  const wisMod = isNaN(wisScore) ? 0 : abilityMod(wisScore);
+  return 24 + Math.max(0, wisMod);
+}
+
 function buildDarkSideTrack() {
   const track = document.getElementById('dark-side-track');
   if (!track) return;
-  for (let i = 1; i <= 25; i++) {
-    const pip = document.createElement('div');
-    pip.className = 'ds-pip';
-    pip.textContent = i;
-    pip.dataset.score = i;
-    pip.addEventListener('click', () => toggleDarkSide(i));
-    track.appendChild(pip);
+  const count = darkSideBoxCount();
+
+  // Reconstrói só quando o nº de caixas muda, preservando as marcações.
+  if (track.children.length !== count) {
+    const prevFilled = document.querySelectorAll('.ds-pip.filled').length;
+    track.innerHTML = '';
+    for (let i = 1; i <= count; i++) {
+      const pip = document.createElement('div');
+      pip.className = 'ds-pip';
+      pip.textContent = i;
+      pip.dataset.score = i;
+      if (i <= prevFilled) pip.classList.add('filled');
+      pip.addEventListener('click', () => toggleDarkSide(i));
+      track.appendChild(pip);
+    }
   }
+
+  // Marca o ponto de queda para o Lado Negro: quando o Valor do Lado Negro
+  // iguala o valor de Sabedoria, o personagem sucumbe totalmente (pág. 96).
+  const wisScore = numVal('wis-score', NaN);
+  track.querySelectorAll('.ds-pip').forEach(p => {
+    const isFall = !isNaN(wisScore) && parseInt(p.dataset.score, 10) === wisScore;
+    p.classList.toggle('ds-pip-fall', isFall);
+    p.title = isFall ? 'Queda para o Lado Negro (Valor do Lado Negro = Sabedoria)' : '';
+  });
 }
 
 function toggleDarkSide(score) {
@@ -2647,6 +2673,8 @@ function recalcAll() {
   buildForceTalentsDisplay();
   // Técnicas/Segredos da Força aparecem para as classes de prestígio correspondentes
   buildForceTechDisplay();
+  // Nº de caixas do Lado Negro depende do modificador de Sabedoria (24 + mod SAB)
+  buildDarkSideTrack();
 }
 
 // ============================================================
@@ -2710,6 +2738,10 @@ function restoreData(data) {
       }
     });
   });
+
+  // Reconstrói a trilha do Lado Negro com o nº de caixas certo (24 + mod SAB já
+  // restaurado) antes de marcar o valor salvo.
+  buildDarkSideTrack();
 
   // Dark side score
   if (data['dark-side-score'] > 0) {
