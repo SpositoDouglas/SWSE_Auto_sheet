@@ -60,12 +60,26 @@ export function calcHpLevel1(startingHP, conMod) {
 }
 
 /**
- * Calcula o BAB em multiclasse (maior BAB entre todas as classes).
- * @param {number[]} babs - Array com o BAB de cada classe no nível atual
+ * Calcula o Bônus de Base de Ataque em multiclasse.
+ * Regra oficial (SWSE, pág. 28/116): some o BAB de cada classe, usando o valor
+ * da tabela de cada classe no nível de classe correspondente. Ex.: nobre 6 (+4)
+ * / soldado 2 (+2) → BAB +6.
+ * @param {number[]} babs - Array com o BAB de cada classe no seu nível de classe
  * @returns {number}
  */
 export function calcMulticlassBAB(babs) {
-  return Math.max(0, ...babs);
+  return babs.reduce((sum, b) => sum + b, 0);
+}
+
+/**
+ * Calcula o Bônus de Dano por nível (SWSE, pág. 28).
+ * Todo personagem causa dano extra em ataques corpo-a-corpo e à distância igual
+ * à metade do nível de personagem, arredondado para baixo (nível 1 → +0).
+ * @param {number} charLevel - Nível de personagem (nível heróico)
+ * @returns {number}
+ */
+export function calcDamageBonus(charLevel) {
+  return Math.floor(charLevel / 2);
 }
 
 /**

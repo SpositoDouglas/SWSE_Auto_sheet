@@ -57,7 +57,8 @@ Classes/
 | Defesas | `10 + nível heróico + bônus de classe + mod. atributo + misc` |
 | HP inicial | `máximo do dado da classe + mod. CON` |
 | HP por nível | `rolagem do dado + mod. CON (mínimo 1)` |
-| BAB (multiclasse) | maior BAB entre todas as classes |
+| BAB (multiclasse) | soma do BAB de cada classe no seu nível de classe |
+| Bônus de dano | `½ nível de personagem` (arredondado para baixo) |
 | Bônus de defesa (multiclasse) | melhor bônus por defesa entre todas as classes |
 
 ## Salvamento

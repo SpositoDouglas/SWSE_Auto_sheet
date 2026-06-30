@@ -6,6 +6,7 @@ import {
   calcHpPerLevel,
   calcHpLevel1,
   calcMulticlassBAB,
+  calcDamageBonus,
   conditionEffect,
 } from '../src/logic/calculations.js';
 
@@ -84,10 +85,25 @@ describe('calcHpPerLevel — HP por nível', () => {
 
 // ─── BAB Multiclasse ─────────────────────────────────────────────────────────
 
-describe('calcMulticlassBAB', () => {
-  it('uma classe → usa seu BAB', () => expect(calcMulticlassBAB([3])).toBe(3));
-  it('multiclasse → usa o maior',  () => expect(calcMulticlassBAB([2, 4])).toBe(4));
-  it('array vazio → 0',            () => expect(calcMulticlassBAB([])).toBe(0));
+describe('calcMulticlassBAB — soma o BAB de cada classe', () => {
+  it('uma classe → usa seu BAB',  () => expect(calcMulticlassBAB([3])).toBe(3));
+  it('multiclasse → soma os BABs', () => expect(calcMulticlassBAB([2, 4])).toBe(6));
+  it('exemplo do livro: nobre 6 (+4) / soldado 2 (+2) → +6', () => {
+    expect(calcMulticlassBAB([4, 2])).toBe(6);
+  });
+  it('três classes → soma todas', () => expect(calcMulticlassBAB([1, 2, 3])).toBe(6));
+  it('array vazio → 0',           () => expect(calcMulticlassBAB([])).toBe(0));
+});
+
+// ─── Bônus de Dano ───────────────────────────────────────────────────────────
+
+describe('calcDamageBonus — metade do nível (arredondado p/ baixo)', () => {
+  it('nível 1 → +0',   () => expect(calcDamageBonus(1)).toBe(0));
+  it('nível 2 → +1',   () => expect(calcDamageBonus(2)).toBe(1));
+  it('nível 4 → +2',   () => expect(calcDamageBonus(4)).toBe(2));
+  it('nível 11 → +5',  () => expect(calcDamageBonus(11)).toBe(5));
+  it('nível 12 → +6',  () => expect(calcDamageBonus(12)).toBe(6));
+  it('nível 20 → +10', () => expect(calcDamageBonus(20)).toBe(10));
 });
 
 // ─── Marcador de Condição ────────────────────────────────────────────────────

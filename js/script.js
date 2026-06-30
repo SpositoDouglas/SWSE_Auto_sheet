@@ -5,7 +5,7 @@ import { SPECIES_DATA } from '../Species/index.js';
 import { ALL_FEATS } from '../Feats/index.js';
 import { ALL_FORCE_POWERS } from '../ForcePowers/index.js';
 import { ALL_FORCE_TALENTS } from '../ForceTalents/index.js';
-import { calcMod, calcDefense, calcSkill, calcHpPerLevel, calcHpLevel1, calcMulticlassBAB, conditionEffect } from '../src/logic/calculations.js';
+import { calcMod, calcDefense, calcSkill, calcHpPerLevel, calcHpLevel1, calcMulticlassBAB, calcDamageBonus, conditionEffect } from '../src/logic/calculations.js';
 
 // ============================================================
 //  STAR WARS SAGA EDITION — FICHA ONLINE
@@ -595,7 +595,7 @@ function getBestDefBonus() {
 }
 
 function getCharBAB() {
-  // SWSE multiclass: highest BAB among classes at their current level
+  // SWSE multiclasse: soma o BAB de cada classe no seu nível de classe (pág. 28/116)
   const babs = classLevels.map(e => {
     const cls = ALL_CLASSES[e.classKey];
     return cls ? (cls.baseAttack[e.level - 1] || 0) : 0;
@@ -2384,12 +2384,23 @@ function recalcSpeed() {
   }
 }
 
+// Bônus de Dano = metade do nível de personagem, arredondado para baixo (pág. 28).
+// Aplica-se a ataques corpo-a-corpo e à distância.
+function recalcDamageBonus() {
+  const el = document.getElementById('damage-bonus');
+  if (!el) return;
+  const charLevel = getCharLevel() || numVal('total-level', 1);
+  const bonus = calcDamageBonus(charLevel);
+  el.textContent = bonus >= 0 ? `+${bonus}` : `${bonus}`;
+}
+
 function recalcAll() {
   const mods = recalcAbilityMods();
   recalcDefenses(mods);
   recalcSkills(mods);
   recalcConditionEffects();
   recalcSpeed();
+  recalcDamageBonus();
   recalcDamageThreshold();
   updateXpStatus();
   // Aptidões condicionais de espécie dependem de atributos/BAB/perícias treinadas
