@@ -257,6 +257,7 @@
                   <span class="cond-label">INDEFESO</span>
                 </label>
               </div>
+              <div class="condition-effects" id="condition-effects" aria-live="polite"></div>
             </section>
 
           </div><!-- end abilities-row -->
@@ -272,7 +273,11 @@
                 </div>
                 <div class="field-group">
                   <label class="field-label">DESLOCAMENTO</label>
-                  <input class="field-input" id="speed" data-key="speed" type="text" placeholder="6 sq" autocomplete="off">
+                  <div class="speed-field">
+                    <input class="field-input speed-input" id="speed" data-key="speed" type="text" placeholder="6" autocomplete="off">
+                    <span class="speed-unit">sq</span>
+                    <span class="speed-effective" id="speed-effective" aria-live="polite"></span>
+                  </div>
                 </div>
               </div>
             </div>

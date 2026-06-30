@@ -67,3 +67,31 @@ export function calcHpLevel1(startingHP, conMod) {
 export function calcMulticlassBAB(babs) {
   return Math.max(0, ...babs);
 }
+
+/**
+ * Efeitos de um passo do Marcador de Condição (SWSE, pág. 155).
+ * Cada passo aplica a mesma penalidade a TODAS as Defesas, jogadas de ataque,
+ * testes de habilidade e testes de perícia. O penúltimo passo (–10) também
+ * reduz o deslocamento à metade; o último passo é Indefeso (inconsciente/desabilitado).
+ *
+ * @typedef {Object} ConditionEffect
+ * @property {number}  penalty   - Penalidade numérica (0, 1, 2, 5 ou 10) aplicada como valor negativo
+ * @property {boolean} halfSpeed - Deslocamento reduzido à metade
+ * @property {boolean} helpless  - Indefeso (inconsciente/desabilitado)
+ */
+
+/**
+ * Traduz o valor do marcador de condição na penalidade e efeitos correspondentes.
+ * @param {string} condition - 'normal' | '-1' | '-2' | '-5' | '-10' | 'helpless'
+ * @returns {ConditionEffect}
+ */
+export function conditionEffect(condition) {
+  switch (condition) {
+    case '-1':       return { penalty: 1,  halfSpeed: false, helpless: false };
+    case '-2':       return { penalty: 2,  halfSpeed: false, helpless: false };
+    case '-5':       return { penalty: 5,  halfSpeed: false, helpless: false };
+    case '-10':      return { penalty: 10, halfSpeed: true,  helpless: false };
+    case 'helpless': return { penalty: 10, halfSpeed: true,  helpless: true  };
+    default:         return { penalty: 0,  halfSpeed: false, helpless: false };
+  }
+}

@@ -5,7 +5,7 @@ import { SPECIES_DATA } from '../Species/index.js';
 import { ALL_FEATS } from '../Feats/index.js';
 import { ALL_FORCE_POWERS } from '../ForcePowers/index.js';
 import { ALL_FORCE_TALENTS } from '../ForceTalents/index.js';
-import { calcMod, calcDefense, calcSkill, calcHpPerLevel, calcHpLevel1, calcMulticlassBAB } from '../src/logic/calculations.js';
+import { calcMod, calcDefense, calcSkill, calcHpPerLevel, calcHpLevel1, calcMulticlassBAB, conditionEffect } from '../src/logic/calculations.js';
 
 // ============================================================
 //  STAR WARS SAGA EDITION — FICHA ONLINE
@@ -2212,9 +2212,17 @@ function recalcAbilityMods() {
   return mods;
 }
 
+// Lê o passo atual do Marcador de Condição e retorna seus efeitos (penalidade,
+// deslocamento reduzido, indefeso). Ver conditionEffect() em calculations.js.
+function getConditionEffect() {
+  const sel = document.querySelector('input[name="condition"]:checked');
+  return conditionEffect(sel ? sel.value : 'normal');
+}
+
 function recalcDefenses(mods) {
   const heroicLevel = getCharLevel() || numVal('total-level', 1);
   const classDef    = getBestDefBonus();
+  const condPenalty = getConditionEffect().penalty;
 
   const defMap = [
     { name: 'fort', abilityKey: 'con', autoId: 'fort-ability', totalId: 'fort-total',
@@ -2240,15 +2248,25 @@ function recalcDefenses(mods) {
     if (abilMod !== null) {
       const misc  = numVal(d.miscId);
       const total = calcDefense({ level: heroicLevel, classBonuses: [d.clsBonus], abilityMod: abilMod, misc });
-      if (totalEl) totalEl.textContent = total;
+      if (totalEl) {
+        totalEl.textContent = total - condPenalty;
+        // Realça o total e explica a discrepância com o detalhamento quando há penalidade.
+        totalEl.classList.toggle('condition-penalized', condPenalty > 0);
+        totalEl.title = condPenalty > 0 ? `Inclui −${condPenalty} da condição` : '';
+      }
     } else {
-      if (totalEl) totalEl.textContent = '—';
+      if (totalEl) {
+        totalEl.textContent = '—';
+        totalEl.classList.remove('condition-penalized');
+        totalEl.title = '';
+      }
     }
   });
 }
 
 function recalcSkills(mods) {
   const halfLevel = Math.floor(numVal('total-level', 1) / 2);
+  const condPenalty = getConditionEffect().penalty;
 
   const allSkills = [
     ...SKILLS,
@@ -2287,10 +2305,11 @@ function recalcSkills(mods) {
     }
 
     // ½ nível + mod + misc + 5 (treinado) + 5 (foco) — ver calcSkill
-    const total = calcSkill({ level: numVal('total-level', 1), abilityMod: abilMod, misc, trained, focus });
+    const total = calcSkill({ level: numVal('total-level', 1), abilityMod: abilMod, misc, trained, focus }) - condPenalty;
 
     totalEl.textContent = total >= 0 ? '+' + total : total;
-    totalEl.title = '';
+    totalEl.classList.toggle('condition-penalized', condPenalty > 0);
+    totalEl.title = condPenalty > 0 ? `Inclui −${condPenalty} da condição` : '';
   });
 }
 
@@ -2309,10 +2328,68 @@ function recalcDamageThreshold() {
   }
 }
 
+// Renderiza o resumo de efeitos do Marcador de Condição (penalidade global em
+// ataques/testes de habilidade, deslocamento à metade, indefeso). Defesas e
+// perícias já recebem a penalidade em recalcDefenses/recalcSkills.
+function recalcConditionEffects() {
+  const box = document.getElementById('condition-effects');
+  if (!box) return;
+
+  const { penalty, halfSpeed, helpless } = getConditionEffect();
+
+  if (penalty === 0 && !helpless) {
+    box.innerHTML = '';
+    box.classList.remove('active');
+    return;
+  }
+
+  box.classList.add('active');
+
+  if (helpless) {
+    box.innerHTML = '<span class="cond-fx cond-fx-danger">Indefeso — inconsciente ou desabilitado</span>';
+    return;
+  }
+
+  const parts = [
+    `<span class="cond-fx">−${penalty} em ataques, perícias e testes de habilidade</span>`,
+    `<span class="cond-fx">−${penalty} em todas as Defesas</span>`,
+  ];
+  if (halfSpeed) parts.push('<span class="cond-fx cond-fx-danger">Deslocamento reduzido à metade</span>');
+
+  box.innerHTML = parts.join('');
+}
+
+// Normaliza o campo de deslocamento (a unidade "sq" agora é um rótulo fixo ao
+// lado do campo) e mostra o valor reduzido à metade quando a condição −10/Indefeso
+// reduz o deslocamento (SWSE, pág. 155).
+function recalcSpeed() {
+  const input = document.getElementById('speed');
+  if (!input) return;
+
+  // Remove qualquer "sq" digitado ou herdado da espécie — a unidade é fixa no HTML.
+  const cleaned = input.value.replace(/\s*sq\b/gi, '').trim();
+  if (cleaned !== input.value) input.value = cleaned;
+
+  const eff = document.getElementById('speed-effective');
+  if (!eff) return;
+
+  const { halfSpeed } = getConditionEffect();
+  const base = parseInt(cleaned, 10);
+  if (halfSpeed && !isNaN(base)) {
+    eff.textContent = `→ ${Math.floor(base / 2)} sq`;
+    eff.classList.add('active');
+  } else {
+    eff.textContent = '';
+    eff.classList.remove('active');
+  }
+}
+
 function recalcAll() {
   const mods = recalcAbilityMods();
   recalcDefenses(mods);
   recalcSkills(mods);
+  recalcConditionEffects();
+  recalcSpeed();
   recalcDamageThreshold();
   updateXpStatus();
   // Aptidões condicionais de espécie dependem de atributos/BAB/perícias treinadas

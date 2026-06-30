@@ -6,6 +6,7 @@ import {
   calcHpPerLevel,
   calcHpLevel1,
   calcMulticlassBAB,
+  conditionEffect,
 } from '../src/logic/calculations.js';
 
 // ─── Modificador de Atributo ────────────────────────────────────────────────
@@ -87,4 +88,30 @@ describe('calcMulticlassBAB', () => {
   it('uma classe → usa seu BAB', () => expect(calcMulticlassBAB([3])).toBe(3));
   it('multiclasse → usa o maior',  () => expect(calcMulticlassBAB([2, 4])).toBe(4));
   it('array vazio → 0',            () => expect(calcMulticlassBAB([])).toBe(0));
+});
+
+// ─── Marcador de Condição ────────────────────────────────────────────────────
+
+describe('conditionEffect — penalidades do marcador de condição', () => {
+  it('normal → sem penalidade', () => {
+    expect(conditionEffect('normal')).toEqual({ penalty: 0, halfSpeed: false, helpless: false });
+  });
+  it('valor desconhecido/ausente → sem penalidade', () => {
+    expect(conditionEffect(undefined)).toEqual({ penalty: 0, halfSpeed: false, helpless: false });
+  });
+  it('−1 passo → penalidade 1', () => {
+    expect(conditionEffect('-1')).toEqual({ penalty: 1, halfSpeed: false, helpless: false });
+  });
+  it('−2 passos → penalidade 2', () => {
+    expect(conditionEffect('-2')).toEqual({ penalty: 2, halfSpeed: false, helpless: false });
+  });
+  it('−5 passos → penalidade 5', () => {
+    expect(conditionEffect('-5')).toEqual({ penalty: 5, halfSpeed: false, helpless: false });
+  });
+  it('−10 passos → penalidade 10 + deslocamento à metade', () => {
+    expect(conditionEffect('-10')).toEqual({ penalty: 10, halfSpeed: true, helpless: false });
+  });
+  it('indefeso → helpless + deslocamento à metade', () => {
+    expect(conditionEffect('helpless')).toEqual({ penalty: 10, halfSpeed: true, helpless: true });
+  });
 });

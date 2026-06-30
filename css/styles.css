@@ -612,6 +612,40 @@ input[type="number"] {
   border-color: var(--danger);
 }
 
+/* Resumo automático dos efeitos da condição marcada */
+.condition-effects {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 8px;
+}
+
+.condition-effects.active {
+  margin-top: 2px;
+  padding: 8px;
+  border-top: 1px solid var(--border-bright);
+}
+
+.cond-fx {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  line-height: 1.3;
+  color: var(--danger);
+}
+
+.cond-fx-danger {
+  font-family: var(--font-head);
+  font-size: 8.5px;
+  letter-spacing: 0.06em;
+  color: var(--danger);
+  font-weight: bold;
+}
+
+/* Total de Defesa/Perícia que já embute a penalidade da condição */
+.condition-penalized {
+  color: var(--danger) !important;
+}
+
 /* ============================================================
    DEFENSES PANEL
    ============================================================ */
@@ -636,6 +670,32 @@ input[type="number"] {
 
 .base-attack-speed-row .field-input {
   width: 70px;
+}
+
+/* Campo de deslocamento: número editável + unidade "sq" fixa ao lado */
+.speed-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.base-attack-speed-row .speed-field .speed-input {
+  width: 44px;
+  text-align: center;
+}
+
+.speed-unit {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.speed-effective {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--danger);
+  white-space: nowrap;
 }
 
 .centered-input { text-align: center; }
