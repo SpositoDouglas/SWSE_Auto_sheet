@@ -418,7 +418,7 @@ function buildDarkSideTrack() {
   track.querySelectorAll('.ds-pip').forEach(p => {
     const isFall = !isNaN(wisScore) && parseInt(p.dataset.score, 10) === wisScore;
     p.classList.toggle('ds-pip-fall', isFall);
-    p.title = isFall ? 'Queda para o Lado Negro (Valor do Lado Negro = Sabedoria)' : '';
+    p.title = isFall ? 'Queda para o Lado Sombrio (Valor do Lado Sombrio = Sabedoria)' : '';
   });
 }
 
