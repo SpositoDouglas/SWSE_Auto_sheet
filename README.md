@@ -55,6 +55,7 @@ Classes/
 | Modificador de atributo | `⌊(score − 10) / 2⌋` |
 | Total de perícia | `½ nível + mod. atributo + misc + 5 (treinado) + 5 (foco)` |
 | Defesas | `10 + nível heróico + bônus de classe + mod. atributo + misc` |
+| Limite de dano | `Defesa de Fortitude + mod. tamanho` (Pequeno/Médio = Fortitude; aptidão Limite de Dano Aprimorado +5) |
 | HP inicial | `máximo do dado da classe + mod. CON` |
 | HP por nível | `rolagem do dado + mod. CON (mínimo 1)` |
 | BAB (multiclasse) | soma do BAB de cada classe no seu nível de classe |

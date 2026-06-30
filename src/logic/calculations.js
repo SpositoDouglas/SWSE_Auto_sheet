@@ -83,6 +83,19 @@ export function calcDamageBonus(charLevel) {
 }
 
 /**
+ * Calcula o Limite de Dano (SWSE, pág. 28/154).
+ * Fórmula: Defesa de Fortitude + modificador de tamanho. Para tamanho
+ * Pequeno/Médio o modificador é 0 (Limite de Dano = Fortitude). A aptidão
+ * Limite de Dano Aprimorado soma +5 por escolha (acumula).
+ *
+ * @param {{ fortDefense: number, sizeMod?: number, improvedThreshold?: number, misc?: number }} params
+ * @returns {number}
+ */
+export function calcDamageThreshold({ fortDefense, sizeMod = 0, improvedThreshold = 0, misc = 0 }) {
+  return fortDefense + sizeMod + improvedThreshold * 5 + misc;
+}
+
+/**
  * Efeitos de um passo do Marcador de Condição (SWSE, pág. 155).
  * Cada passo aplica a mesma penalidade a TODAS as Defesas, jogadas de ataque,
  * testes de habilidade e testes de perícia. O penúltimo passo (–10) também

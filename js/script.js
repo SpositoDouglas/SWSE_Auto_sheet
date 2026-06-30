@@ -6,7 +6,7 @@ import { ALL_FEATS } from '../Feats/index.js';
 import { ALL_FORCE_POWERS } from '../ForcePowers/index.js';
 import { ALL_FORCE_TALENTS } from '../ForceTalents/index.js';
 import { ALL_FORCE_TECHNIQUES, ALL_FORCE_SECRETS } from '../ForceTechniques/index.js';
-import { calcMod, calcDefense, calcSkill, calcHpPerLevel, calcHpLevel1, calcMulticlassBAB, calcDamageBonus, conditionEffect } from '../src/logic/calculations.js';
+import { calcMod, calcDefense, calcSkill, calcHpPerLevel, calcHpLevel1, calcMulticlassBAB, calcDamageBonus, calcDamageThreshold, conditionEffect } from '../src/logic/calculations.js';
 
 // ============================================================
 //  STAR WARS SAGA EDITION — FICHA ONLINE
@@ -1857,6 +1857,11 @@ function countFeat(name) {
     (t.treeKey === '__bonusFeat__' || t.treeKey === '__levelFeat__' || t.treeKey === '__speciesFeat__')
     && norm(t.talentId) === target
   ).length;
+  // Aptidões automáticas de espécie (ex.: Gamorreano → Limite de Dano Aprimorado)
+  const sp = activeSpeciesKey ? SPECIES_DATA[activeSpeciesKey] : null;
+  if (sp && Array.isArray(sp.autoFeats)) {
+    count += sp.autoFeats.filter(f => norm(f) === target).length;
+  }
   // Inputs de texto livre de aptidões
   document.querySelectorAll('[id^="feat-"]').forEach(inp => {
     if (norm(inp.value || '') === target) count++;
@@ -2460,6 +2465,8 @@ function recalcDefenses(mods) {
       const total = calcDefense({ level: heroicLevel, classBonuses: [d.clsBonus], abilityMod: abilMod, misc });
       if (totalEl) {
         totalEl.textContent = total - condPenalty;
+        // Guarda o valor base (sem penalidade de condição) p/ o Limite de Dano.
+        totalEl.dataset.base = total;
         // Realça o total e explica a discrepância com o detalhamento quando há penalidade.
         totalEl.classList.toggle('condition-penalized', condPenalty > 0);
         totalEl.title = condPenalty > 0 ? `Inclui −${condPenalty} da condição` : '';
@@ -2467,6 +2474,7 @@ function recalcDefenses(mods) {
     } else {
       if (totalEl) {
         totalEl.textContent = '—';
+        delete totalEl.dataset.base;
         totalEl.classList.remove('condition-penalized');
         totalEl.title = '';
       }
@@ -2527,15 +2535,33 @@ function getExtraSkillAbility(index) {
   return 'str';
 }
 
+// Limite de Dano (SWSE, pág. 28/154) = Defesa de Fortitude + modificador de
+// tamanho. Para tamanho Pequeno/Médio o modificador é 0, então o Limite de Dano
+// é igual à Defesa de Fortitude. A aptidão Limite de Dano Aprimorado soma +5 (e
+// acumula). O modificador de tamanho de criaturas maiores que Médio (Grande +5,
+// Enorme +10, Imenso +20, Colossal +50) entra no campo Misc.
 function recalcDamageThreshold() {
-  const fort  = numVal('dt-fort');
-  const feat  = numVal('dt-feat');
-  const misc  = numVal('dt-misc');
   const totalEl = document.getElementById('dt-total');
-  if (totalEl) {
-    const hasAny = document.getElementById('dt-fort').value || document.getElementById('dt-feat').value || document.getElementById('dt-misc').value;
-    totalEl.textContent = hasAny ? (fort + feat + misc) : '—';
+  const fortEl  = document.getElementById('dt-fort');
+  const featEl  = document.getElementById('dt-feat');
+  if (!totalEl) return;
+
+  // Usa a Defesa de Fortitude base (sem penalidade de condição), guardada por recalcDefenses.
+  const fortBase = parseInt(document.getElementById('fort-total')?.dataset.base, 10);
+  const featBonus = countFeat('Limite de Dano Aprimorado') * 5;
+  const misc = numVal('dt-misc');
+
+  if (featEl) featEl.textContent = `+${featBonus}`;
+
+  if (isNaN(fortBase)) {
+    if (fortEl) fortEl.textContent = '—';
+    totalEl.textContent = '—';
+    return;
   }
+
+  if (fortEl) fortEl.textContent = fortBase;
+  // misc carrega o modificador de tamanho (Pequeno/Médio = 0) e outros ajustes.
+  totalEl.textContent = calcDamageThreshold({ fortDefense: fortBase, improvedThreshold: countFeat('Limite de Dano Aprimorado'), misc });
 }
 
 // Renderiza o resumo de efeitos do Marcador de Condição (penalidade global em

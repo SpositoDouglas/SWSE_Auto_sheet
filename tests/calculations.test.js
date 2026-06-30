@@ -7,6 +7,7 @@ import {
   calcHpLevel1,
   calcMulticlassBAB,
   calcDamageBonus,
+  calcDamageThreshold,
   conditionEffect,
 } from '../src/logic/calculations.js';
 
@@ -104,6 +105,26 @@ describe('calcDamageBonus — metade do nível (arredondado p/ baixo)', () => {
   it('nível 11 → +5',  () => expect(calcDamageBonus(11)).toBe(5));
   it('nível 12 → +6',  () => expect(calcDamageBonus(12)).toBe(6));
   it('nível 20 → +10', () => expect(calcDamageBonus(20)).toBe(10));
+});
+
+// ─── Limite de Dano ──────────────────────────────────────────────────────────
+
+describe('calcDamageThreshold — Limite de Dano', () => {
+  it('Pequeno/Médio → igual à Defesa de Fortitude', () => {
+    expect(calcDamageThreshold({ fortDefense: 14 })).toBe(14);
+  });
+  it('com Limite de Dano Aprimorado (×1) → +5', () => {
+    expect(calcDamageThreshold({ fortDefense: 14, improvedThreshold: 1 })).toBe(19);
+  });
+  it('Limite de Dano Aprimorado acumula (×2) → +10', () => {
+    expect(calcDamageThreshold({ fortDefense: 14, improvedThreshold: 2 })).toBe(24);
+  });
+  it('modificador de tamanho Grande (+5) via misc', () => {
+    expect(calcDamageThreshold({ fortDefense: 18, misc: 5 })).toBe(23);
+  });
+  it('Colossal (+50) + aptidão + misc combinados', () => {
+    expect(calcDamageThreshold({ fortDefense: 20, sizeMod: 50, improvedThreshold: 1, misc: 2 })).toBe(77);
+  });
 });
 
 // ─── Marcador de Condição ────────────────────────────────────────────────────

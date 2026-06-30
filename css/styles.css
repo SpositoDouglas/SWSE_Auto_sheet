@@ -526,6 +526,20 @@ input[type="number"] {
 
 .thresh-input:focus { border-color: var(--border-bright); }
 
+/* Componentes calculados automaticamente do Limite de Dano (Fort, Aptidão) */
+.thresh-auto {
+  width: 42px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  color: var(--text-bright);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  padding: 4px 2px;
+}
+
 .thresh-lbl {
   font-family: var(--font-head);
   font-size: 6.5px;
