@@ -10,7 +10,7 @@ export const CLASS_SCOUNDREL = {
   trainedSkillsBase: 4,
   defenseBonus: { fort: 0, ref: 2, will: 1 },
   baseAttack: [0,1,2,3,3,4,5,6,6,7,8,9,9,10,11,11,12,12,13,15],
-  classSkills: ['acrobatics','know1','know2','know3','know4','deception','stealth','initiative','mechanics','gatherInfo','perception','pilot','useComputer'],
+  classSkills: ['acrobatics','knowBureaucracy','knowGalactic','knowLifeSci','knowPhysSci','knowSocialSci','knowTactics','knowTech','deception','stealth','initiative','mechanics','gatherInfo','perception','pilot','useComputer'],
   startingFeats: [
     'Tiro à Queima-Roupa',
     'Proficiência com Armas (Pistolas)',

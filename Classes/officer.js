@@ -23,7 +23,7 @@ export const CLASS_OFFICER = {
   trainedSkillsBase: 0,
   defenseBonus: { fort: 0, ref: 2, will: 4 },
   baseAttack: [1,2,3,4,5,6,7,8,9,10],
-  classSkills: ['gatherInfo','initiative','know1','know2','know3','know4','perception','persuasion','pilot','useComputer'],
+  classSkills: ['gatherInfo','initiative','knowBureaucracy','knowGalactic','knowLifeSci','knowPhysSci','knowSocialSci','knowTactics','knowTech','perception','persuasion','pilot','useComputer'],
   startingFeats: [],
   levelFeatures: {
     1:  ['defenseBonus', 'talent'],

@@ -10,7 +10,7 @@ export const CLASS_SCOUT = {
   trainedSkillsBase: 5,
   defenseBonus: { fort: 1, ref: 2, will: 0 },
   baseAttack: [0,1,2,3,3,4,5,6,6,7,8,9,9,10,11,12,12,13,14,15],
-  classSkills: ['ride','know1','know2','know3','know4','climb','stealth','initiative','mechanics','swim','perception','pilot','endurance','jump','survival'],
+  classSkills: ['ride','knowBureaucracy','knowGalactic','knowLifeSci','knowPhysSci','knowSocialSci','knowTactics','knowTech','climb','stealth','initiative','mechanics','swim','perception','pilot','endurance','jump','survival'],
   startingFeats: [
     'Recuperação Rápida',
     'Proficiência com Armas (Pistolas)',

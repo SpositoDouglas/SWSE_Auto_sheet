@@ -109,10 +109,13 @@ function escTooltip(text) {
 // ============================================================
 const SKILLS = [
   { id: 'acrobatics',   name: 'Acrobacia',           ability: 'dex', armorPenalty: true,  trainedOnly: false },
-  { id: 'know1',        name: 'Conhecimento',        ability: 'int', armorPenalty: false, trainedOnly: true,  custom: true },
-  { id: 'know2',        name: 'Conhecimento',        ability: 'int', armorPenalty: false, trainedOnly: true,  custom: true },
-  { id: 'know3',        name: 'Conhecimento',        ability: 'int', armorPenalty: false, trainedOnly: true,  custom: true },
-  { id: 'know4',        name: 'Conhecimento',        ability: 'int', armorPenalty: false, trainedOnly: true,  custom: true },
+  { id: 'knowBureaucracy', name: 'Conhecimento (Burocracia)',        ability: 'int', armorPenalty: false, trainedOnly: true, desc: 'Procedimentos em negócios, sistemas legais e regulamentos, e estrutura organizacional.' },
+  { id: 'knowGalactic',    name: 'Conhecimento (Galáctico)',         ability: 'int', armorPenalty: false, trainedOnly: true, desc: 'Planetas, planeta natal, setores do espaço, história galáctica e a Força.' },
+  { id: 'knowLifeSci',     name: 'Conhecimento (C. Biológicas)', ability: 'int', armorPenalty: false, trainedOnly: true, desc: 'Biologia, botânica, genética, arqueologia, xenobiologia, medicina e medicina forense.' },
+  { id: 'knowPhysSci',     name: 'Conhecimento (C. Físicas)',  ability: 'int', armorPenalty: false, trainedOnly: true, desc: 'Astronomia, astronavegação, química, matemática, física e engenharia.' },
+  { id: 'knowSocialSci',   name: 'Conhecimento (C. Sociais)',  ability: 'int', armorPenalty: false, trainedOnly: true, desc: 'Sociologia, psicologia, filosofia, teologia e criminologia.' },
+  { id: 'knowTactics',     name: 'Conhecimento (Táticas)',           ability: 'int', armorPenalty: false, trainedOnly: true, desc: 'Técnicas e estratégias para posicionar e manobrar forças em combate.' },
+  { id: 'knowTech',        name: 'Conhecimento (Tecnologia)',        ability: 'int', armorPenalty: false, trainedOnly: true, desc: 'Função e princípios dos aparelhos tecnológicos, além de teorias de ponta e avanços.' },
   { id: 'deception',    name: 'Dissimulação',        ability: 'cha', armorPenalty: false, trainedOnly: false },
   { id: 'climb',        name: 'Escalar',             ability: 'str', armorPenalty: true,  trainedOnly: false },
   { id: 'stealth',      name: 'Furtividade',         ability: 'dex', armorPenalty: true,  trainedOnly: false },
@@ -294,6 +297,7 @@ function buildSkillRow(skill, container) {
       nameCell.appendChild(mSpan);
     }
     nameSpan.textContent = skill.name;
+    if (skill.desc) nameSpan.title = skill.desc;
     nameCell.appendChild(nameSpan);
   }
 
@@ -718,14 +722,9 @@ function checkFeatPrereqs(featName) {
   }
 
   if (p.trainedSkills) {
-    const skillNames = {
-      acrobatics: 'Acrobacia', pilot: 'Pilotar', treatInjury: 'Tratar Ferimentos',
-      endurance: 'Tolerância', useTheForce: 'Usar a Força', mechanics: 'Mecânica',
-      perception: 'Percepção', stealth: 'Furtividade', persuasion: 'Persuasão',
-    };
     for (const skillId of p.trainedSkills) {
       if (!isSkillTrained(skillId)) {
-        missing.push('Treinado em ' + (skillNames[skillId] || skillId));
+        missing.push('Treinado em ' + skillDisplayName(skillId));
       }
     }
   }
@@ -882,7 +881,7 @@ function getDarkSideScore() {
 function conditionalFeatMet(cf) {
   if (cf.requiresTrained && !isSkillTrained(cf.requiresTrained)) return false;
   if (cf.requiresAnyKnowledge) {
-    const anyKnow = ['know1','know2','know3','know4'].some(id => isSkillTrained(id));
+    const anyKnow = SKILLS.filter(s => s.id.startsWith('know')).some(s => isSkillTrained(s.id));
     if (!anyKnow) return false;
   }
   const { locked } = checkFeatPrereqs(cf.feat);

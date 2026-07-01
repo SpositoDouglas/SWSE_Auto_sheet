@@ -296,11 +296,48 @@ export const ALL_FEATS = {
     speciesOnly: true,
   },
 
-  'Foco em Perícia (Conhecimentos [Ciências Biológicas])': {
-    description: 'Você recebe +5 de bônus de competência em testes de Conhecimentos (Ciências Biológicas).',
-    prereqText: 'Conhecimentos (Ciências Biológicas) treinado (traço de espécie Ithoriano)',
-    prereqs: {},
-    speciesOnly: true,
+  // Foco em Perícia para cada perícia de Conhecimento — exige treino na perícia
+  // específica (fica disponível assim que você treina o Conhecimento correspondente).
+  'Foco em Perícia (Burocracia)': {
+    description: 'Você recebe +5 de bônus de competência em testes de Conhecimento (Burocracia).',
+    prereqText: 'Conhecimento (Burocracia) treinado',
+    prereqs: { trainedSkills: ['knowBureaucracy'] },
+  },
+
+  'Foco em Perícia (Conhecimento Galáctico)': {
+    description: 'Você recebe +5 de bônus de competência em testes de Conhecimento (Galáctico).',
+    prereqText: 'Conhecimento (Galáctico) treinado',
+    prereqs: { trainedSkills: ['knowGalactic'] },
+  },
+
+  'Foco em Perícia (Ciências Biológicas)': {
+    description: 'Você recebe +5 de bônus de competência em testes de Conhecimento (Ciências Biológicas).',
+    prereqText: 'Conhecimento (Ciências Biológicas) treinado',
+    prereqs: { trainedSkills: ['knowLifeSci'] },
+  },
+
+  'Foco em Perícia (Ciências Físicas)': {
+    description: 'Você recebe +5 de bônus de competência em testes de Conhecimento (Ciências Físicas).',
+    prereqText: 'Conhecimento (Ciências Físicas) treinado',
+    prereqs: { trainedSkills: ['knowPhysSci'] },
+  },
+
+  'Foco em Perícia (Ciências Sociais)': {
+    description: 'Você recebe +5 de bônus de competência em testes de Conhecimento (Ciências Sociais).',
+    prereqText: 'Conhecimento (Ciências Sociais) treinado',
+    prereqs: { trainedSkills: ['knowSocialSci'] },
+  },
+
+  'Foco em Perícia (Táticas)': {
+    description: 'Você recebe +5 de bônus de competência em testes de Conhecimento (Táticas).',
+    prereqText: 'Conhecimento (Táticas) treinado',
+    prereqs: { trainedSkills: ['knowTactics'] },
+  },
+
+  'Foco em Perícia (Tecnologia)': {
+    description: 'Você recebe +5 de bônus de competência em testes de Conhecimento (Tecnologia).',
+    prereqText: 'Conhecimento (Tecnologia) treinado',
+    prereqs: { trainedSkills: ['knowTech'] },
   },
 
   'Fúria Nata': {

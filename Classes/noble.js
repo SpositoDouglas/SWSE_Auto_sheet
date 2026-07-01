@@ -10,7 +10,7 @@ export const CLASS_NOBLE = {
   trainedSkillsBase: 6,
   defenseBonus: { fort: 0, ref: 1, will: 2 },
   baseAttack: [0,1,2,3,3,4,5,6,6,7,8,9,9,10,11,12,12,13,14,15],
-  classSkills: ['ride','know1','know2','know3','know4','deception','initiative','gatherInfo','persuasion','pilot','treatInjury','useComputer'],
+  classSkills: ['ride','knowBureaucracy','knowGalactic','knowLifeSci','knowPhysSci','knowSocialSci','knowTactics','knowTech','deception','initiative','gatherInfo','persuasion','pilot','treatInjury','useComputer'],
   startingFeats: [
     'Linguista',
     'Proficiência com Armas (Pistolas)',

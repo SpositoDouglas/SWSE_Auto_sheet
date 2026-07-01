@@ -22,7 +22,7 @@ export const CLASS_SITH_LORD = {
   trainedSkillsBase: 0,
   defenseBonus: { fort: 3, ref: 3, will: 3 },
   baseAttack: [1,2,3,4,5],
-  classSkills: ['deception','initiative','know1','know2','know3','know4','perception','persuasion','useTheForce'],
+  classSkills: ['deception','initiative','knowBureaucracy','knowGalactic','knowLifeSci','knowPhysSci','knowSocialSci','knowTactics','knowTech','perception','persuasion','useTheForce'],
   startingFeats: [],
   levelFeatures: {
     1:  ['defenseBonus', 'dauntless', 'temptation', 'talent'],

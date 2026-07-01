@@ -21,7 +21,7 @@ export const CLASS_JEDI_KNIGHT = {
   trainedSkillsBase: 0,
   defenseBonus: { fort: 2, ref: 2, will: 2 },
   baseAttack: [1,2,3,4,5,6,7,8,9,10],
-  classSkills: ['acrobatics','initiative','know1','know2','know3','know4','mechanics','perception','pilot','jump','endurance','useTheForce'],
+  classSkills: ['acrobatics','initiative','knowBureaucracy','knowGalactic','knowLifeSci','knowPhysSci','knowSocialSci','knowTactics','knowTech','mechanics','perception','pilot','jump','endurance','useTheForce'],
   startingFeats: [],
   levelFeatures: {
     1:  ['defenseBonus', 'talent'],

@@ -22,7 +22,7 @@ export const CLASS_SITH_APPRENTICE = {
   trainedSkillsBase: 0,
   defenseBonus: { fort: 2, ref: 2, will: 2 },
   baseAttack: [1,2,3,4,5,6,7,8,9,10],
-  classSkills: ['acrobatics','deception','initiative','know1','know2','know3','know4','perception','persuasion','useTheForce'],
+  classSkills: ['acrobatics','deception','initiative','knowBureaucracy','knowGalactic','knowLifeSci','knowPhysSci','knowSocialSci','knowTactics','knowTech','perception','persuasion','useTheForce'],
   startingFeats: [],
   levelFeatures: {
     1:  ['defenseBonus', 'talent'],

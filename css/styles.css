@@ -1048,6 +1048,7 @@ input[type="number"] {
   display: flex;
   align-items: center;
   gap: 3px;
+  min-width: 0; /* deixa a coluna 1fr encolher em vez de empurrar as colunas fixas */
 }
 
 .skill-name {
@@ -1057,6 +1058,8 @@ input[type="number"] {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0; /* habilita o text-overflow: ellipsis dentro do flex */
+  flex: 0 1 auto;
 }
 
 .skill-marker {

@@ -26,7 +26,7 @@ export const CLASS_FORCE_DISCIPLE = {
   trainedSkillsBase: 0,
   defenseBonus: { fort: 3, ref: 3, will: 6 },
   baseAttack: [0,1,2,3,3],
-  classSkills: ['initiative','know1','know2','know3','know4','perception','persuasion','useTheForce'],
+  classSkills: ['initiative','knowBureaucracy','knowGalactic','knowLifeSci','knowPhysSci','knowSocialSci','knowTactics','knowTech','perception','persuasion','useTheForce'],
   startingFeats: [],
   levelFeatures: {
     1:  ['defenseBonus', 'indomitable', 'prophet', 'talent'],

@@ -10,7 +10,7 @@ export const CLASS_SOLDIER = {
   trainedSkillsBase: 3,
   defenseBonus: { fort: 2, ref: 1, will: 0 },
   baseAttack: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
-  classSkills: ['know1','climb','initiative','mechanics','swim','perception','pilot','endurance','jump','treatInjury','useComputer'],
+  classSkills: ['knowTactics','climb','initiative','mechanics','swim','perception','pilot','endurance','jump','treatInjury','useComputer'],
   startingFeats: [
     'Proficiência com Armas (Armas Simples)',
     'Proficiência com Armas (Pistolas)',

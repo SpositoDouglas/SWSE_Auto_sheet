@@ -20,7 +20,7 @@ export const CLASS_BOUNTY_HUNTER = {
   trainedSkillsBase: 0,
   defenseBonus: { fort: 2, ref: 4, will: 0 },
   baseAttack: [0,1,2,3,4,5,6,8,9,10],
-  classSkills: ['initiative','know1','know2','know3','know4','gatherInfo','mechanics','perception','persuasion','pilot','stealth','survival'],
+  classSkills: ['initiative','knowBureaucracy','knowGalactic','knowLifeSci','knowPhysSci','knowSocialSci','knowTactics','knowTech','gatherInfo','mechanics','perception','persuasion','pilot','stealth','survival'],
   startingFeats: [],
   levelFeatures: {
     1:  ['defenseBonus', 'talent'],

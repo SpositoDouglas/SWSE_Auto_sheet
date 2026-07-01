@@ -16,7 +16,7 @@ export const CLASS_FORCE_ADEPT = {
   trainedSkillsBase: 0,
   defenseBonus: { fort: 2, ref: 2, will: 4 },
   baseAttack: [0,1,2,3,3,4,5,6,6,7],
-  classSkills: ['deception','initiative','know1','know2','know3','know4','perception','persuasion','survival','treatInjury','useTheForce'],
+  classSkills: ['deception','initiative','knowBureaucracy','knowGalactic','knowLifeSci','knowPhysSci','knowSocialSci','knowTactics','knowTech','perception','persuasion','survival','treatInjury','useTheForce'],
   startingFeats: [],
   levelFeatures: {
     1:  ['defenseBonus', 'talent'],
