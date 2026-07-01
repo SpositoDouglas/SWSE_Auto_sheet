@@ -19,6 +19,7 @@ export const CLASS_SITH_APPRENTICE = {
   },
   hitDie: 10,
   startingHP: 10,
+  forcePointsBase: 6,      // Pontos da Força/nível = 6 + ½ nível (prestígio)
   trainedSkillsBase: 0,
   defenseBonus: { fort: 2, ref: 2, will: 2 },
   baseAttack: [1,2,3,4,5,6,7,8,9,10],

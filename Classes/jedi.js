@@ -7,6 +7,7 @@ export const CLASS_JEDI = {
   description: 'O Jedi combina treinamento físico com o domínio da Força. Os Jedi concentram-se nas virtudes em combate, na defesa, e no treinamento com sabre-de-luz. Eles também são os embaixadores da Ordem Jedi, protegendo a República de todos os perigos. Poucos são fortes o bastante na Força e possuem a devoção necessária para seguir o caminho Jedi, mas esses poucos são recompensados com uma poderosa aliada.',
   hitDie: 10,
   startingHP: 30,
+  forcePointsBase: 5,      // Pontos da Força/nível = 5 + ½ nível (classe base)
   trainedSkillsBase: 2,
   defenseBonus: { fort: 1, ref: 1, will: 1 },
   baseAttack: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],

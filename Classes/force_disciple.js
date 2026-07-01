@@ -23,6 +23,7 @@ export const CLASS_FORCE_DISCIPLE = {
   },
   hitDie: 8,
   startingHP: 8,
+  forcePointsBase: 7,      // Pontos da Força/nível = 7 + ½ nível (forte conexão com a Força)
   trainedSkillsBase: 0,
   defenseBonus: { fort: 3, ref: 3, will: 6 },
   baseAttack: [0,1,2,3,3],

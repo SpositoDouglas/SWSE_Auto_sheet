@@ -16,6 +16,7 @@ export const CLASS_CRIME_LORD = {
   },
   hitDie: 8,
   startingHP: 8,
+  forcePointsBase: 6,      // Pontos da Força/nível = 6 + ½ nível (prestígio)
   trainedSkillsBase: 0,
   defenseBonus: { fort: 0, ref: 2, will: 4 },
   baseAttack: [0,1,2,3,3,4,5,6,6,7],

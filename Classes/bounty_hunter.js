@@ -17,6 +17,7 @@ export const CLASS_BOUNTY_HUNTER = {
   },
   hitDie: 10,
   startingHP: 10,
+  forcePointsBase: 6,      // Pontos da Força/nível = 6 + ½ nível (prestígio)
   trainedSkillsBase: 0,
   defenseBonus: { fort: 2, ref: 4, will: 0 },
   baseAttack: [0,1,2,3,4,5,6,8,9,10],

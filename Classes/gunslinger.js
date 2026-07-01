@@ -21,6 +21,7 @@ export const CLASS_GUNSLINGER = {
   },
   hitDie: 8,
   startingHP: 8,
+  forcePointsBase: 6,      // Pontos da Força/nível = 6 + ½ nível (prestígio)
   trainedSkillsBase: 0,
   defenseBonus: { fort: 0, ref: 4, will: 2 },
   baseAttack: [1,2,3,4,5,6,7,8,9,10],

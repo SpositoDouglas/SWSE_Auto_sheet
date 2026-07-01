@@ -6,7 +6,7 @@ import { ALL_FEATS } from '../Feats/index.js';
 import { ALL_FORCE_POWERS } from '../ForcePowers/index.js';
 import { ALL_FORCE_TALENTS } from '../ForceTalents/index.js';
 import { ALL_FORCE_TECHNIQUES, ALL_FORCE_SECRETS } from '../ForceTechniques/index.js';
-import { calcMod, calcDefense, calcSkill, calcHpPerLevel, calcHpLevel1, calcMulticlassBAB, calcDamageBonus, calcDamageThreshold, conditionEffect } from '../src/logic/calculations.js';
+import { calcMod, calcDefense, calcSkill, calcHpPerLevel, calcHpLevel1, calcMulticlassBAB, calcDamageBonus, calcDamageThreshold, calcForcePoints, conditionEffect } from '../src/logic/calculations.js';
 
 // ============================================================
 //  STAR WARS SAGA EDITION — FICHA ONLINE
@@ -150,6 +150,11 @@ let acquiredForcePowers = [];
 let acquiredForceTechniques = [];
 let acquiredForceSecrets    = [];
 let pendingLevelUp   = null; // {classKey, charLevel, isNew} while waiting HP roll
+// Último máximo de Pontos da Força calculado. Serve para redefinir o campo
+// #force-points ao subir de nível / trocar a classe do último nível / mudar a
+// aptidão Favorecido pela Força, SEM apagar o valor gasto em recálculos comuns.
+// null = ainda não semeado (1ª chamada após load/nova ficha).
+let lastForcePointsMax = null;
 
 const EXTRA_SKILLS_COUNT = 4;
 const WEAPONS_COUNT      = 5;
@@ -2655,6 +2660,46 @@ function recalcDamageBonus() {
   el.textContent = bonus >= 0 ? `+${bonus}` : `${bonus}`;
 }
 
+// Pontos da Força (SWSE, pág. 96). A cada novo nível o personagem perde os
+// pontos restantes e redefine o total para: base(classe do último nível) +
+// ½ nível + (Favorecido pela Força ? 3 : 0). O campo continua editável para o
+// jogador marcar gastos durante o jogo; só é redefinido quando o MÁXIMO muda
+// (level-up, troca da classe do último nível, pegar/largar a aptidão).
+function recalcForcePoints() {
+  const el = document.getElementById('force-points');
+  if (!el) return;
+
+  // Classe do último nível ganho; fallback: classe de maior nível.
+  let classKey = null;
+  if (hpByLevel.length) {
+    classKey = hpByLevel[hpByLevel.length - 1].classKey;
+  } else if (classLevels.length) {
+    classKey = classLevels.reduce((a, b) => (b.level > a.level ? b : a)).classKey;
+  }
+  const cls = classKey ? ALL_CLASSES[classKey] : null;
+  if (!cls) return; // sem classe definida → não mexe no campo
+
+  const base      = cls.forcePointsBase ?? 5;
+  const charLevel = getCharLevel() || numVal('total-level', 1);
+  const favored   = countFeat('Favorecido pela Força') > 0;
+  const max       = calcForcePoints({ base, charLevel, favored });
+
+  el.title = `Máx. do nível: ${base} (base) + ${Math.floor(charLevel / 2)} (½ nível)`
+    + (favored ? ' + 3 (Favorecido pela Força)' : '') + ` = ${max}`;
+
+  if (lastForcePointsMax === null) {
+    // 1ª chamada após load/nova ficha: semeia sem sobrescrever um valor já
+    // restaurado; preenche só se o campo estiver vazio.
+    lastForcePointsMax = max;
+    if (el.value === '') el.value = max;
+    return;
+  }
+  if (max !== lastForcePointsMax) {
+    el.value = max; // level-up / troca de classe / aptidão → redefine para o máximo
+    lastForcePointsMax = max;
+  }
+}
+
 function recalcAll() {
   const mods = recalcAbilityMods();
   recalcDefenses(mods);
@@ -2663,6 +2708,7 @@ function recalcAll() {
   recalcSpeed();
   recalcDamageBonus();
   recalcDamageThreshold();
+  recalcForcePoints();
   updateXpStatus();
   // Aptidões condicionais de espécie dependem de atributos/BAB/perícias treinadas
   buildBonusFeatsDisplay();
@@ -2772,6 +2818,9 @@ function restoreData(data) {
     acquiredForceSecrets    = data['__acquiredForceSecrets']    ? JSON.parse(data['__acquiredForceSecrets'])    : [];
   } catch { classLevels = []; hpByLevel = []; acquiredTalents = []; acquiredForcePowers = []; acquiredForceTechniques = []; acquiredForceSecrets = []; }
 
+  // Re-semeia o máximo de Pontos da Força a partir do estado restaurado sem
+  // sobrescrever o valor salvo (possivelmente já gasto) no campo #force-points.
+  lastForcePointsMax = null;
   recalcAll();
   buildClassSection();
   buildTalentsDisplay();
@@ -2978,6 +3027,7 @@ function newCharacter() {
   acquiredForceTechniques = [];
   acquiredForceSecrets    = [];
   pendingLevelUp  = null;
+  lastForcePointsMax = null; // re-semeia os Pontos da Força na nova ficha
   const hpPanel   = document.getElementById('hp-roll-panel');
   if (hpPanel) hpPanel.style.display = 'none';
 

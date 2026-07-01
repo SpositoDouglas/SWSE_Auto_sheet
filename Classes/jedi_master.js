@@ -18,6 +18,7 @@ export const CLASS_JEDI_MASTER = {
   },
   hitDie: 10,
   startingHP: 10,
+  forcePointsBase: 7,      // Pontos da Força/nível = 7 + ½ nível (forte conexão com a Força)
   trainedSkillsBase: 0,
   defenseBonus: { fort: 3, ref: 3, will: 3 },
   baseAttack: [1,2,3,4,5],

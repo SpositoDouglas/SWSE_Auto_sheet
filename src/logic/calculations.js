@@ -96,6 +96,21 @@ export function calcDamageThreshold({ fortDefense, sizeMod = 0, improvedThreshol
 }
 
 /**
+ * Calcula os Pontos da Força do nível atual (SWSE, pág. 96).
+ * Fórmula: base + ½ nível de personagem (arredondado p/ baixo) + (Favorecido pela
+ * Força ? 3 : 0). O `base` depende da classe do último nível ganho: 5 para as
+ * classes base, 6 para a maioria das classes de prestígio e 7 para as de forte
+ * conexão com a Força (Discípulo da Força, Mestre Jedi, Lorde Sith). A cada novo
+ * nível os pontos restantes são perdidos e o total é redefinido para este valor.
+ *
+ * @param {{ base: number, charLevel: number, favored?: boolean }} params
+ * @returns {number}
+ */
+export function calcForcePoints({ base, charLevel, favored = false }) {
+  return base + Math.floor(charLevel / 2) + (favored ? 3 : 0);
+}
+
+/**
  * Efeitos de um passo do Marcador de Condição (SWSE, pág. 155).
  * Cada passo aplica a mesma penalidade a TODAS as Defesas, jogadas de ataque,
  * testes de habilidade e testes de perícia. O penúltimo passo (–10) também

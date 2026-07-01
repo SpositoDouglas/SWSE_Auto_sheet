@@ -7,6 +7,7 @@ export const CLASS_SCOUNDREL = {
   description: 'Malandros são ladinos – bons, maus, e neutros – que vivem à margem da lei ou lutam contra ela para atingir algum objetivo maior. Eles podem vir de qualquer planeta ou região da galáxia. Muitos usam sua sagacidade e destreza para realizar tarefas e muitos contam com seu carisma como um plano b quando tudo o mais falha. Os malandros sobrevivem com ousadia, esperteza, trapaça e duas caras. Eles atuam por seu bom senso, por mentiras, trapaças, roubos, e até mesmo lutando quando se faz necessário.',
   hitDie: 6,
   startingHP: 18,
+  forcePointsBase: 5,      // Pontos da Força/nível = 5 + ½ nível (classe base)
   trainedSkillsBase: 4,
   defenseBonus: { fort: 0, ref: 2, will: 1 },
   baseAttack: [0,1,2,3,3,4,5,6,6,7,8,9,9,10,11,11,12,12,13,15],

@@ -7,6 +7,7 @@ export const CLASS_SCOUT = {
   description: 'Os batedores são exploradores e aventureiros naturais cheios de curiosidade e treinados para todo tipo de situação nos ambientes onde geralmente operam. Os batedores tendem a ser independentes, alistando-se onde os pagamentos são generosos e suas habilidades são melhores utilizadas e testadas. Eles sabem como reconhecer o perigo e localizar o básico necessário para a sobrevivência. O batedor busca conhecimento, tentando resolver mistérios, e procura ser sempre o primeiro a ver algo novo e diferente.',
   hitDie: 8,
   startingHP: 24,
+  forcePointsBase: 5,      // Pontos da Força/nível = 5 + ½ nível (classe base)
   trainedSkillsBase: 5,
   defenseBonus: { fort: 1, ref: 2, will: 0 },
   baseAttack: [0,1,2,3,3,4,5,6,6,7,8,9,9,10,11,12,12,13,14,15],

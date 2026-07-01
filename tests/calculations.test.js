@@ -8,6 +8,7 @@ import {
   calcMulticlassBAB,
   calcDamageBonus,
   calcDamageThreshold,
+  calcForcePoints,
   conditionEffect,
 } from '../src/logic/calculations.js';
 
@@ -124,6 +125,42 @@ describe('calcDamageThreshold — Limite de Dano', () => {
   });
   it('Colossal (+50) + aptidão + misc combinados', () => {
     expect(calcDamageThreshold({ fortDefense: 20, sizeMod: 50, improvedThreshold: 1, misc: 2 })).toBe(77);
+  });
+});
+
+// ─── Pontos da Força ─────────────────────────────────────────────────────────
+
+describe('calcForcePoints — Pontos da Força por nível', () => {
+  // Classes base (5 + ½ nível)
+  it('classe base, nível 1 → 5 + ⌊1/2⌋ = 5', () => {
+    expect(calcForcePoints({ base: 5, charLevel: 1 })).toBe(5);
+  });
+  it('classe base (Soldado 5), nível 5 → 5 + ⌊5/2⌋ = 7', () => {
+    expect(calcForcePoints({ base: 5, charLevel: 5 })).toBe(7);
+  });
+  it('nível ímpar arredonda ½ para baixo (nível 3) → 5 + 1 = 6', () => {
+    expect(calcForcePoints({ base: 5, charLevel: 3 })).toBe(6);
+  });
+
+  // Classes de prestígio (6 + ½ nível)
+  it('prestígio comum (base 6), nível 8 → 6 + 4 = 10', () => {
+    expect(calcForcePoints({ base: 6, charLevel: 8 })).toBe(10);
+  });
+
+  // Classes de prestígio poderosas (7 + ½ nível)
+  it('prestígio poderoso (base 7), nível 8 → 7 + 4 = 11', () => {
+    expect(calcForcePoints({ base: 7, charLevel: 8 })).toBe(11);
+  });
+
+  // Favorecido pela Força (+3)
+  it('Favorecido pela Força soma +3 (base 5, nível 1) → 8', () => {
+    expect(calcForcePoints({ base: 5, charLevel: 1, favored: true })).toBe(8);
+  });
+  it('Favorecido com prestígio poderoso (base 7, nível 8) → 14', () => {
+    expect(calcForcePoints({ base: 7, charLevel: 8, favored: true })).toBe(14);
+  });
+  it('favored: false é o padrão (sem +3)', () => {
+    expect(calcForcePoints({ base: 6, charLevel: 8, favored: false })).toBe(10);
   });
 });
 

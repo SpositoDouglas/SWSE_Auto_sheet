@@ -7,6 +7,7 @@ export const CLASS_SOLDIER = {
   description: 'Os soldados combinam disciplina com habilidades marciais para se tornarem os melhores combatentes na galáxia. Soldados podem ser leais defensores daqueles em necessidade, saqueadores cruéis, ou bravos aventureiros. Também podem ser mercenários, campeões da nobreza, ou assassinos de coração frio. Eles lutam por glória, por honra, para fazer a coisa certa, para ganhar poder, para adquirir riquezas ou simplesmente pela emoção da batalha.',
   hitDie: 10,
   startingHP: 30,
+  forcePointsBase: 5,      // Pontos da Força/nível = 5 + ½ nível (classe base)
   trainedSkillsBase: 3,
   defenseBonus: { fort: 2, ref: 1, will: 0 },
   baseAttack: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],

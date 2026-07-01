@@ -7,6 +7,7 @@ export const CLASS_NOBLE = {
   description: 'Os membros da classe nobre empregam sua inteligência e carisma naturais para trilhar seu caminho pela galáxia. Da verdadeira realeza aos oficialmente eleitos, comandantes militares a senhores do crime, comerciantes, mercadores, embaixadores, astros do holovídeo e magnatas de corporações influentes, os tipos de personagens que aparecem na classe nobre são variados e numerosos. Com um sorriso vencedor, uma língua afiada, uma poderosa mensagem, ou a promessa de cumprir seus compromissos, o nobre comanda com respeito, faz amigos, e inevitavelmente influencia as pessoas.',
   hitDie: 6,
   startingHP: 18,
+  forcePointsBase: 5,      // Pontos da Força/nível = 5 + ½ nível (classe base)
   trainedSkillsBase: 6,
   defenseBonus: { fort: 0, ref: 1, will: 2 },
   baseAttack: [0,1,2,3,3,4,5,6,6,7,8,9,9,10,11,12,12,13,14,15],
